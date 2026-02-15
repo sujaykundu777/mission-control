@@ -1,0 +1,299 @@
+# Mission Control
+
+👉 Control panel + finance tracker + infra dashboard + automation hub for freelancers, agencies, and indie devs.
+👉 “Single source of truth for developer infra + recurring costs.”
+
+“Developer Business OS”
+“Infra + Finance Control Panel for Web Devs”
+“Mission Control for Freelancers”
+
+🧠 Core Vision — Dev Business OS
+
+“Where is my money, infrastructure, clients, and subscriptions — all in one place?”
+
+### In Progress
+Before:
+
+User says:
+
+“I forget what domains/hosting I own and when I’m paying for them.”
+
+Outcome/After :
+
+User says:
+
+👉 “Finally, I know what I’m paying for.”
+
+### Features to build:
+
+✅ Domain tracker
+✅ Hosting/subscription tracker
+✅ Renewal alerts
+✅ Expense dashboard
+✅ Client tagging
+
+Tech stack:
+	•	Frontend → Next.js dashboard
+	•	DB → PostgreSQL
+	•	Auth → Email/password
+	•	Cron → Renewal alerts
+    •   Docker
+
+You know it’s working when users:
+
+✅ Add 5+ domains
+✅ Track monthly expenses
+✅ Return for renewal alerts
+
+### Phase 1 :
+✅ Feature 1 — Domain Inventory Tracker
+
+Core MVP pillar.
+
+User can:
+	•	Add domains manually
+	•	Registrar name
+	•	Renewal date
+	•	Renewal cost
+	•	Auto reminder flags
+	•	Client association
+
+Dashboard shows:
+	•	Upcoming renewals
+	•	Total domain cost/month
+
+✅ Feature 2 — Hosting & Subscription Tracker
+
+Generic tracker for:
+	•	VPS
+	•	SaaS tools
+	•	APIs
+
+Fields:
+	•	Provider
+	•	Monthly/yearly cost
+	•	Renewal date
+	•	Notes
+
+Example providers users might track:
+	•	DigitalOcean
+	•	Vercel
+	•	Cloudflare
+
+Dashboard:
+	•	Monthly burn rate
+	•	Upcoming payments
+
+⸻
+
+✅ Feature 3 — Renewal Alert Engine
+
+Simple but powerful:
+	•	Email reminder
+	•	Dashboard alert
+	•	Renewal countdown
+
+This creates habit + stickiness.
+
+⸻
+
+✅ Feature 4 — Expense Dashboard
+
+Visual summary:
+	•	Total infra cost/month
+	•	Domain vs hosting breakdown
+	•	Upcoming renewal calendar
+
+No fancy analytics yet — just clarity.
+
+⸻
+
+✅ Feature 5 — Client Tagging
+
+Let users:
+	•	Assign domains/subscriptions to clients
+	•	See cost per client
+
+Huge win for freelancers.
+
+### Phase 2
+
+✅ Auto Renewal Intelligence
+	•	Renewal priority alerts
+	•	Risk scoring
+	•	Expired asset warnings
+
+⸻
+
+✅ Basic Analytics
+	•	Monthly spending trends
+	•	Cost by provider
+	•	Client profitability view
+
+⸻
+
+✅ Provider Templates
+
+Quick add buttons:
+	•	AWS
+	•	Supabase
+	•	Namecheap
+
+Speeds onboarding.
+
+⸻
+
+✅ Notes + Credential Vault (Lite)
+
+Store:
+	•	Domain login notes
+	•	Hosting credentials reference
+
+(Not full password manager yet.)
+
+
+
+### Roadmap
+
+✅ Domain Manager
+	•	Track all domains across registrars
+	•	Renewal reminders
+	•	Expiry risk alerts
+	•	WHOIS snapshot
+	•	DNS viewer
+	•	Domain cost tracking
+	•	Profit tracking (for resellers)
+
+Advanced:
+	•	Auto price comparison across registrars
+	•	Domain portfolio analytics
+
+✅ Hosting Infrastructure Dashboard
+
+Central place to monitor:
+	•	VPS servers
+	•	Shared hosting
+	•	Cloud accounts
+	•	Expiry dates
+	•	Monthly costs
+
+Integrations:
+	•	DigitalOcean
+	•	Vercel
+	•	Cloudflare
+	•	AWS
+
+Advanced:
+	•	Server health tracking
+	•	Deployment logs viewer
+	•	Usage alerts
+
+✅ Subscription Tracker
+
+Track:
+	•	Domains
+	•	Hosting
+	•	SaaS tools
+	•	APIs
+
+Features:
+	•	Recurring billing calendar
+	•	Monthly burn rate
+	•	Expense categorization
+	•	Renewal alerts
+
+✅ Client Cost & Profit Dashboard
+
+For freelancers/agencies:
+	•	Client hosting cost tracking
+	•	Domain resale margins
+	•	Project profitability
+	•	Invoice reminders
+
+Advanced:
+	•	Per-client infra profit analytics
+
+
+### Dev Tool Integrations Hub
+
+One login → multiple ecosystems.
+
+Integrations:
+	•	GitHub repos overview
+	•	Supabase projects
+	•	Stripe revenue tracking
+	•	Namecheap domain sync
+
+Think:
+
+“Mission control for developer infrastructure”
+
+### Renewal & Risk Intelligence
+
+Developers lose money from:
+	•	Expired domains
+	•	Forgotten subscriptions
+	•	Idle servers
+
+Your OS becomes:
+
+✅ Smart Alert System
+	•	Renewal risk alerts
+	•	Overspending warnings
+	•	Duplicate subscription detection
+	•	Idle resource detection
+
+### Analytics & Insights
+
+Make the dashboard feel like Bloomberg for devs.
+
+Examples:
+	•	Monthly infra spend trends
+	•	Cost per client
+	•	Tool ROI insights
+	•	Domain portfolio valuation
+
+### Automation OS
+
+This is where it becomes magical.
+
+Automation ideas:
+	•	Domain expiry → auto-renew reminder workflow
+	•	Client onboarding infra checklist
+	•	Hosting setup templates
+	•	Renewal calendar auto-sync
+
+### Client Workspace System
+
+For freelancers/agencies:
+	•	Client vault
+	•	Hosting credentials manager
+	•	Domain inventory per client
+	•	Expense attribution
+
+### Credential & Asset Vault
+
+Secure storage for:
+	•	API keys
+	•	Hosting credentials
+	•	Domain registrar logins
+
+### 🔥 Infra Profit Intelligence
+
+“Which clients are costing you money?”
+
+### 🔥 Domain Portfolio Growth Advisor
+
+Suggest:
+	•	Renewal priorities
+	•	Pricing strategies
+	•	Portfolio optimization
+
+🔥 Dev Burn Rate Dashboard
+
+“How much does your dev stack cost per month?”
+
+🔥 Agency Ops Mode
+	•	Team infra access
+	•	Client cost sharing
+	•	Permissions
