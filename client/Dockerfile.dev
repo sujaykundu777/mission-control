@@ -1,0 +1,26 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# enable pnpm if needed
+RUN corepack enable
+
+
+# install deps only (source code comes from volume mount)
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+
+RUN \
+  if [ -f yarn.lock ]; then yarn; \
+  elif [ -f package-lock.json ]; then npm install; \
+  elif [ -f pnpm-lock.yaml ]; then pnpm install; \
+  else npm install; \
+  fi
+
+EXPOSE 3000
+
+CMD \
+  if [ -f yarn.lock ]; then yarn dev; \
+  elif [ -f package-lock.json ]; then npm run dev; \
+  elif [ -f pnpm-lock.yaml ]; then pnpm dev; \
+  else npm run dev; \
+  fi

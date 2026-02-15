@@ -11,6 +11,33 @@
 
 “Where is my money, infrastructure, clients, and subscriptions — all in one place?”
 
+### Run the App Locally:
+
+1. Using Docker 
+
+**Dockerfile**: Uses a multi-stage build with Node.js 20 Alpine for a lightweight production image. The builder stage compiles your Next.js app, and the runtime stage includes only production dependencies for optimal image size.
+
+**docker-compose.yml**: Orchestrates running your containerized app with port 3000 exposed, automatic restarts, and a health check to ensure the service is running properly.
+
+**.dockerignore**: Prevents unnecessary files from being copied into the Docker image, reducing build time and image size.
+
+To run the app with Docker, simply execute `docker-compose up --build` in your project directory. The application will be available at [http://localhost:3000](http://localhost:3000) with all data persisting in your browser's localStorage as before.
+
+To use it: Run `docker-compose up --build` for production, or `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up` for development. The app will be accessible at [http://localhost:3000](http://localhost:3000).
+
+# Usage:
+
+Run in development locally
+```sh
+docker-compose -f docker-compose.dev.yml down -v
+docker-compose -f docker-compose.dev.yml up --build
+```
+Run in production locally
+```sh
+docker-compose -f docker-compose.yml down -v
+docker-compose -f docker-compose.yml up --build
+```
+
 ### In Progress
 Before:
 
