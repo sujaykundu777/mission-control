@@ -1,26 +1,93 @@
 import { Domain } from './types'
+import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from './indexeddb'
+import { TEST_DOMAINS } from '@/data/test-domains'
 
-const STORAGE_KEY = 'domain-manager-data'
+// const STORAGE_KEY = 'domains'
+const INITIALIZED_KEY = 'initialized'
+
+// In-memory cache for synchronous access
+let domainsCache: Domain[] | null = null
+let isCacheInitialized = false
+
+
+// Initialize cache from IndexedDB on first access
+const initializeCacheFromDB = async (): Promise<void> => {
+  if (isCacheInitialized) return
+
+  try {
+    const domains = await getAllFromDB<Domain>(DB_STORES.DOMAINS)
+    
+    if (domains.length === 0) {
+      const isInitialized = await getFromDB<{ key: string; value: boolean }>(
+        DB_STORES.SETTINGS,
+        INITIALIZED_KEY
+      )
+      
+      if (!isInitialized) {
+        // Save test domains
+        for (const domain of TEST_DOMAINS) {
+          await saveToDB(DB_STORES.DOMAINS, domain)
+        }
+        // Mark as initialized
+        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
+        domainsCache = TEST_DOMAINS
+      } else {
+        domainsCache = []
+      }
+    } else {
+      domainsCache = domains
+    }
+    
+    isCacheInitialized = true
+  } catch (error) {
+    console.error('[v0] Failed to initialize cache from IndexedDB:', error)
+    domainsCache = []
+    isCacheInitialized = true
+  }
+}
 
 export const storage = {
   getDomains: (): Domain[] => {
     if (typeof window === 'undefined') return []
-    try {
-      const data = localStorage.getItem(STORAGE_KEY)
-      return data ? JSON.parse(data) : []
-    } catch (error) {
-      console.error('[v0] Failed to get domains from localStorage:', error)
-      return []
+
+    // For localstorage
+    // try {
+    //   const data = localStorage.getItem(STORAGE_KEY)
+    //   return data ? JSON.parse(data) : []
+    // } catch (error) {
+    //   console.error('[v0] Failed to get domains from localStorage:', error)
+    //   return []
+    // }
+    
+    // using indexdb
+    if (domainsCache === null) {
+      // Cache not initialized yet, initialize it in the background
+      initializeCacheFromDB().catch(() => {
+        domainsCache = [];
+      })
+      return domainsCache || []
     }
+    return domainsCache
   },
 
   saveDomains: (domains: Domain[]): void => {
     if (typeof window === 'undefined') return
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(domains))
-    } catch (error) {
-      console.error('[v0] Failed to save domains to localStorage:', error)
-    }
+
+    // for localstorage
+    // try {
+    //   localStorage.setItem(STORAGE_KEY, JSON.stringify(domains))
+    // } catch (error) {
+    //   console.error('[v0] Failed to save domains to localStorage:', error)
+    // }
+
+    // using indexdb
+    // Update cache immediately
+    domainsCache = domains
+    
+    // Persist to IndexedDB in the background
+    Promise.all(domains.map((domain) => saveToDB(DB_STORES.DOMAINS, domain))).catch(
+      (error) => console.error('[v0] Failed to save domains to IndexedDB:', error)
+    )
   },
 
   addDomain: (domain: Domain): Domain[] => {
@@ -41,8 +108,15 @@ export const storage = {
   },
 
   deleteDomain: (id: string): Domain[] => {
+    // Delete from cache immediately
     const domains = storage.getDomains().filter((d) => d.id !== id)
     storage.saveDomains(domains)
+
+    // Delete from IndexedDB in the background
+    deleteFromDB(DB_STORES.DOMAINS, id).catch((error) =>
+      console.error('[v0] Failed to delete domain from IndexedDB:', error)
+    )
+
     return domains
   },
 
