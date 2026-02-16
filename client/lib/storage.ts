@@ -2,7 +2,6 @@ import { Domain } from './types'
 import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from './indexeddb'
 import { TEST_DOMAINS } from '@/data/test-domains'
 
-// const STORAGE_KEY = 'domains'
 const INITIALIZED_KEY = 'initialized'
 
 // In-memory cache for synchronous access
@@ -40,7 +39,7 @@ const initializeCacheFromDB = async (): Promise<void> => {
     
     isCacheInitialized = true
   } catch (error) {
-    console.error('[v0] Failed to initialize cache from IndexedDB:', error)
+    console.error('Failed to initialize cache from IndexedDB:', error)
     domainsCache = []
     isCacheInitialized = true
   }
@@ -50,16 +49,6 @@ export const storage = {
   getDomains: (): Domain[] => {
     if (typeof window === 'undefined') return []
 
-    // For localstorage
-    // try {
-    //   const data = localStorage.getItem(STORAGE_KEY)
-    //   return data ? JSON.parse(data) : []
-    // } catch (error) {
-    //   console.error('[v0] Failed to get domains from localStorage:', error)
-    //   return []
-    // }
-    
-    // using indexdb
     if (domainsCache === null) {
       // Cache not initialized yet, initialize it in the background
       initializeCacheFromDB().catch(() => {
@@ -73,20 +62,9 @@ export const storage = {
   saveDomains: (domains: Domain[]): void => {
     if (typeof window === 'undefined') return
 
-    // for localstorage
-    // try {
-    //   localStorage.setItem(STORAGE_KEY, JSON.stringify(domains))
-    // } catch (error) {
-    //   console.error('[v0] Failed to save domains to localStorage:', error)
-    // }
-
-    // using indexdb
-    // Update cache immediately
     domainsCache = domains
-    
-    // Persist to IndexedDB in the background
     Promise.all(domains.map((domain) => saveToDB(DB_STORES.DOMAINS, domain))).catch(
-      (error) => console.error('[v0] Failed to save domains to IndexedDB:', error)
+      (error) => console.error('Failed to save domains to IndexedDB:', error)
     )
   },
 
@@ -108,15 +86,11 @@ export const storage = {
   },
 
   deleteDomain: (id: string): Domain[] => {
-    // Delete from cache immediately
     const domains = storage.getDomains().filter((d) => d.id !== id)
     storage.saveDomains(domains)
-
-    // Delete from IndexedDB in the background
     deleteFromDB(DB_STORES.DOMAINS, id).catch((error) =>
-      console.error('[v0] Failed to delete domain from IndexedDB:', error)
+      console.error('Failed to delete domain from IndexedDB:', error)
     )
-
     return domains
   },
 
