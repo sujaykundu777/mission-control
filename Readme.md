@@ -13,6 +13,12 @@
 
 ### Run the App Locally:
 
+##### Tech Stack :
+- Next.JS
+- IndexDB 
+- Vitest
+- Docker
+
 1. Using Docker 
 
 **Dockerfile**: Uses a multi-stage build with Node.js 20 Alpine for a lightweight production image. The builder stage compiles your Next.js app, and the runtime stage includes only production dependencies for optimal image size.

@@ -42,4 +42,5 @@ export interface Domain {
   dnsRecords: DNSRecord[];
   contactInfo: ContactInfo;
   notes?: string;
+  currency?: 'USD' | 'EUR' | 'INR'
 }
