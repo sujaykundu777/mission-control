@@ -13,8 +13,11 @@
 
 ### Run the App Locally:
 
-- NEXTJS
+##### Tech Stack :
+- Next.JS
 - IndexDB 
+- Vitest
+- Docker
 
 1. Using Docker 
 
