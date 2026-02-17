@@ -1,105 +1,113 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { Domain, ContactInfo } from '@/lib/types'
-import { storage } from '@/lib/storage'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Domain, ContactInfo } from "@/lib/types";
+import { storage } from "@/lib/storage";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { CURRENCIES } from "@/lib/currency";
 
 interface EditDomainFormProps {
-  domainId: string
+  domainId: string;
 }
 
 export function EditDomainForm({ domainId }: EditDomainFormProps) {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [domain, setDomain] = useState<Domain | null>(null)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [domain, setDomain] = useState<Domain | null>(null);
 
   const [formData, setFormData] = useState({
-    registrarUrl: '',
+    registrarUrl: "",
     autoRenew: true,
     renewalPrice: 0,
-    expirationDate: '',
-    contactName: '',
-    contactEmail: '',
-    contactPhone: '',
-    notes: '',
-  })
+    renewalCurrency: "",
+    expirationDate: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    notes: "",
+  });
 
-  const registrars = ['Hostinger', 'GoDaddy', 'Namecheap', 'other']
+  const registrars = ["Hostinger", "GoDaddy", "Namecheap", "other"];
 
   useEffect(() => {
-    const foundDomain = storage.getDomainById(domainId)
+    const foundDomain = storage.getDomainById(domainId);
     if (foundDomain) {
-      setDomain(foundDomain)
+      setDomain(foundDomain);
       setFormData({
-        registrarUrl: foundDomain.registrarUrl || '',
+        registrarUrl: foundDomain.registrarUrl || "",
         autoRenew: foundDomain.autoRenew,
         renewalPrice: foundDomain.renewalPrice,
+        renewalCurrency: foundDomain.renewalCurrency,
         expirationDate: foundDomain.expirationDate,
         contactName: foundDomain.contactInfo.name,
         contactEmail: foundDomain.contactInfo.email,
-        contactPhone: foundDomain.contactInfo.phone || '',
-        notes: foundDomain.notes || '',
-      })
+        contactPhone: foundDomain.contactInfo.phone || "",
+        notes: foundDomain.notes || "",
+      });
     }
-  }, [domainId])
+  }, [domainId]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target
-    if (type === 'checkbox') {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
+    const { name, value, type } = e.target;
+    if (type === "checkbox") {
       setFormData((prev) => ({
         ...prev,
         [name]: (e.target as HTMLInputElement).checked,
-      }))
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-      }))
+      }));
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      if (!domain) throw new Error('Domain not found')
+      if (!domain) throw new Error("Domain not found");
 
       const updatedContact: ContactInfo = {
         ...domain.contactInfo,
         name: formData.contactName,
         email: formData.contactEmail,
         phone: formData.contactPhone,
-      }
+      };
 
       storage.updateDomain(domainId, {
         registrarUrl: formData.registrarUrl,
         autoRenew: formData.autoRenew,
         renewalPrice: parseFloat(formData.renewalPrice.toString()),
+        renewalCurrency: formData.renewalCurrency,
         expirationDate: formData.expirationDate,
         contactInfo: updatedContact,
         notes: formData.notes,
-      })
+      });
 
-      router.push(`/domains/${domainId}`)
+      router.push(`/domains/${domainId}`);
     } catch (error) {
-      console.error('[v0] Error updating domain:', error)
-      setIsSubmitting(false)
+      console.error("[v0] Error updating domain:", error);
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (!domain) {
     return (
       <div className="text-center">
         <p className="text-muted-foreground">Loading...</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -107,23 +115,32 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
       {/* Header */}
       <div>
         <Link href={`/domains/${domainId}`}>
-          <Button variant="ghost" className="mb-4 text-muted-foreground hover:text-foreground">
+          <Button
+            variant="ghost"
+            className="mb-4 text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Domain
           </Button>
         </Link>
         <h1 className="text-3xl font-bold text-foreground">Edit Domain</h1>
-        <p className="text-muted-foreground mt-2">{domain.name} • Update domain details</p>
+        <p className="text-muted-foreground mt-2">
+          {domain.name} • Update domain details
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Domain Information */}
         <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Domain Information</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            Domain Information
+          </h2>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Domain Name</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Domain Name
+                </label>
                 <Input
                   type="text"
                   value={domain.name}
@@ -132,7 +149,9 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Registrar</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Registrar
+                </label>
                 <Input
                   type="text"
                   value={domain.registrar}
@@ -144,7 +163,9 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Expiration Date *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Expiration Date *
+                </label>
                 <Input
                   type="date"
                   name="expirationDate"
@@ -154,23 +175,46 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                   className="bg-secondary border-border text-foreground"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Renewal Price ($) *</label>
-                <Input
-                  type="number"
-                  name="renewalPrice"
-                  placeholder="9.99"
-                  value={formData.renewalPrice}
-                  onChange={handleChange}
-                  step="0.01"
-                  required
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
-                />
+              <div className="flex flex-wrap gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Renewal Currency{" "}
+                  </label>
+                  <select
+                    name="renewalCurrency"
+                    value={formData.renewalCurrency}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-foreground"
+                  >
+                    {CURRENCIES.map((currency) => (
+                      <option key={currency.id} value={currency.name}>
+                        {currency.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Renewal Price{" "}
+                  </label>
+                  <Input
+                    type="number"
+                    name="renewalPrice"
+                    placeholder="9.99"
+                    value={formData.renewalPrice}
+                    onChange={handleChange}
+                    step="0.01"
+                    required
+                    className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  />
+                </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Registrar URL</label>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Registrar URL
+              </label>
               <Input
                 type="url"
                 name="registrarUrl"
@@ -189,17 +233,23 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                 onChange={handleChange}
                 className="w-4 h-4 rounded"
               />
-              <label className="text-sm font-medium text-foreground">Enable Auto-Renewal</label>
+              <label className="text-sm font-medium text-foreground">
+                Enable Auto-Renewal
+              </label>
             </div>
           </div>
         </Card>
 
         {/* Contact Information */}
         <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Contact Information</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            Contact Information
+          </h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Contact Name *</label>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Contact Name *
+              </label>
               <Input
                 type="text"
                 name="contactName"
@@ -212,7 +262,9 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Email *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Email *
+                </label>
                 <Input
                   type="email"
                   name="contactEmail"
@@ -224,7 +276,9 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Phone</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Phone
+                </label>
                 <Input
                   type="tel"
                   name="contactPhone"
@@ -240,7 +294,9 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
 
         {/* Additional Notes */}
         <Card className="p-6 bg-card border-border">
-          <label className="block text-sm font-medium text-foreground mb-2">Notes</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Notes
+          </label>
           <textarea
             name="notes"
             placeholder="Add any additional notes about this domain..."
@@ -258,7 +314,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
             disabled={isSubmitting}
             className="bg-primary hover:bg-primary/90"
           >
-            {isSubmitting ? 'Updating...' : 'Update Domain'}
+            {isSubmitting ? "Updating..." : "Update Domain"}
           </Button>
           <Link href={`/domains/${domainId}`}>
             <Button variant="outline" className="border-border hover:bg-card">
@@ -268,5 +324,5 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
         </div>
       </form>
     </div>
-  )
+  );
 }

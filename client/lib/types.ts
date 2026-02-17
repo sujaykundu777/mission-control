@@ -36,6 +36,7 @@ export interface Domain {
   purchaseDate: string;
   expirationDate: string;
   renewalPrice: number;
+  renewalCurrency: string;
   autoRenew: boolean;
   status: 'active' | 'expired' | 'pending-renewal';
   services: Service[];
