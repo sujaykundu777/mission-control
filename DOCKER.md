@@ -1,6 +1,6 @@
-# Docker Setup for Domain Manager OS
+# Docker Setup for Mission Control OS
 
-This guide explains how to containerize and run the Domain Manager OS application, which is structured as a monorepo with the Next.js app in the `/client` folder.
+This guide explains how to containerize and run the Mission Control OS application, which is structured as a monorepo with the Next.js app in the `/client` folder.
 
 ## Project Structure
 
