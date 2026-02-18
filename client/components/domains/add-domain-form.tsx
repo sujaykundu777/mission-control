@@ -1,53 +1,62 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Domain, ContactInfo } from '@/lib/types'
-import { storage } from '@/lib/storage'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Domain, ContactInfo } from "@/lib/types";
+import { storage } from "@/lib/storage";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { CURRENCIES } from "@/lib/currency";
 
 export function AddDomainForm() {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: '',
-    registrar: 'Hostinger' as const,
-    purchaseDate: new Date().toISOString().split('T')[0],
-    expirationDate: '',
+    name: "",
+    registrar: "Hostinger" as const,
+    purchaseDate: new Date().toISOString().split("T")[0],
+    expirationDate: "",
     renewalPrice: 0,
+    renewalCurrency: "",
     autoRenew: true,
-    registrarUrl: '',
-    contactName: '',
-    contactEmail: '',
-    contactPhone: '',
-    notes: '',
-  })
+    registrarUrl: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    notes: "",
+  });
 
-  const registrars = ['Hostinger', 'GoDaddy', 'Namecheap', 'other']
+  const registrars = ["Hostinger", "GoDaddy", "Namecheap", "other"];
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target
-    if (type === 'checkbox') {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
+  ) => {
+    const { name, value, type } = e.target;
+
+    console.log("name", name);
+    console.log("value", value);
+    if (type === "checkbox") {
       setFormData((prev) => ({
         ...prev,
         [name]: (e.target as HTMLInputElement).checked,
-      }))
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
-      }))
+      }));
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       const contactInfo: ContactInfo = {
@@ -55,54 +64,69 @@ export function AddDomainForm() {
         name: formData.contactName,
         email: formData.contactEmail,
         phone: formData.contactPhone,
-      }
+      };
 
       const newDomain: Domain = {
         id: `domain-${Date.now()}`,
         name: formData.name.toLowerCase(),
-        registrar: formData.registrar as 'Hostinger' | 'GoDaddy' | 'Namecheap' | 'other',
+        registrar: formData.registrar as
+          | "Hostinger"
+          | "GoDaddy"
+          | "Namecheap"
+          | "other",
         registrarUrl: formData.registrarUrl,
         purchaseDate: formData.purchaseDate,
         expirationDate: formData.expirationDate,
         renewalPrice: parseFloat(formData.renewalPrice.toString()),
+        renewalCurrency: formData.renewalCurrency,
         autoRenew: formData.autoRenew,
-        status: 'active',
+        status: "active",
         services: [],
         dnsRecords: [],
         contactInfo,
         notes: formData.notes,
-      }
+      };
+      console.log("newDomain", newDomain);
 
-      storage.addDomain(newDomain)
-      router.push(`/domains/${newDomain.id}`)
+      storage.addDomain(newDomain);
+      router.push(`/domains/${newDomain.id}`);
     } catch (error) {
-      console.error('[v0] Error adding domain:', error)
-      setIsSubmitting(false)
+      console.error("[v0] Error adding domain:", error);
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <Link href="/domains">
-          <Button variant="ghost" className="mb-4 text-muted-foreground hover:text-foreground">
+          <Button
+            variant="ghost"
+            className="mb-4 text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Domains
           </Button>
         </Link>
         <h1 className="text-3xl font-bold text-foreground">Add New Domain</h1>
-        <p className="text-muted-foreground mt-2">Register and manage your domain information</p>
+        <p className="text-muted-foreground mt-2">
+          Register and manage your domain information
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Domain Information */}
         <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Domain Information</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            Domain Information
+          </h2>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Domain Name *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Domain Name *
+                </label>
                 <Input
                   type="text"
                   name="name"
@@ -114,7 +138,9 @@ export function AddDomainForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Registrar *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Registrar *
+                </label>
                 <select
                   name="registrar"
                   value={formData.registrar}
@@ -132,7 +158,9 @@ export function AddDomainForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Purchase Date *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Purchase Date *
+                </label>
                 <Input
                   type="date"
                   name="purchaseDate"
@@ -142,7 +170,9 @@ export function AddDomainForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Expiration Date *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Expiration Date *
+                </label>
                 <Input
                   type="date"
                   name="expirationDate"
@@ -156,7 +186,28 @@ export function AddDomainForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Renewal Price ($) *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Renewal Currency
+                </label>
+
+                <select
+                  name="renewalCurrency"
+                  value={formData.renewalCurrency}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-foreground"
+                >
+                  {CURRENCIES.map((currency) => (
+                    <option key={currency.id} value={currency.name}>
+                      {currency.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Renewal Price
+                </label>
+
                 <Input
                   type="number"
                   name="renewalPrice"
@@ -168,8 +219,13 @@ export function AddDomainForm() {
                   className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Registrar URL</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Registrar URL
+                </label>
                 <Input
                   type="url"
                   name="registrarUrl"
@@ -189,17 +245,23 @@ export function AddDomainForm() {
                 onChange={handleChange}
                 className="w-4 h-4 rounded"
               />
-              <label className="text-sm font-medium text-foreground">Enable Auto-Renewal</label>
+              <label className="text-sm font-medium text-foreground">
+                Enable Auto-Renewal
+              </label>
             </div>
           </div>
         </Card>
 
         {/* Contact Information */}
         <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Contact Information</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            Contact Information
+          </h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Contact Name *</label>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Contact Name *
+              </label>
               <Input
                 type="text"
                 name="contactName"
@@ -212,7 +274,9 @@ export function AddDomainForm() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Email *</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Email *
+                </label>
                 <Input
                   type="email"
                   name="contactEmail"
@@ -224,7 +288,9 @@ export function AddDomainForm() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Phone</label>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Phone
+                </label>
                 <Input
                   type="tel"
                   name="contactPhone"
@@ -240,7 +306,9 @@ export function AddDomainForm() {
 
         {/* Additional Notes */}
         <Card className="p-6 bg-card border-border">
-          <label className="block text-sm font-medium text-foreground mb-2">Notes</label>
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Notes
+          </label>
           <textarea
             name="notes"
             placeholder="Add any additional notes about this domain..."
@@ -258,7 +326,7 @@ export function AddDomainForm() {
             disabled={isSubmitting}
             className="bg-primary hover:bg-primary/90"
           >
-            {isSubmitting ? 'Adding...' : 'Add Domain'}
+            {isSubmitting ? "Adding..." : "Add Domain"}
           </Button>
           <Link href="/domains">
             <Button variant="outline" className="border-border hover:bg-card">
@@ -268,5 +336,5 @@ export function AddDomainForm() {
         </div>
       </form>
     </div>
-  )
+  );
 }
