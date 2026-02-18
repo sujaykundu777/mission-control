@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { CURRENCIES } from "@/lib/currency";
+import { CURRENCIES, Currency } from "@/lib/currency";
 
 interface EditDomainFormProps {
   domainId: string;
@@ -24,7 +24,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
     registrarUrl: "",
     autoRenew: true,
     renewalPrice: 0,
-    renewalCurrency: "",
+    renewalCurrency: "INR" as Currency,
     expirationDate: "",
     contactName: "",
     contactEmail: "",
@@ -32,7 +32,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
     notes: "",
   });
 
-  const registrars = ["Hostinger", "GoDaddy", "Namecheap", "other"];
+  // const registrars = ["Hostinger", "GoDaddy", "Namecheap", "other"];
 
   useEffect(() => {
     const foundDomain = storage.getDomainById(domainId);
@@ -42,7 +42,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
         registrarUrl: foundDomain.registrarUrl || "",
         autoRenew: foundDomain.autoRenew,
         renewalPrice: foundDomain.renewalPrice,
-        renewalCurrency: foundDomain.renewalCurrency,
+        renewalCurrency: (foundDomain.renewalCurrency || "INR") as Currency,
         expirationDate: foundDomain.expirationDate,
         contactName: foundDomain.contactInfo.name,
         contactEmail: foundDomain.contactInfo.email,
