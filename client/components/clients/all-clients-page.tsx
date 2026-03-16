@@ -4,10 +4,30 @@ import { useEffect, useState } from "react";
 import { Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Client } from "@/lib/types";
+import { storage } from "@/lib/storage";
+import { ClientsTable } from "./clients-table";
 import Link from "next/link";
 
 export function AllClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const allClients = storage.getClients();
+    setClients(allClients);
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  const stats = storage.getClientStats();
 
   return (
     <div className="space-y-8">
@@ -15,7 +35,10 @@ export function AllClientsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Clients</h1>
-          <p className="text-muted-foreground mt-2">0 total • 0 active</p>
+          <p className="text-muted-foreground mt-2">
+            {" "}
+            {stats.totalClients} total • {stats.activeClients} active
+          </p>
         </div>
         <Link href="/clients/add">
           <Button className="bg-primary hover:bg-primary/90">
@@ -24,6 +47,11 @@ export function AllClientsPage() {
           </Button>
         </Link>
       </div>
+
+      <ClientsTable
+        clients={clients}
+        onClientsChange={() => setClients(storage.getClients())}
+      />
     </div>
   );
 }
