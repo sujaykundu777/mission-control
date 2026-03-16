@@ -1,3 +1,26 @@
+export interface CustomField {
+  key: string
+  value: string
+}
+
+export interface Client {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  industry?: string;
+  website?: string;
+  billingAddress?: string;
+  billingEmail?: string;
+  billingPhone?: string;
+  status: 'active' | 'inactive' | 'archived'
+  customFields: CustomField[]
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Service {
   id: string;
   name: string;
@@ -42,6 +65,8 @@ export interface Domain {
   services: Service[];
   dnsRecords: DNSRecord[];
   contactInfo: ContactInfo;
+  clientId?: string;
   notes?: string;
   currency?: 'USD' | 'EUR' | 'INR'
 }
+
