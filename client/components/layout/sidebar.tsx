@@ -53,19 +53,7 @@ export function Sidebar() {
           </Button>
         </Link>
 
-        <Link href="/domains">
-          <Button
-            variant="ghost"
-            className={cn(
-              "w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              isActive("/domains") &&
-                "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary",
-            )}
-          >
-            <Globe className="w-5 h-5" />
-            Domains
-          </Button>
-        </Link>
+      
 
         <Link href="/clients">
           <Button
@@ -78,6 +66,20 @@ export function Sidebar() {
           >
             <Users className="w-5 h-5" />
             Clients
+          </Button>
+        </Link>
+
+          <Link href="/domains">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              isActive("/domains") &&
+                "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary",
+            )}
+          >
+            <Globe className="w-5 h-5" />
+            Domains
           </Button>
         </Link>
       </nav>
