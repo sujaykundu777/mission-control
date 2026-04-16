@@ -100,7 +100,7 @@ export function DashboardPage() {
       {/* Recent Domains */}
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-foreground">Your Domains</h2>
+          <h2 className="text-2xl font-bold text-foreground">Upcoming Renewals</h2>
           {domains.length > 0 && (
             <Link href="/domains">
               <Button variant="outline">View All</Button>

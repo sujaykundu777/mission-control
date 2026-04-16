@@ -22,7 +22,13 @@ export function EditClientForm() {
     const [client, setClient] = useState<Client | null>(null);
 
     const [formData, setFormData] = useState({
-        name: ''
+        name: '',
+        email: '',
+        phone: '',
+        status: 'active',
+        company: '',
+        industry: '',
+        website: ''
     });
 
     useEffect(() => {
@@ -34,6 +40,12 @@ export function EditClientForm() {
             setClient(foundClient)
             setFormData({
                 name: foundClient.name,
+                email: foundClient.email,
+                phone: foundClient.phone || '',
+                status: foundClient.status,
+                company: foundClient.company || '',
+                industry: foundClient.industry || '',
+                website: foundClient.website || ''
             });
         } else {
             toast({
@@ -65,7 +77,13 @@ export function EditClientForm() {
 
             // update the client
             storage.updateClient(clientId, {
-                name: formData.name
+                name: formData.name,
+                 email: formData.email,
+                phone: formData.phone || undefined,
+                status: formData.status || 'inactive',
+                company: formData.company || undefined,
+                industry: formData.industry || undefined,
+                website: formData.website || undefined
             });
 
             toast({
@@ -114,18 +132,96 @@ export function EditClientForm() {
                 <h2 className="text-xl font-semibold text-foreground mb-4">Basic Information</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Name *</label>
-                    <Input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="Client name"
-                        className="bg-background border-border"
-                        required
-                    />
+                        <label className="block text-sm font-medium text-foreground mb-2">Name *</label>
+                        <Input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            placeholder="Client name"
+                            className="bg-background border-border"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-2"> Email*</label>
+                        <Input 
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder='client@example.com'
+                            className="bg-background border-border"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-2"> Phone </label>
+                        <Input
+                            type="tel"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            placeholder="+1 (555) 000-0000"
+                            className="bg-background border-border"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                            Status
+                        </label>
+                        <select
+                            name="status"
+                            value={formData.status}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground text-sm">
+                                <option value="active"> Active </option>
+                                <option value="inactive"> Inactive </option>
+                                <option value="archived"> Archived </option>
+                        </select>
                     </div>
                 </div>
+                </Card>
+
+                {/* Company Information */}
+                <Card className="p-6 bg-card border-border">
+                    <h2 className="text-xl font-semibold text-foreground mb-4"> Company Information </h2>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                        <div>
+                            <label className='block text-sm font-medium text-foreground mb-2'> Company Name </label>
+                            <Input
+                                type="text"
+                                name="company"
+                                value={formData.company}
+                                onChange={handleChange}
+                                placeholder="Acme Corp"
+                                className="bg-background border-border"
+                            />
+                         </div>
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">Industry</label>
+                            <Input
+                                type="text"
+                                name="industry"
+                                value={formData.industry}
+                                onChange={handleChange}
+                                placeholder="Technology"
+                                className="bg-background border-border"
+                            />
+                        </div>
+                        <div className='md:col-span-2'>
+                            <label className='block text-sm font-medium text-foreground mb-2'> Website </label>
+                            <Input
+                                type="url"
+                                name="website"
+                                value={formData.website}
+                                onChange={handleChange}
+                                placeholder="https://example.com"
+                                className="bg-background border-border"
+                            />
+                        </div>
+                    </div>
+                    
                 </Card>
 
                 <div className='flex gap-3 justify-between'>
