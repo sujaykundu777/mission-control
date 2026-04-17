@@ -59,6 +59,7 @@ User says:
 
 ### Features to build:
 
+✅ Client Management
 ✅ Domain tracker
 ✅ Hosting/subscription tracker
 ✅ Renewal alerts
@@ -79,6 +80,19 @@ You know it’s working when users:
 ✅ Return for renewal alerts
 
 ### Phase 1 :
+
+✅ Feature 0 — Client Management 
+
+Admin can manage or onboard clients
+
+- Add Clients
+- Edit Clients
+- Delete Clients
+- View all Clients
+
+Todo: 
+- Need to write test cases in Jest 
+
 ✅ Feature 1 — Domain Inventory Tracker
 
 Core MVP pillar.

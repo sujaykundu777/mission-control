@@ -5,11 +5,21 @@ import { useEffect, useState } from 'react';
 import { Client, CustomField} from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useToast } from '../ui/use-toast';
 import { storage } from "@/lib/storage";
+import { Textarea } from '@/components/ui/textarea'
+import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 export function EditClientForm() {
     const router = useRouter();
@@ -19,6 +29,7 @@ export function EditClientForm() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [client, setClient] = useState<Client | null>(null);
 
     const [formData, setFormData] = useState({
@@ -28,7 +39,12 @@ export function EditClientForm() {
         status: 'active',
         company: '',
         industry: '',
-        website: ''
+        website: '',
+        billingAddress: '',
+        billingEmail: '',
+        billingPhone: '',
+        customFields: [] as CustomField[],
+        notes: '',
     });
 
     useEffect(() => {
@@ -45,7 +61,12 @@ export function EditClientForm() {
                 status: foundClient.status,
                 company: foundClient.company || '',
                 industry: foundClient.industry || '',
-                website: foundClient.website || ''
+                website: foundClient.website || '',
+                billingAddress: foundClient.billingAddress || '',
+                billingEmail: foundClient.billingEmail || '',
+                billingPhone: foundClient.billingPhone || '',
+                customFields: foundClient.customFields,
+                notes: foundClient.notes || ''
             });
         } else {
             toast({
@@ -83,7 +104,12 @@ export function EditClientForm() {
                 status: formData.status || 'inactive',
                 company: formData.company || undefined,
                 industry: formData.industry || undefined,
-                website: formData.website || undefined
+                website: formData.website || undefined,
+                billingAddress: formData.billingAddress || undefined,
+                billingEmail: formData.billingEmail || undefined,
+                billingPhone: formData.billingPhone || undefined,
+                customFields: formData.customFields.filter((cf) => cf.key && cf.value),
+                notes: formData.notes || undefined
             });
 
             toast({
@@ -109,6 +135,47 @@ export function EditClientForm() {
             ...prev,
             [name]: value,
         }))
+    }
+
+    const handleAddCustomField = () => {
+        setFormData((prev) => ({
+            ...prev,
+            customFields: [...prev.customFields, { key: '', value: '' }]
+        }))
+    }
+
+    const handleUpdateCustomField = (index: number, field: 'key' | 'value', value: string) => {
+        setFormData((prev) => ({
+        ...prev,
+        customFields: prev.customFields.map((cf, i) =>
+            i === index ? { ...cf, [field]: value } : cf
+        ),
+        }))
+    }
+
+    const handleRemoveCustomField = (index: number) => {
+        setFormData((prev) => ({
+        ...prev,
+        customFields: prev.customFields.filter((_, i) => i !== index),
+        }))
+    }
+
+    const handleDelete = () => {
+        try {
+        storage.deleteClient(clientId)
+        toast({
+            title: 'Success',
+            description: 'Client deleted successfully.',
+        })
+        router.push('/clients')
+        } catch (error) {
+        console.error('[v0] Error deleting client:', error)
+        toast({
+            title: 'Error',
+            description: 'Failed to delete client. Please try again.',
+            variant: 'destructive',
+        })
+        }
     }
 
     return (
@@ -221,23 +288,150 @@ export function EditClientForm() {
                             />
                         </div>
                     </div>
-                    
                 </Card>
 
-                <div className='flex gap-3 justify-between'>
-                      <div className="flex gap-3">
+                {/* Billing Information */}
+                <Card className='p-6 bg-card border-border'>
+                    <h2 className='text-xl font-semibold text-foreground mb-4'>Billing Information</h2>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                        <div className='md:col-span-2'>
+                            <label className='block text-sm font-medium text-foreground mb-2'>Billing Address</label>
+                            <Textarea
+                                name="billingAddress"
+                                value={formData.billingAddress}
+                                onChange={handleChange}
+                                placeholder="Full billing address"
+                                className="bg-background border-border"
+                                rows={3}
+                            />
+                        </div>
+                          <div>
+                        <label className='block text-sm font-medium text-foreground mb-2'>Billing Email</label>
+                        <Input
+                            type="email"
+                            name="billingEmail"
+                            value={formData.billingEmail}
+                            onChange={handleChange}
+                            placeholder='billing@example.com'
+                            className='bg-background border-border'
+                        />
+                    </div>
+                        <div>
+                        <label className='block text-sm font-medium text-foreground mb-2'>Billing Phone</label>
+                        <Input
+                            type="tel"
+                            name="billingPhone"
+                            value={formData.billingPhone}
+                            onChange={handleChange}
+                            placeholder='+1 (555) 000-0000'
+                            className='bg-background border-border'
+                        />
+                        </div>
+                    </div>
+                  
+                </Card>
+
+                {/* Custom Fields */}
+                <Card className='p-6 bg-card border-border'>
+                    <div className='flex items-center justify-between mb-4'>
+                        <h2 className='text-xl font-semibold text-foreground'> Custom Fields </h2>
+                        <Button
+                            type="button"
+                            variant='outline'
+                            size="sm"
+                            onClick={handleAddCustomField}
+                            className='border-border'
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Field
+                        </Button>
+                    </div>
+                     <div className="space-y-3">
+                    {formData.customFields.map((field, index) => (
+                        <div key={index} className="flex gap-2">
+                            <Input
+                                placeholder="Field name"
+                                value={field.key}
+                                onChange={(e) => handleUpdateCustomField(index, 'key', e.target.value)}
+                                className="bg-background border-border flex-1"
+                            />
+                            <Input
+                                placeholder="Field value"
+                                value={field.value}
+                                onChange={(e) => handleUpdateCustomField(index, 'value', e.target.value)}
+                                className="bg-background border-border flex-1"
+                            />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveCustomField(index)}
+                                className="text-destructive hover:text-destructive"
+                            >
+                            <Trash2 className="w-4 h-4" />
+                            </Button>
+                        </div>
+                    ))}
+                    </div>
+                </Card>
+
+                 {/* Notes */}
+                <Card className="p-6 bg-card border-border">
+                    <h2 className="text-xl font-semibold text-foreground mb-4">Additional Notes</h2>
+                    <Textarea
+                        name="notes"
+                        value={formData.notes}
+                        onChange={handleChange}
+                        placeholder="Add any additional notes or information about this client..."
+                        className="bg-background border-border"
+                        rows={4}
+                    />
+                </Card>
+
+                    {/* Form Actions */}
+                 <div className="flex gap-3 justify-between">
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => setShowDeleteDialog(true)}
+                        className="bg-destructive hover:bg-destructive/90"
+                    >
+                        Delete Client
+                    </Button>
+                    <div className="flex gap-3">
                         <Link href={`/clients/${clientId}`}>
                         <Button type="button" variant="outline" className="border-border">
                             Cancel
                         </Button>
                         </Link>
                         <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isSubmitting}>
-                         {isSubmitting ? 'Saving...' : 'Save Changes'}
+                        {isSubmitting ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </div>
-                </div>
+                  </div>
 
             </form>
+            {/* Delete Confirmation Dialog */}
+                <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                    <AlertDialogContent className="bg-card border-border">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Client</AlertDialogTitle>
+                        <AlertDialogDescription>
+                        Are you sure you want to delete this client? This action cannot be undone. Associated domains will be unlinked from this client.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="flex gap-3 justify-end">
+                        <AlertDialogCancel className="border-border">Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                        Delete
+                        </AlertDialogAction>
+                    </div>
+                    </AlertDialogContent>
+                </AlertDialog>
+                        
         </div>
     )
 }
