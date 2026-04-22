@@ -127,6 +127,15 @@ export function ClientDetailPage() {
           </div>
         </div>
       </div>
+      
+      {/* Notes */}
+      {client.notes && (
+        <Card className="p-6 bg-card border-border">
+          <h2 className="text-xl font-semibold text-foreground mb-4">Notes</h2>
+          <p className="text-foreground whitespace-pre-wrap">{client.notes}</p>
+        </Card>
+      )}
+
 
       {/* Contact Information */}
       <Card className="p-6 bg-card border-border">
@@ -284,14 +293,7 @@ export function ClientDetailPage() {
         )}
       </Card>
 
-      {/* Notes */}
-      {client.notes && (
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Notes</h2>
-          <p className="text-foreground whitespace-pre-wrap">{client.notes}</p>
-        </Card>
-      )}
-
+ 
       {/* Metadata */}
       <Card className="p-6 bg-card border-border">
         <h2 className="text-xl font-semibold text-foreground mb-4">Metadata</h2>
