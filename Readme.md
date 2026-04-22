@@ -92,6 +92,7 @@ Admin can manage or onboard clients
 - Client filters
 
 Todo: 
+- Associate Domain with Client (in progress)
 - Export clients (CSV)
 - Add Validations using Joi
 - Add mysql database with prisma orm
