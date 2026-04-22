@@ -89,9 +89,20 @@ Admin can manage or onboard clients
 - Edit Clients
 - Delete Clients
 - View all Clients
+- Client filters
 
 Todo: 
-- Need to write test cases in Jest 
+- Export clients (CSV)
+- Add Validations using Joi
+- Add mysql database with prisma orm
+- Need to write test cases in Jest
+- Configure Playwright
+- Configure Eslint 
+- Configure prettier
+- Configure husky
+
+- Configure Authentication using Nextauth and email credentials
+
 
 ✅ Feature 1 — Domain Inventory Tracker
 
