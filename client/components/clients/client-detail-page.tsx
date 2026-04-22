@@ -67,15 +67,6 @@ export function ClientDetailPage() {
     }
   };
 
-  const handleRemoveDomain = (domainId: string) => {
-    storage.disassociateDomainFromClient(domainId);
-    setDomains(storage.getClientDomains(clientId));
-    toast({
-      title: "Success",
-      description: "Domain removed from client.",
-    });
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -287,14 +278,6 @@ export function ClientDetailPage() {
                     {new Date(domain.expirationDate).toLocaleDateString()}
                   </p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleRemoveDomain(domain.id)}
-                  className="text-muted-foreground hover:text-destructive ml-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
               </div>
             ))}
           </div>

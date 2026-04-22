@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Client, CustomField} from '@/lib/types';
+import { Client, CustomField, Domain} from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card'
@@ -31,6 +31,8 @@ export function EditClientForm() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [client, setClient] = useState<Client | null>(null);
+    const [domains, setDomains] = useState<Domain[]>([]);
+    
 
     const [formData, setFormData] = useState({
         name: '',
@@ -54,6 +56,8 @@ export function EditClientForm() {
 
         if (foundClient) {
             setClient(foundClient)
+            const clientDomains = storage.getClientDomains(clientId);
+            setDomains(clientDomains);
             setFormData({
                 name: foundClient.name,
                 email: foundClient.email,
@@ -159,6 +163,16 @@ export function EditClientForm() {
         customFields: prev.customFields.filter((_, i) => i !== index),
         }))
     }
+
+    const handleRemoveDomain = (domainId: string) => {
+        storage.disassociateDomainFromClient(domainId);
+        setDomains(storage.getClientDomains(clientId));
+        toast({
+        title: "Success",
+        description: "Domain removed from client.",
+        });
+    };
+
 
     const handleDelete = () => {
         try {
@@ -373,6 +387,48 @@ export function EditClientForm() {
                         </div>
                     ))}
                     </div>
+                </Card>
+
+
+                {/* Associated Domains */}
+                <Card className="p-6 bg-card border-border">
+                    <h2 className="text-xl font-semibold text-foreground mb-4">
+                    Associated Domains ({domains.length})
+                    </h2>
+                    {domains.length === 0 ? (
+                    <p className="text-muted-foreground">
+                        No domains associated with this client yet.
+                    </p>
+                    ) : (
+                    <div className="space-y-2">
+                        {domains.map((domain) => (
+                        <div
+                            key={domain.id}
+                            className="flex items-center justify-between p-3 bg-background border border-border rounded-md"
+                        >
+                            <div className="flex-1 min-w-0">
+                            <Link href={`/domains/${domain.id}`}>
+                                <p className="font-semibold text-primary hover:underline truncate">
+                                {domain.name}
+                                </p>
+                            </Link>
+                            <p className="text-sm text-muted-foreground">
+                                Expires:{" "}
+                                {new Date(domain.expirationDate).toLocaleDateString()}
+                            </p>
+                            </div>
+                            <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveDomain(domain.id)}
+                            className="text-muted-foreground hover:text-destructive ml-2"
+                            >
+                            <Trash2 className="w-4 h-4" />
+                            </Button>
+                        </div>
+                        ))}
+                    </div>
+                    )}
                 </Card>
 
                  {/* Notes */}

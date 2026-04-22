@@ -90,9 +90,11 @@ Admin can manage or onboard clients
 - Delete Clients
 - View all Clients
 - Client filters
+- Associate Domains 
 
 Todo: 
-- Associate Domain with Client (in progress)
+
+- Import clients
 - Export clients (CSV)
 - Add Validations using Joi
 - Add mysql database with prisma orm
@@ -101,7 +103,6 @@ Todo:
 - Configure Eslint 
 - Configure prettier
 - Configure husky
-
 - Configure Authentication using Nextauth and email credentials
 
 
