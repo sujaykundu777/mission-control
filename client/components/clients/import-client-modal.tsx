@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { downloadCSVTemplate, importClientsFromCSV } from "@/lib/import/import-clients";
+import { downloadCSVTemplate, downloadJSONTemplate, importClientsFromCSV, importClientsFromJSON } from "@/lib/import/import-clients";
 import { Input } from "../ui/input";
 
 interface ImportClientModalProps {
@@ -38,6 +38,10 @@ export function ImportClientModal({
 
     const handleDownloadTemplate = () => {
         downloadCSVTemplate();
+    }
+
+    const handleDownloadJSONTemplate = () => {
+        downloadJSONTemplate();
     }
 
     const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,6 +78,33 @@ export function ImportClientModal({
         } finally {
             setIsProcessing(false);
             
+        }
+    }
+
+    const handleJSONUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        setIsProcessing(true)
+        setImportErrors([])
+
+        try {
+        const text = await file.text()
+        const result = importClientsFromJSON(text)
+
+        if (result.errors.length > 0) {
+            setImportErrors(result.errors)
+        }
+
+        if (result.clients.length > 0) {
+            setImportedClients(result.clients)
+            setDuplicateCount(result.duplicates)
+            setImportStep('preview')
+        }
+        } catch (error) {
+        setImportErrors(['Failed to read JSON file: ' + (error instanceof Error ? error.message : 'Unknown error')])
+        } finally {
+        setIsProcessing(false)
         }
     }
 
@@ -156,7 +187,20 @@ export function ImportClientModal({
                                 </p>
                             </div>
                         </Button>
-                    
+                    </Card>
+
+                    <Card className="p-6 bg-card border-border cursor-pointer hover:bg-card/80 transition-colors">
+                        <Button
+                            variant="outline"
+                            className="w-full h-18 text-left flex items-start gap-4"
+                            onClick={handleDownloadJSONTemplate}
+                        >
+                            <Download className="w-6 h-6 text-primary mt-1" />
+                            <div>
+                                <h3 className="font-semibold text-foreground">Download JSON Template</h3>
+                                <p className="text-sm text-muted-foreground mt-1">Get a template JSON file to fill in with your client data</p>
+                            </div>
+                        </Button>
                     </Card>
                     
                     <div className="relative">
@@ -183,6 +227,28 @@ export function ImportClientModal({
                                 />
                             </div>
                         </label>
+                    </Card>
+
+
+                    <Card className="p-6 bg-card border-border">
+                         <label className="cursor-pointer flex items-start gap-4">
+                            <Upload className="w-6 h-6 text-primary mt-1" />
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-foreground">Import JSON File</h3>
+                                <p className="text-sm text-muted-foreground mt-1">Upload a JSON file with your client data</p>
+                                <Input
+                                type="file"
+                                accept=".json"
+                                onChange={handleJSONUpload}
+                                className="space-x-2 mt-4" 
+                                // disabled={isProcessing}
+                                // className="hidden"
+                                />
+                                {/* <Button size="sm" variant="outline" className="mt-3 border-border" disabled={isProcessing}>
+                                {isProcessing ? 'Processing...' : 'Choose JSON File'}
+                                </Button> */}
+                            </div>
+                            </label>
                     </Card>
                   </div>
                 )}

@@ -106,3 +106,103 @@ export function importClientsFromCSV(csvContent: string): ImportCSVResult {
     return { clients, duplicates: duplicateCount, errors};
 
 }
+
+export function downloadJSONTemplate() {
+  const template = [
+    {
+      name: 'John Doe',
+      email: 'john@example.com',
+      phone: '+1-555-0123',
+      company: 'Acme Corp',
+      industry: 'Technology',
+      website: 'https://example.com',
+      billingAddress: '123 Main St, New York, NY 10001',
+      billingEmail: 'billing@example.com',
+      billingPhone: '+1-555-0100',
+      notes: 'Primary contact',
+      status: 'active',
+      customFields: [],
+    },
+    {
+      name: 'Jane Smith',
+      email: 'jane@example.com',
+      phone: '+1-555-0124',
+      company: 'Tech Solutions',
+      industry: 'Software',
+      website: 'https://tech.com',
+      billingAddress: '456 Oak Ave, San Francisco, CA 94102',
+      billingEmail: 'billing@tech.com',
+      billingPhone: '+1-555-0200',
+      notes: 'Billing contact',
+      status: 'active',
+      customFields: [],
+    },
+  ]
+
+  const jsonString = JSON.stringify(template, null, 2)
+  const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+
+  link.setAttribute('href', url)
+  link.setAttribute('download', 'clients-template.json')
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+export function importClientsFromJSON(jsonContent: string): ImportCSVResult {
+  const clients: Client[] = []
+  const errors: string[] = []
+  let duplicateCount = 0
+
+  try {
+    const data = JSON.parse(jsonContent)
+    const clientsData = Array.isArray(data) ? data : [data]
+    const existingEmails = new Set(storage.getClients().map((c) => c.email.toLowerCase()))
+
+    for (let i = 0; i < clientsData.length; i++) {
+      try {
+        const clientData = clientsData[i]
+
+        if (!clientData.name || !clientData.email) {
+          errors.push(`Item ${i + 1}: Name and email are required`)
+          continue
+        }
+
+        if (existingEmails.has(clientData.email.toLowerCase())) {
+          duplicateCount++
+          continue
+        }
+
+        const newClient: Client = {
+          id: `client-${Date.now()}-${i}`,
+          name: clientData.name,
+          email: clientData.email,
+          phone: clientData.phone || undefined,
+          company: clientData.company || undefined,
+          industry: clientData.industry || undefined,
+          website: clientData.website || undefined,
+          billingAddress: clientData.billingAddress || undefined,
+          billingEmail: clientData.billingEmail || undefined,
+          billingPhone: clientData.billingPhone || undefined,
+          status: clientData.status || 'active',
+          customFields: clientData.customFields || [],
+          notes: clientData.notes || undefined,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+
+        clients.push(newClient)
+        existingEmails.add(clientData.email.toLowerCase())
+      } catch (error) {
+        errors.push(`Item ${i + 1}: ${(error as Error).message}`)
+      }
+    }
+  } catch (error) {
+    errors.push(`Invalid JSON format: ${(error as Error).message}`)
+  }
+
+  return { clients, duplicates: duplicateCount, errors }
+}

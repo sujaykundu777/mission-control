@@ -91,11 +91,12 @@ Admin can manage or onboard clients
 - View all Clients
 - Client filters
 - Associate Domains 
+- Import clients via CSV
+- Import clients via JSON
 
 Todo: 
 
-- Import clients
-- Export clients (CSV)
+- Export clients (CSV) (in progress)
 - Add Validations using Joi
 - Add mysql database with prisma orm
 - Need to write test cases in Jest
