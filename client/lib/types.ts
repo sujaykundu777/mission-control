@@ -70,3 +70,8 @@ export interface Domain {
   currency?: 'USD' | 'EUR' | 'INR'
 }
 
+export interface ImportCSVResult {
+  clients: Client[]
+  duplicates: number
+  errors: string[]
+}

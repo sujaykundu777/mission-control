@@ -154,7 +154,6 @@ export const storage = {
   // add new client
   addClient: (client: Client): Client[] => {
     const clients = storage.getClients()
-    console.log('clients', localStorage.getItem(CLIENTS_STORAGE_KEY))
     clients.push(client)
     storage.saveClients(clients)
     return clients;

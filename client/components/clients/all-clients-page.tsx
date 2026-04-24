@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Search, Plus } from "lucide-react";
+import { use, useEffect, useState } from "react";
+import { Search, Plus, ImportIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input'
 import { Client } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { ClientsTable } from "./clients-table";
+import { ImportClientModal } from "./import-client-modal";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 export function AllClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -15,6 +18,9 @@ export function AllClientsPage() {
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'archived'>('all');
+  const [showImportClientModal, setShowImportClientModal] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsLoading(true);
@@ -46,6 +52,8 @@ export function AllClientsPage() {
 
   }, [clients, searchTerm, statusFilter]);
 
+
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -67,12 +75,20 @@ export function AllClientsPage() {
             {stats.totalClients} total • {stats.activeClients} active
           </p>
         </div>
+        <div className="flex">
         <Link href="/clients/add">
           <Button className="bg-primary hover:bg-primary/90">
             <Plus className="w-4 h-4 mr-2" />
             Add Client
           </Button>
         </Link>
+        
+          <Button onClick={() => setShowImportClientModal(true)} className="bg-gray-800 border-1 mx-2 border-gray-200 hover:bg-gray/90">
+              <ImportIcon  className="w-4 h-4 mr-2" />
+              Import via CSV
+          </Button>
+        
+        </div>
       </div>
       {/* Filters */}
       <div className="space-y-4">
@@ -130,6 +146,17 @@ export function AllClientsPage() {
             />
         )
       }
+      {/* Import client dialog */}
+      <ImportClientModal
+          open={showImportClientModal}
+          onOpenChange={setShowImportClientModal}
+          onImportComplete={(clients) => {
+            setShowImportClientModal(false)
+            if (clients.length > 0) {
+             setClients(clients)
+            }
+        }}
+        />
     </div>
   );
 }
