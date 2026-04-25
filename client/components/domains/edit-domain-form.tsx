@@ -2,14 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Domain, ContactInfo } from "@/lib/types";
+import { Domain, ContactInfo, Client} from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import Link from "next/link";
 import { CURRENCIES, Currency } from "@/lib/currency";
+import { ClientSelectorDialog } from '@/components/clients/client-selector-dialog'
 
 interface EditDomainFormProps {
   domainId: string;
@@ -19,6 +20,8 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [domain, setDomain] = useState<Domain | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [showClientSelector, setShowClientSelector] = useState(false)
 
   const [formData, setFormData] = useState({
     registrarUrl: "",
@@ -49,6 +52,10 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
         contactPhone: foundDomain.contactInfo.phone || "",
         notes: foundDomain.notes || "",
       });
+      if (foundDomain.clientId) {
+        const foundClient = storage.getClientById(foundDomain.clientId);
+        setSelectedClient(foundClient);
+      }
     }
   }, [domainId]);
 
@@ -92,6 +99,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
         renewalCurrency: formData.renewalCurrency,
         expirationDate: formData.expirationDate,
         contactInfo: updatedContact,
+        clientId: selectedClient?.id,
         notes: formData.notes,
       });
 
@@ -292,6 +300,49 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
           </div>
         </Card>
 
+         {/* Associated Client */}
+        <Card className="p-6 bg-card border-border">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Associate Client (Optional)</h2>
+          {selectedClient ? (
+            <div className="flex items-center justify-between p-3 bg-background border border-border rounded-md">
+              <div>
+                <p className="font-semibold text-foreground">{selectedClient.name}</p>
+                <p className="text-sm text-muted-foreground">{selectedClient.email}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="border-border"
+                  onClick={() => setShowClientSelector(true)}
+                >
+                  Change
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedClient(null)}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-border"
+              onClick={() => setShowClientSelector(true)}
+            >
+              Select a Client
+            </Button>
+          )}
+        </Card>
+
+
         {/* Additional Notes */}
         <Card className="p-6 bg-card border-border">
           <label className="block text-sm font-medium text-foreground mb-2">
@@ -323,6 +374,13 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
           </Link>
         </div>
       </form>
+
+      {/* Client Selector Dialog */}
+      <ClientSelectorDialog
+        open={showClientSelector}
+        onOpenChange={setShowClientSelector}
+        onSelect={setSelectedClient}
+      />
     </div>
   );
 }

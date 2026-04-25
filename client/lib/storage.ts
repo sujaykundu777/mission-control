@@ -1,8 +1,11 @@
-import { Domain } from './types'
+import { Domain, Client } from './types'
 import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from './indexeddb'
 import { TEST_DOMAINS } from '@/data/test-domains'
 
 const INITIALIZED_KEY = 'initialized'
+
+// clients 
+const CLIENTS_STORAGE_KEY = 'mission-control-os-clients'
 
 // In-memory cache for synchronous access
 let domainsCache: Domain[] | null = null
@@ -52,7 +55,7 @@ export const storage = {
     if (domainsCache === null) {
       // Cache not initialized yet, initialize it in the background
       initializeCacheFromDB().catch(() => {
-        domainsCache = [];
+        domainsCache = []
       })
       return domainsCache || []
     }
@@ -119,4 +122,111 @@ export const storage = {
       totalCosts,
     }
   },
+
+  // get all clients
+  getClients: (): Client[] => {
+    if (typeof window === 'undefined') return []
+    try {
+      const data = localStorage.getItem(CLIENTS_STORAGE_KEY)
+      return data ? JSON.parse(data) : []
+    } catch (error) {
+      console.error('Failed to get clients from localstorage', error)
+      return []
+    }
+  },
+
+  // get client by id
+  getClientById: (id: string): Client | null => {
+    const clients = storage.getClients()
+    return clients.find((c) => c.id === id) || null
+  },
+
+  // save client
+  saveClients: (clients: Client[]): void => {
+    if (typeof window === 'undefined') return
+    try {
+      localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(clients))
+    } catch (error) {
+      console.error('Failed to save clients to localstorage', error);
+    }
+  },
+
+  // add new client
+  addClient: (client: Client): Client[] => {
+    const clients = storage.getClients()
+    clients.push(client)
+    storage.saveClients(clients)
+    return clients;
+  },
+
+  // update existing client 
+  updateClient: (id: string, updates: Partial<Client>): Client[] => {
+    const clients = storage.getClients()
+    const index = clients.findIndex((c) => c.id === id)
+    if (index !== -1) {
+      clients[index] = {
+        ...clients[index],
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      }
+      storage.saveClients(clients);
+    }
+    return clients;
+  },
+
+  deleteClient: (id: string): Client[] => {
+    const clients = storage.getClients().filter((c) => c.id !== id)
+    storage.saveClients(clients)
+
+    // clean up domain associations
+    const domains = storage.getDomains()
+    const updatedDomains = domains.map((d) => d.clientId === id ? { ...d, clientId: undefined } : d);
+    storage.saveDomains(updatedDomains);
+    return clients;
+  },
+
+  // get client domains
+  getClientDomains: (clientId: string): Domain[] => {
+    const domains = storage.getDomains()
+    return domains.filter((d) => d.clientId === clientId);
+  },
+
+  // Associate domain to client
+  associateDomainToClient: (domainId: string, clientId: string): Domain[] => {
+    const domains = storage.getDomains()
+    const index = domains.findIndex((d) => d.id === domainId)
+    if (index !== -1) {
+      domains[index] = { ...domains[index], clientId }
+      storage.saveDomains(domains)
+    }
+    return domains
+  },
+
+  // Disassociate domain to client
+  disassociateDomainFromClient: (domainId: string): Domain[] => {
+    const domains = storage.getDomains()
+    const index = domains.findIndex((d) => d.id === domainId)
+    if (index !== -1) {
+      domains[index] = { ...domains[index], clientId: undefined }
+      storage.saveDomains(domains)
+    }
+    return domains
+  },
+
+  // client stats
+  getClientStats: () => {
+    const clients = storage.getClients()
+    const totalClients = clients.length
+    const activeClients = clients.filter((c) => c.status === 'active').length
+    const inactiveClients = clients.filter((c) => c.status === 'inactive').length
+    const archivedClients = clients.filter((c) => c.status === 'archived').length
+
+    return {
+      totalClients,
+      activeClients,
+      inactiveClients,
+      archivedClients,
+    }
+  },
+
 }

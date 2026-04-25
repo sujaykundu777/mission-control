@@ -59,6 +59,7 @@ User says:
 
 ### Features to build:
 
+✅ Client Management
 ✅ Domain tracker
 ✅ Hosting/subscription tracker
 ✅ Renewal alerts
@@ -79,6 +80,33 @@ You know it’s working when users:
 ✅ Return for renewal alerts
 
 ### Phase 1 :
+
+✅ Feature 0 — Client Management 
+
+Admin can manage or onboard clients
+
+- Add Clients
+- Edit Clients
+- Delete Clients
+- View all Clients
+- Client filters
+- Associate Domains 
+- Import clients via CSV
+- Import clients via JSON
+
+Todo: 
+
+- Export clients (CSV) (in progress)
+- Add Validations using Joi
+- Add mysql database with prisma orm
+- Need to write test cases in Jest
+- Configure Playwright
+- Configure Eslint 
+- Configure prettier
+- Configure husky
+- Configure Authentication using Nextauth and email credentials
+
+
 ✅ Feature 1 — Domain Inventory Tracker
 
 Core MVP pillar.
@@ -330,3 +358,5 @@ Suggest:
 	•	Team infra access
 	•	Client cost sharing
 	•	Permissions
+
+

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Domain } from "@/lib/types";
+import { Domain, Client } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,13 +27,19 @@ interface DomainDetailPageProps {
 export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
   const router = useRouter();
   const [domain, setDomain] = useState<Domain | null>(null);
+  const [client, setClient] = useState<Client | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const foundDomain = storage.getDomainById(domainId);
-    console.log("foundDomain", foundDomain);
     setDomain(foundDomain);
+
+    if (foundDomain?.clientId) {
+      const foundClient = storage.getClientById(foundDomain.clientId);
+      setClient(foundClient);
+    }
+
     setIsLoading(false);
   }, [domainId]);
 
@@ -287,6 +293,43 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
             )}
           </div>
         </Card>
+
+        {
+          client && (
+              <Card className="p-6 bg-card border-border">
+                <h2 className="text-lg font-semibold text-foreground mb-4">Associated Client</h2>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">CLIENT NAME</p>
+                    <Link href={`/clients/${client.id}`}>
+                      <p className="text-primary hover:underline mt-1">{client.name}</p>
+                    </Link>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">EMAIL</p>
+                    <p className="text-foreground mt-1">
+                      <a href={`mailto:${client.email}`} className="text-primary hover:underline">
+                        {client.email}
+                      </a>
+                    </p>
+                  </div>
+                  {client.company && (
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">COMPANY</p>
+                      <p className="text-foreground mt-1">{client.company}</p>
+                    </div>
+                  )}
+                  <div className="pt-2">
+                    <Link href={`/domains/${domain.id}/edit`}>
+                      <Button size="sm" variant="outline" className="border-border">
+                        Change Client
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </Card>
+          )
+        }
       </div>
 
       {/* Services */}

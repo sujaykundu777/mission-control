@@ -34,8 +34,6 @@ export function DomainsList({ domains }: DomainsListProps) {
     return days;
   };
 
-  console.log("domains", domains);
-
   return (
     <div className="space-y-4">
       {domains.map((domain) => {

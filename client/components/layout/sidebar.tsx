@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe, Settings, LayoutDashboard, Plus } from "lucide-react";
+import {
+  Globe,
+  Settings,
+  LayoutDashboard,
+  Plus,
+  Users,
+  CreditCard,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -46,7 +53,23 @@ export function Sidebar() {
           </Button>
         </Link>
 
-        <Link href="/domains">
+      
+
+        <Link href="/clients">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              isActive("/clients") &&
+                "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary",
+            )}
+          >
+            <Users className="w-5 h-5" />
+            Clients
+          </Button>
+        </Link>
+
+          <Link href="/domains">
           <Button
             variant="ghost"
             className={cn(
@@ -57,16 +80,6 @@ export function Sidebar() {
           >
             <Globe className="w-5 h-5" />
             Domains
-          </Button>
-        </Link>
-
-        <Link href="/domains/add">
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground bg-sidebar-accent"
-          >
-            <Plus className="w-5 h-5" />
-            Add Domain
           </Button>
         </Link>
       </nav>
