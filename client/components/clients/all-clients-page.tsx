@@ -1,15 +1,16 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { Search, Plus, ImportIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Search, Plus, ImportIcon, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input'
 import { Client } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { ClientsTable } from "./clients-table";
 import { ImportClientModal } from "./import-client-modal";
+import { ExportClientsDialog } from './export-clients-dialog'
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
 export function AllClientsPage() {
@@ -19,6 +20,8 @@ export function AllClientsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'archived'>('all');
   const [showImportClientModal, setShowImportClientModal] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false)
+
   const router = useRouter();
   const { toast } = useToast();
 
@@ -76,6 +79,15 @@ export function AllClientsPage() {
           </p>
         </div>
         <div className="flex">
+           <Button
+            variant="outline"
+            className="border-border mx-2 hover:bg-card"
+            onClick={() => setShowExportDialog(true)}
+            disabled={clients.length === 0}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
         <Link href="/clients/add">
           <Button className="bg-primary hover:bg-primary/90">
             <Plus className="w-4 h-4 mr-2" />
@@ -146,6 +158,14 @@ export function AllClientsPage() {
             />
         )
       }
+
+      {/* Export Dialog */}
+      <ExportClientsDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        clients={filteredClients}
+      />
+
       {/* Import client dialog */}
       <ImportClientModal
           open={showImportClientModal}
