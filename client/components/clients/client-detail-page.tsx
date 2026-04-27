@@ -10,15 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Edit2, Trash2, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from "@/components/ui/alert-dialog";
 
 export function ClientDetailPage() {
   const params = useParams();
@@ -29,7 +29,7 @@ export function ClientDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [client, setClient] = useState<Client | null>(null);
   const [domains, setDomains] = useState<Domain[]>([]);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  // const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -118,12 +118,24 @@ export function ClientDetailPage() {
             <p className="text-muted-foreground">Client Profile</p>
           </div>
           <div className="flex gap-2">
+              {/* Delete Button */}
+            {/* <div className="flex justify-end">
+              <Button
+                variant="destructive"
+                onClick={() => setShowDeleteDialog(true)}
+                className="bg-destructive hover:bg-destructive/90"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Client
+              </Button>
+            </div> */}
             <Link href={`/clients/${clientId}/edit`}>
               <Button className="bg-primary hover:bg-primary/90">
                 <Edit2 className="w-4 h-4 mr-2" />
                 Edit
               </Button>
             </Link>
+           
           </div>
         </div>
       </div>
@@ -317,20 +329,8 @@ export function ClientDetailPage() {
         </div>
       </Card>
 
-      {/* Delete Button */}
-      <div className="flex justify-end">
-        <Button
-          variant="destructive"
-          onClick={() => setShowDeleteDialog(true)}
-          className="bg-destructive hover:bg-destructive/90"
-        >
-          <Trash2 className="w-4 h-4 mr-2" />
-          Delete Client
-        </Button>
-      </div>
-
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      {/* <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Client</AlertDialogTitle>
@@ -351,7 +351,7 @@ export function ClientDetailPage() {
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </div>
   );
 }
