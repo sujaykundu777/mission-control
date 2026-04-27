@@ -21,9 +21,10 @@ import { useState } from "react";
 interface ClientsTableProps {
   clients: Client[];
   onClientsChange?: () => void;
+  alignment: 'grid' | 'list'
 }
 
-export function ClientsTable({ clients, onClientsChange }: ClientsTableProps) {
+export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTableProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleDelete = () => {
@@ -57,7 +58,10 @@ export function ClientsTable({ clients, onClientsChange }: ClientsTableProps) {
 
   return (
     <>
-      <div className="grid gap-4">
+      {/* <div className="grid gap-4"> */}
+      <div className={`w-[100%] grid gap-10 ${
+        alignment==="grid" ? "grid-cols-1 md:grid-cols-3 lg-grid-cols-3" : null
+      }`}>
         {clients.map((client) => (
           <Card
             key={client.id}
