@@ -42,8 +42,6 @@ export function AddDomainForm() {
   ) => {
     const { name, value, type } = e.target;
 
-    console.log("name", name);
-    console.log("value", value);
     if (type === "checkbox") {
       setFormData((prev) => ({
         ...prev,
@@ -94,7 +92,7 @@ export function AddDomainForm() {
       storage.addDomain(newDomain);
       router.push(`/domains/${newDomain.id}`);
     } catch (error) {
-      console.error("[v0] Error adding domain:", error);
+      console.error("Error adding domain:", error);
       setIsSubmitting(false);
     }
   };

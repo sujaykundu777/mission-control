@@ -3,16 +3,16 @@
 import { Client } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Edit2, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
@@ -21,18 +21,19 @@ import { useState } from "react";
 interface ClientsTableProps {
   clients: Client[];
   onClientsChange?: () => void;
+  alignment: 'grid' | 'list'
 }
 
-export function ClientsTable({ clients, onClientsChange }: ClientsTableProps) {
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTableProps) {
+  // const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const handleDelete = () => {
-    if (deleteId) {
-      storage.deleteClient(deleteId);
-      setDeleteId(null);
-      onClientsChange?.();
-    }
-  };
+  // const handleDelete = () => {
+  //   if (deleteId) {
+  //     storage.deleteClient(deleteId);
+  //     setDeleteId(null);
+  //     onClientsChange?.();
+  //   }
+  // };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -57,13 +58,17 @@ export function ClientsTable({ clients, onClientsChange }: ClientsTableProps) {
 
   return (
     <>
-      <div className="grid gap-4">
+      {/* <div className="grid gap-4"> */}
+      <div className={`w-[100%] grid gap-10 ${
+        alignment==="grid" ? "grid-cols-1 md:grid-cols-3 lg-grid-cols-3" : null
+      }`}>
         {clients.map((client) => (
           <Card
             key={client.id}
             className="p-4 bg-card border-border hover:border-primary/50 transition-colors"
           >
-            <div className="flex items-start justify-between">
+            {alignment === 'list' && (
+             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
                   <h3 className="text-lg font-semibold text-foreground truncate">
@@ -119,21 +124,70 @@ export function ClientsTable({ clients, onClientsChange }: ClientsTableProps) {
                     <Edit2 className="w-4 h-4" />
                   </Button>
                 </Link>
-                <Button
+                {/* <Button
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground hover:text-destructive"
                   onClick={() => setDeleteId(client.id)}
                 >
                   <Trash2 className="w-4 h-4" />
-                </Button>
+                </Button> */}
               </div>
             </div>
+            )}
+
+            {alignment === 'grid' && (
+              <>
+                <Badge className={getStatusColor(client.status)}>
+                  {client.status.charAt(0).toUpperCase() +
+                    client.status.slice(1)}
+                </Badge>
+                 <CardHeader>
+                 
+                   <CardTitle>{client.name}</CardTitle>
+                   <CardDescription> {client.company} </CardDescription>
+                   
+                 </CardHeader>
+                 <CardContent>
+                  <p className="truncate">{client.email}</p>
+                 </CardContent>
+                   <CardFooter>
+                      <Link href={`/clients/${client.id}`}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      <Link href={`/clients/${client.id}/edit`}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-muted-foreground hover:text-foreground"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                      {/* <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-muted-foreground hover:text-destructive"
+                        onClick={() => setDeleteId(client.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button> */}
+                      
+                  </CardFooter>
+              </>
+            )}
+            
           </Card>
         ))}
       </div>
 
-      <AlertDialog
+      {/* <AlertDialog
         open={deleteId !== null}
         onOpenChange={(open) => !open && setDeleteId(null)}
       >
@@ -157,7 +211,7 @@ export function ClientsTable({ clients, onClientsChange }: ClientsTableProps) {
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </>
   );
 }

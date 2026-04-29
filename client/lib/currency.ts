@@ -55,7 +55,7 @@ export const getCurrencyFromStorageAsync = async (): Promise<Currency> => {
     )
     return stored?.value || DEFAULT_CURRENCY
   } catch (error) {
-    console.error('[v0] Failed to load currency from IndexedDB:', error)
+    console.error('Failed to load currency from IndexedDB:', error)
     return DEFAULT_CURRENCY
   }
 }
@@ -65,6 +65,6 @@ export const setCurrencyInStorageAsync = async (currency: Currency): Promise<voi
   try {
     await saveToDB(DB_STORES.SETTINGS, { key: 'currency', value: currency })
   } catch (error) {
-    console.error('[v0] Failed to save currency to IndexedDB:', error)
+    console.error('Failed to save currency to IndexedDB:', error)
   }
 }

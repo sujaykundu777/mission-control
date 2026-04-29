@@ -50,38 +50,41 @@ export function EditClientForm() {
     });
 
     useEffect(() => {
-        setIsLoading(true);
+        const fetchClient = async () => {
+            setIsLoading(true);
 
-        const foundClient = storage.getClientById(clientId);
+            const foundClient = await storage.getClientById(clientId);
 
-        if (foundClient) {
-            setClient(foundClient)
-            const clientDomains = storage.getClientDomains(clientId);
-            setDomains(clientDomains);
-            setFormData({
-                name: foundClient.name,
-                email: foundClient.email,
-                phone: foundClient.phone || '',
-                status: foundClient.status,
-                company: foundClient.company || '',
-                industry: foundClient.industry || '',
-                website: foundClient.website || '',
-                billingAddress: foundClient.billingAddress || '',
-                billingEmail: foundClient.billingEmail || '',
-                billingPhone: foundClient.billingPhone || '',
-                customFields: foundClient.customFields,
-                notes: foundClient.notes || ''
-            });
-        } else {
-            toast({
-                title: 'Error',
-                description: 'Client not found',
-                variant: 'destructive'
-            });
-            router.push('/clients');
-        }
-        setIsLoading(false);
+            if (foundClient) {
+                setClient(foundClient)
+                const clientDomains = storage.getClientDomains(clientId);
+                setDomains(clientDomains);
+                setFormData({
+                    name: foundClient.name,
+                    email: foundClient.email,
+                    phone: foundClient.phone || '',
+                    status: foundClient.status,
+                    company: foundClient.company || '',
+                    industry: foundClient.industry || '',
+                    website: foundClient.website || '',
+                    billingAddress: foundClient.billingAddress || '',
+                    billingEmail: foundClient.billingEmail || '',
+                    billingPhone: foundClient.billingPhone || '',
+                    customFields: foundClient.customFields,
+                    notes: foundClient.notes || ''
+                });
+            } else {
+                toast({
+                    title: 'Error',
+                    description: 'Client not found',
+                    variant: 'destructive'
+                });
+                router.push('/clients');
+            }
+            setIsLoading(false);
+        };
 
+        fetchClient();
     }, [clientId, router, toast]);
 
 
@@ -103,9 +106,9 @@ export function EditClientForm() {
             // update the client
             storage.updateClient(clientId, {
                 name: formData.name,
-                 email: formData.email,
+                email: formData.email,
                 phone: formData.phone || undefined,
-                status: formData.status || 'inactive',
+                status: (formData.status as 'active' | 'inactive' | 'archived') || 'inactive',
                 company: formData.company || undefined,
                 industry: formData.industry || undefined,
                 website: formData.website || undefined,
@@ -123,7 +126,7 @@ export function EditClientForm() {
             router.push(`/clients/${clientId}`);
 
         } catch (error) {
-            console.error('[v0] Error updating client:', error);
+            console.error('Error updating client:', error);
             toast({
                 title: 'Error',
                 description: 'Failed to update client. Please try again',
@@ -174,34 +177,45 @@ export function EditClientForm() {
     };
 
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         try {
-        storage.deleteClient(clientId)
+        await storage.deleteClient(clientId)
         toast({
             title: 'Success',
             description: 'Client deleted successfully.',
         })
         router.push('/clients')
         } catch (error) {
-        console.error('[v0] Error deleting client:', error)
+        console.error(' Error deleting client:', error)
         toast({
             title: 'Error',
             description: 'Failed to delete client. Please try again.',
             variant: 'destructive',
         })
-        }
+      }
     }
 
     return (
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <Link href={`/clients/${clientId}`}>
+                <div className='flex flex-row justify-end'>
+                    <Link href={`/clients/${clientId}`}>
                     <Button variant="ghost" className='mb-4 text-muted-foreground hover:text-foreground'>
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back to client
+                        Back to clients
                     </Button>
-                </Link>
+                    </Link>
+                   <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => setShowDeleteDialog(true)}
+                        className="bg-destructive hover:bg-destructive/90"
+                    >
+                        Delete Client
+                    </Button>
+                
+                </div>
                 <h1 className='text-3xl font-bold text-foreground'> Edit Client </h1>
                 <p className='text-muted-foreground mt-2'> Update client information</p>
             </div>
@@ -418,11 +432,11 @@ export function EditClientForm() {
                             </p>
                             </div>
                             <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveDomain(domain.id)}
-                            className="text-muted-foreground hover:text-destructive ml-2"
-                            >
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemoveDomain(domain.id)}
+                                className="text-muted-foreground hover:text-destructive ml-2"
+                                >
                             <Trash2 className="w-4 h-4" />
                             </Button>
                         </div>
@@ -445,15 +459,8 @@ export function EditClientForm() {
                 </Card>
 
                     {/* Form Actions */}
-                 <div className="flex gap-3 justify-between">
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => setShowDeleteDialog(true)}
-                        className="bg-destructive hover:bg-destructive/90"
-                    >
-                        Delete Client
-                    </Button>
+                 <div className="flex gap-3 justify-end">
+                  
                     <div className="flex gap-3">
                         <Link href={`/clients/${clientId}`}>
                         <Button type="button" variant="outline" className="border-border">
@@ -479,7 +486,7 @@ export function EditClientForm() {
                     <div className="flex gap-3 justify-end">
                         <AlertDialogCancel className="border-border">Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                        onClick={handleDelete}
+                        onClick={async () => await handleDelete()}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                         Delete

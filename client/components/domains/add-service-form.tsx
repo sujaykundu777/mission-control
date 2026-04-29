@@ -89,7 +89,7 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
 
       router.push(`/domains/${domainId}`)
     } catch (error) {
-      console.error('[v0] Error saving service:', error)
+      console.error('Error saving service:', error)
       setIsSubmitting(false)
     }
   }

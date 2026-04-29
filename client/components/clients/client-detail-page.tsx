@@ -10,15 +10,15 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Edit2, Trash2, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+// } from "@/components/ui/alert-dialog";
 
 export function ClientDetailPage() {
   const params = useParams();
@@ -29,43 +29,46 @@ export function ClientDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [client, setClient] = useState<Client | null>(null);
   const [domains, setDomains] = useState<Domain[]>([]);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  // const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-    const foundClient = storage.getClientById(clientId);
-    if (foundClient) {
-      setClient(foundClient);
-      const clientDomains = storage.getClientDomains(clientId);
-      setDomains(clientDomains);
-    } else {
-      toast({
-        title: "Error",
-        description: "Client not found.",
-        variant: "destructive",
-      });
-      router.push("/clients");
-    }
-    setIsLoading(false);
+    const fetchClient = async () => {
+      setIsLoading(true);
+      const foundClient = await storage.getClientById(clientId);
+      if (foundClient) {
+        setClient(foundClient);
+        const clientDomains = storage.getClientDomains(clientId);
+        setDomains(clientDomains);
+      } else {
+        toast({
+          title: "Error",
+          description: "Client not found.",
+          variant: "destructive",
+        });
+        router.push("/clients");
+      }
+      setIsLoading(false);
+    };
+    fetchClient();
   }, [clientId, router, toast]);
 
-  const handleDelete = () => {
-    try {
-      storage.deleteClient(clientId);
-      toast({
-        title: "Success",
-        description: "Client deleted successfully.",
-      });
-      router.push("/clients");
-    } catch (error) {
-      console.error("[v0] Error deleting client:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete client. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+  // const handleDelete = () => {
+  //   try {
+  //     storage.deleteClient(clientId);
+  //     toast({
+  //       title: "Success",
+  //       description: "Client deleted successfully.",
+  //     });
+  //     router.push("/clients");
+  //   } catch (error) {
+  //     console.error("Error deleting client:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to delete client. Please try again.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -115,15 +118,27 @@ export function ClientDetailPage() {
                 {client.status.charAt(0).toUpperCase() + client.status.slice(1)}
               </Badge>
             </div>
-            <p className="text-muted-foreground">Client Profile</p>
+            <p className="text-muted-foreground">  Client ID : {client.clientId}</p>
           </div>
           <div className="flex gap-2">
+              {/* Delete Button */}
+            {/* <div className="flex justify-end">
+              <Button
+                variant="destructive"
+                onClick={() => setShowDeleteDialog(true)}
+                className="bg-destructive hover:bg-destructive/90"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Client
+              </Button>
+            </div> */}
             <Link href={`/clients/${clientId}/edit`}>
               <Button className="bg-primary hover:bg-primary/90">
                 <Edit2 className="w-4 h-4 mr-2" />
                 Edit
               </Button>
             </Link>
+           
           </div>
         </div>
       </div>
@@ -317,20 +332,8 @@ export function ClientDetailPage() {
         </div>
       </Card>
 
-      {/* Delete Button */}
-      <div className="flex justify-end">
-        <Button
-          variant="destructive"
-          onClick={() => setShowDeleteDialog(true)}
-          className="bg-destructive hover:bg-destructive/90"
-        >
-          <Trash2 className="w-4 h-4 mr-2" />
-          Delete Client
-        </Button>
-      </div>
-
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      {/* <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="bg-card border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Client</AlertDialogTitle>
@@ -351,7 +354,7 @@ export function ClientDetailPage() {
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </div>
   );
 }

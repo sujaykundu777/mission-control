@@ -52,7 +52,7 @@ export function ImportClientModal({
         setImportErrors([]);
         try {
             const text = await file.text()
-            const result = importClientsFromCSV(text);
+            const result = await importClientsFromCSV(text);
 
               if (result.duplicates > 0) {
                 setDuplicateCount(result.duplicates)
@@ -90,7 +90,7 @@ export function ImportClientModal({
 
         try {
         const text = await file.text()
-        const result = importClientsFromJSON(text)
+        const result = await importClientsFromJSON(text)
 
         if (result.errors.length > 0) {
             setImportErrors(result.errors)
@@ -108,17 +108,17 @@ export function ImportClientModal({
         }
     }
 
-    const handleConfirmImport = () => {
+    const handleConfirmImport = async () => {
          setIsProcessing(true)
          try {
             let importedCount = 0
-            const existingClients = storage.getClients()
+            const existingClients = await storage.getClients()
 
-            importedClients.forEach((client) => {
+            importedClients.forEach(async (client) => {
                 const isDuplicate = existingClients.some((ec) => ec.email.toLowerCase() === client.email.toLowerCase())
 
                 if (!isDuplicate) {
-                storage.addClient(client)
+                await storage.addClient(client)
                 importedCount++
                 }
             })
@@ -127,7 +127,7 @@ export function ImportClientModal({
             setImportStep('results')
 
             if (onImportComplete) {
-                const updatedClients = storage.getClients()
+                const updatedClients = await storage.getClients()
                
                 setTimeout(() => {
                      setImportStep('results')

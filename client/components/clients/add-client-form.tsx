@@ -78,7 +78,7 @@ export function AddClientForm() {
   };
 
   // On submit
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -93,8 +93,11 @@ export function AddClientForm() {
         return;
       }
 
+      const existingClients = await storage.getClients();
+      const newClientCount = `CL000` + (existingClients.length + 1); 
       const newClient: Client = {
         id: `client-${Date.now()}`,
+        clientId: newClientCount,
         name: formData.name,
         email: formData.email,
         phone: formData.phone || undefined,
@@ -111,13 +114,15 @@ export function AddClientForm() {
         updatedAt: new Date().toISOString(),
       };
 
-      storage.addClient(newClient);
-
-      toast({
-        title: "Success",
-        description: "Client added successfully.",
+      await storage.addClient(newClient).then(() => {
+        toast({
+          title: "Success",
+          description: "Client added successfully.",
+        });
+        router.push(`/clients/${newClient.id}`);
       });
-      router.push(`/clients/${newClient.id}`);
+
+   
     } catch (error) {
       console.error("Error Adding client", error);
       toast({

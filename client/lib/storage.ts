@@ -5,9 +5,10 @@ import { TEST_DOMAINS } from '@/data/test-domains'
 const INITIALIZED_KEY = 'initialized'
 
 // clients 
-const CLIENTS_STORAGE_KEY = 'mission-control-os-clients'
+// const CLIENTS_STORAGE_KEY = 'mission-control-os-clients'
 
 // In-memory cache for synchronous access
+let clientsCache: Client[] | null = null;
 let domainsCache: Domain[] | null = null
 let isCacheInitialized = false
 
@@ -17,13 +18,33 @@ const initializeCacheFromDB = async (): Promise<void> => {
   if (isCacheInitialized) return
 
   try {
+
+    const clients = await getAllFromDB<Client>(DB_STORES.CLIENTS)
     const domains = await getAllFromDB<Domain>(DB_STORES.DOMAINS)
-    
-    if (domains.length === 0) {
-      const isInitialized = await getFromDB<{ key: string; value: boolean }>(
+    const isInitialized = await getFromDB<{ key: string; value: boolean }>(
         DB_STORES.SETTINGS,
         INITIALIZED_KEY
-      )
+    )
+    if (clients.length === 0) {
+      if (!isInitialized) {
+      
+        // Mark as initialized
+        // await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
+        // domainsCache = TEST_DOMAINS
+        clientsCache = clients;
+      } else {
+        clientsCache = []
+      }
+      
+    } else {
+      clientsCache = clients;
+    }
+    
+    if (domains.length === 0) {
+      // const isInitialized = await getFromDB<{ key: string; value: boolean }>(
+      //   DB_STORES.SETTINGS,
+      //   INITIALIZED_KEY
+      // )
       
       if (!isInitialized) {
         // Save test domains
@@ -43,12 +64,39 @@ const initializeCacheFromDB = async (): Promise<void> => {
     isCacheInitialized = true
   } catch (error) {
     console.error('Failed to initialize cache from IndexedDB:', error)
+    clientsCache = []
     domainsCache = []
     isCacheInitialized = true
   }
 }
 
 export const storage = {
+
+  getClients: async (): Promise<Client[]> => {
+    if (typeof window === 'undefined') return []
+    
+    if (clientsCache === null) {
+      await initializeCacheFromDB()
+    }
+    return clientsCache || []
+  },
+
+  saveClients: (clients: Client[]) : void => {
+    if (typeof window === 'undefined') return
+
+    clientsCache = clients
+    Promise.all(clients.map((client) => saveToDB(DB_STORES.CLIENTS, client))).catch(
+      (error) => console.error('Failed to save client to IndexedDB:', error)
+    )
+  },
+
+  addClient: async (client: Client): Promise<Client[]> => {
+    const clients = await storage.getClients()
+    clients.push(client)
+    storage.saveClients(clients);
+    return clients;
+  },
+ 
   getDomains: (): Domain[] => {
     if (typeof window === 'undefined') return []
 
@@ -124,44 +172,26 @@ export const storage = {
   },
 
   // get all clients
-  getClients: (): Client[] => {
-    if (typeof window === 'undefined') return []
-    try {
-      const data = localStorage.getItem(CLIENTS_STORAGE_KEY)
-      return data ? JSON.parse(data) : []
-    } catch (error) {
-      console.error('Failed to get clients from localstorage', error)
-      return []
-    }
-  },
+  // getClients: (): Client[] => {
+  //   if (typeof window === 'undefined') return []
+  //   try {
+  //     const data = localStorage.getItem(CLIENTS_STORAGE_KEY)
+  //     return data ? JSON.parse(data) : []
+  //   } catch (error) {
+  //     console.error('Failed to get clients from localstorage', error)
+  //     return []
+  //   }
+  // },
 
   // get client by id
-  getClientById: (id: string): Client | null => {
-    const clients = storage.getClients()
+  getClientById: async (id: string): Promise<Client | null> => {
+    const clients = await storage.getClients()
     return clients.find((c) => c.id === id) || null
   },
 
-  // save client
-  saveClients: (clients: Client[]): void => {
-    if (typeof window === 'undefined') return
-    try {
-      localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(clients))
-    } catch (error) {
-      console.error('Failed to save clients to localstorage', error);
-    }
-  },
-
-  // add new client
-  addClient: (client: Client): Client[] => {
-    const clients = storage.getClients()
-    clients.push(client)
-    storage.saveClients(clients)
-    return clients;
-  },
-
   // update existing client 
-  updateClient: (id: string, updates: Partial<Client>): Client[] => {
-    const clients = storage.getClients()
+  updateClient: async (id: string, updates: Partial<Client>): Promise<Client[]> => {
+    const clients = await storage.getClients()
     const index = clients.findIndex((c) => c.id === id)
     if (index !== -1) {
       clients[index] = {
@@ -174,9 +204,13 @@ export const storage = {
     return clients;
   },
 
-  deleteClient: (id: string): Client[] => {
-    const clients = storage.getClients().filter((c) => c.id !== id)
+  deleteClient: async (id: string): Promise<Client[]> => {
+    const clients = (await storage.getClients()).filter((c) => c.id !== id)
+    clientsCache = clients
     storage.saveClients(clients)
+    deleteFromDB(DB_STORES.CLIENTS, id).catch((error) =>
+      console.error('Failed to delete client from IndexedDB:', error)
+    )
 
     // clean up domain associations
     const domains = storage.getDomains()
@@ -214,8 +248,8 @@ export const storage = {
   },
 
   // client stats
-  getClientStats: () => {
-    const clients = storage.getClients()
+  getClientStats: async () => {
+    const clients = await storage.getClients()
     const totalClients = clients.length
     const activeClients = clients.filter((c) => c.status === 'active').length
     const inactiveClients = clients.filter((c) => c.status === 'inactive').length

@@ -21,7 +21,6 @@ export function AllDomainsPage() {
   useEffect(() => {
     setIsLoading(true);
     const allDomains = storage.getDomains();
-    console.log("allDomains", allDomains);
     setDomains(allDomains);
     setIsLoading(false);
   }, []);

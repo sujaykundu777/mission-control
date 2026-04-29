@@ -1,6 +1,7 @@
 const DB_NAME = 'mission-control-db'
 const DB_VERSION = 1
 const STORES = {
+    CLIENTS: 'clients',
     DOMAINS: 'domains',
     SETTINGS: 'settings'
 }
@@ -28,6 +29,11 @@ export const initDB = async (): Promise<IDBDatabase> => {
 
         request.onupgradeneeded = (event) => {
             const db = (event.target as IDBOpenDBRequest).result
+
+            // Create clients store
+            if (!db.objectStoreNames.contains(STORES.CLIENTS)) {
+              db.createObjectStore(STORES.CLIENTS, { keyPath: 'id'})
+            }
 
             // Create domains store 
             if (!db.objectStoreNames.contains(STORES.DOMAINS)) {
