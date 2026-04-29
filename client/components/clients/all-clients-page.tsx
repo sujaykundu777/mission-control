@@ -22,15 +22,22 @@ export function AllClientsPage() {
   const [showImportClientModal, setShowImportClientModal] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false)
   const [clientsView, setClientsView] = useState<'grid' | 'list'>('list')
+  const [stats, setStats] = useState({ totalClients: 0, activeClients: 0 });
 
+  
   // const router = useRouter();
   // const { toast } = useToast();
 
   useEffect(() => {
-    setIsLoading(true);
-    const allClients = storage.getClients();
-    setClients(allClients);
-    setIsLoading(false);
+    const loadClients = async () => {
+      setIsLoading(true);
+      const allClients = await storage.getClients();
+      setClients(allClients);
+      const clientStats = await storage.getClientStats();
+      setStats(clientStats);
+      setIsLoading(false);
+    };
+    loadClients();
   }, []);
 
   useEffect(() => {
@@ -61,8 +68,6 @@ export function AllClientsPage() {
       </div>
     );
   }
-
-  const stats = storage.getClientStats();
 
   return (
     <div className="space-y-8">
@@ -250,7 +255,7 @@ export function AllClientsPage() {
         ) : (
            <ClientsTable
               clients={filteredClients}
-              onClientsChange={() => setClients(storage.getClients())}
+              onClientsChange={async () => setClients(await storage.getClients())}
               alignment={clientsView}
             />
         )

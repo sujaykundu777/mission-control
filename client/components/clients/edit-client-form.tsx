@@ -50,38 +50,41 @@ export function EditClientForm() {
     });
 
     useEffect(() => {
-        setIsLoading(true);
+        const fetchClient = async () => {
+            setIsLoading(true);
 
-        const foundClient = storage.getClientById(clientId);
+            const foundClient = await storage.getClientById(clientId);
 
-        if (foundClient) {
-            setClient(foundClient)
-            const clientDomains = storage.getClientDomains(clientId);
-            setDomains(clientDomains);
-            setFormData({
-                name: foundClient.name,
-                email: foundClient.email,
-                phone: foundClient.phone || '',
-                status: foundClient.status,
-                company: foundClient.company || '',
-                industry: foundClient.industry || '',
-                website: foundClient.website || '',
-                billingAddress: foundClient.billingAddress || '',
-                billingEmail: foundClient.billingEmail || '',
-                billingPhone: foundClient.billingPhone || '',
-                customFields: foundClient.customFields,
-                notes: foundClient.notes || ''
-            });
-        } else {
-            toast({
-                title: 'Error',
-                description: 'Client not found',
-                variant: 'destructive'
-            });
-            router.push('/clients');
-        }
-        setIsLoading(false);
+            if (foundClient) {
+                setClient(foundClient)
+                const clientDomains = storage.getClientDomains(clientId);
+                setDomains(clientDomains);
+                setFormData({
+                    name: foundClient.name,
+                    email: foundClient.email,
+                    phone: foundClient.phone || '',
+                    status: foundClient.status,
+                    company: foundClient.company || '',
+                    industry: foundClient.industry || '',
+                    website: foundClient.website || '',
+                    billingAddress: foundClient.billingAddress || '',
+                    billingEmail: foundClient.billingEmail || '',
+                    billingPhone: foundClient.billingPhone || '',
+                    customFields: foundClient.customFields,
+                    notes: foundClient.notes || ''
+                });
+            } else {
+                toast({
+                    title: 'Error',
+                    description: 'Client not found',
+                    variant: 'destructive'
+                });
+                router.push('/clients');
+            }
+            setIsLoading(false);
+        };
 
+        fetchClient();
     }, [clientId, router, toast]);
 
 
@@ -123,7 +126,7 @@ export function EditClientForm() {
             router.push(`/clients/${clientId}`);
 
         } catch (error) {
-            console.error('[v0] Error updating client:', error);
+            console.error('Error updating client:', error);
             toast({
                 title: 'Error',
                 description: 'Failed to update client. Please try again',
@@ -174,22 +177,22 @@ export function EditClientForm() {
     };
 
 
-    const handleDelete = () => {
+    const handleDelete = async () => {
         try {
-        storage.deleteClient(clientId)
+        await storage.deleteClient(clientId)
         toast({
             title: 'Success',
             description: 'Client deleted successfully.',
         })
         router.push('/clients')
         } catch (error) {
-        console.error('[v0] Error deleting client:', error)
+        console.error(' Error deleting client:', error)
         toast({
             title: 'Error',
             description: 'Failed to delete client. Please try again.',
             variant: 'destructive',
         })
-        }
+      }
     }
 
     return (
@@ -483,7 +486,7 @@ export function EditClientForm() {
                     <div className="flex gap-3 justify-end">
                         <AlertDialogCancel className="border-border">Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                        onClick={handleDelete}
+                        onClick={async () => await handleDelete()}
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                         Delete

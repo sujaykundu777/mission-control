@@ -5,6 +5,7 @@ export interface CustomField {
 
 export interface Client {
   id: string;
+  clientId: string;
   name: string;
   email: string;
   phone?: string;

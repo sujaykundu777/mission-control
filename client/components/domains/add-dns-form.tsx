@@ -86,7 +86,7 @@ export function AddDNSForm({ domainId, recordId, isEdit = false }: AddDNSFormPro
 
       router.push(`/domains/${domainId}`)
     } catch (error) {
-      console.error('[v0] Error saving DNS record:', error)
+      console.error('Error saving DNS record:', error)
       setIsSubmitting(false)
     }
   }

@@ -25,15 +25,15 @@ interface ClientsTableProps {
 }
 
 export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTableProps) {
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  // const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const handleDelete = () => {
-    if (deleteId) {
-      storage.deleteClient(deleteId);
-      setDeleteId(null);
-      onClientsChange?.();
-    }
-  };
+  // const handleDelete = () => {
+  //   if (deleteId) {
+  //     storage.deleteClient(deleteId);
+  //     setDeleteId(null);
+  //     onClientsChange?.();
+  //   }
+  // };
 
   const getStatusColor = (status: string) => {
     switch (status) {

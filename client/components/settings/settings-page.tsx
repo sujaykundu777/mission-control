@@ -40,7 +40,7 @@ export function SettingsPage() {
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("[v0] Error exporting data:", error);
+      console.error("Error exporting data:", error);
     } finally {
       setIsExporting(false);
     }

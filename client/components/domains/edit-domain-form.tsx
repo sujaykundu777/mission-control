@@ -38,25 +38,28 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
   // const registrars = ["Hostinger", "GoDaddy", "Namecheap", "other"];
 
   useEffect(() => {
-    const foundDomain = storage.getDomainById(domainId);
-    if (foundDomain) {
-      setDomain(foundDomain);
-      setFormData({
-        registrarUrl: foundDomain.registrarUrl || "",
-        autoRenew: foundDomain.autoRenew,
-        renewalPrice: foundDomain.renewalPrice,
-        renewalCurrency: (foundDomain.renewalCurrency || "INR") as Currency,
-        expirationDate: foundDomain.expirationDate,
-        contactName: foundDomain.contactInfo.name,
-        contactEmail: foundDomain.contactInfo.email,
-        contactPhone: foundDomain.contactInfo.phone || "",
-        notes: foundDomain.notes || "",
-      });
-      if (foundDomain.clientId) {
-        const foundClient = storage.getClientById(foundDomain.clientId);
-        setSelectedClient(foundClient);
+    const loadDomain = async () => {
+      const foundDomain = storage.getDomainById(domainId);
+      if (foundDomain) {
+        setDomain(foundDomain);
+        setFormData({
+          registrarUrl: foundDomain.registrarUrl || "",
+          autoRenew: foundDomain.autoRenew,
+          renewalPrice: foundDomain.renewalPrice,
+          renewalCurrency: (foundDomain.renewalCurrency || "INR") as Currency,
+          expirationDate: foundDomain.expirationDate,
+          contactName: foundDomain.contactInfo.name,
+          contactEmail: foundDomain.contactInfo.email,
+          contactPhone: foundDomain.contactInfo.phone || "",
+          notes: foundDomain.notes || "",
+        });
+        if (foundDomain.clientId) {
+          const foundClient = await storage.getClientById(foundDomain.clientId);
+          setSelectedClient(foundClient);
+        }
       }
-    }
+    };
+    loadDomain();
   }, [domainId]);
 
   const handleChange = (
@@ -105,7 +108,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
 
       router.push(`/domains/${domainId}`);
     } catch (error) {
-      console.error("[v0] Error updating domain:", error);
+      console.error("Error updating domain:", error);
       setIsSubmitting(false);
     }
   };

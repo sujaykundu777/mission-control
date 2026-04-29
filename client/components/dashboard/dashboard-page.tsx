@@ -29,14 +29,17 @@ export function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    const allDomains = storage.getDomains();
-    const calculatedStats = storage.getStats();
-    const calculatedClientStats = storage.getClientStats();
-    setDomains(allDomains);
-    setStats(calculatedStats);
-    setClientStats(calculatedClientStats);
-    setIsLoading(false);
+    const loadData = async () => {
+      setIsLoading(true);
+      const allDomains = storage.getDomains();
+      const calculatedStats = storage.getStats();
+      const calculatedClientStats = await storage.getClientStats();
+      setDomains(allDomains);
+      setStats(calculatedStats);
+      setClientStats(calculatedClientStats);
+      setIsLoading(false);
+    };
+    loadData();
   }, []);
 
   if (isLoading) {

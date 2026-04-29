@@ -16,7 +16,7 @@ Jane Smith,jane@example.com,+1-666-987-6543,Globex Inc,Finance,https://www.globe
     document.body.removeChild(link);
 }
 
-export function importClientsFromCSV(csvContent: string): ImportCSVResult {
+export async function importClientsFromCSV(csvContent: string): Promise<ImportCSVResult> {
     const lines = csvContent.trim().split('\n');
     const clients: Client[] = []
     const errors: string[] = []
@@ -34,7 +34,7 @@ export function importClientsFromCSV(csvContent: string): ImportCSVResult {
 
     const headers = lines[0].split(',').map((h) => h.trim().toLowerCase().replace(/"/g, ''));
     // fetch existing emails
-    const existingEmails = new Set(storage.getClients().map((c) => c.email.toLowerCase()));
+    const existingEmails = new Set((await storage.getClients()).map((c) => c.email.toLowerCase()));
 
     // expected headers
     const nameIndex = headers.indexOf('name');
@@ -81,9 +81,11 @@ export function importClientsFromCSV(csvContent: string): ImportCSVResult {
                 duplicateCount++
                 continue
             }
-
+            const existingClients = await storage.getClients();
+            const newClientCount = `CL000` + (existingClients.length + 1); 
             const newClient: Client = {
                 id: `client-${Date.now()}-${i}`,
+                clientId: newClientCount,
                 name,
                 email,
                 phone: phone || undefined,
@@ -152,7 +154,7 @@ export function downloadJSONTemplate() {
   document.body.removeChild(link)
 }
 
-export function importClientsFromJSON(jsonContent: string): ImportCSVResult {
+export async function importClientsFromJSON(jsonContent: string): Promise<ImportCSVResult> {
   const clients: Client[] = []
   const errors: string[] = []
   let duplicateCount = 0
@@ -160,7 +162,7 @@ export function importClientsFromJSON(jsonContent: string): ImportCSVResult {
   try {
     const data = JSON.parse(jsonContent)
     const clientsData = Array.isArray(data) ? data : [data]
-    const existingEmails = new Set(storage.getClients().map((c) => c.email.toLowerCase()))
+    const existingEmails = new Set(await (await storage.getClients()).map((c) => c.email.toLowerCase()))
 
     for (let i = 0; i < clientsData.length; i++) {
       try {
@@ -175,9 +177,11 @@ export function importClientsFromJSON(jsonContent: string): ImportCSVResult {
           duplicateCount++
           continue
         }
-
+        const existingClients = await storage.getClients();
+        const newClientCount = `CL000` + (existingClients.length + 1); 
         const newClient: Client = {
           id: `client-${Date.now()}-${i}`,
+          clientId: newClientCount,
           name: clientData.name,
           email: clientData.email,
           phone: clientData.phone || undefined,

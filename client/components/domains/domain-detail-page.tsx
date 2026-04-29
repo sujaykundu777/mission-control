@@ -32,15 +32,19 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const foundDomain = storage.getDomainById(domainId);
-    setDomain(foundDomain);
+    const fetchData = async () => {
+      const foundDomain = storage.getDomainById(domainId);
+      setDomain(foundDomain);
 
-    if (foundDomain?.clientId) {
-      const foundClient = storage.getClientById(foundDomain.clientId);
-      setClient(foundClient);
-    }
+      if (foundDomain?.clientId) {
+        const foundClient = await storage.getClientById(foundDomain.clientId);
+        setClient(foundClient);
+      }
 
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+
+    fetchData();
   }, [domainId]);
 
   if (isLoading) {

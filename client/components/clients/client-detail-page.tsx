@@ -32,40 +32,43 @@ export function ClientDetailPage() {
   // const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-    const foundClient = storage.getClientById(clientId);
-    if (foundClient) {
-      setClient(foundClient);
-      const clientDomains = storage.getClientDomains(clientId);
-      setDomains(clientDomains);
-    } else {
-      toast({
-        title: "Error",
-        description: "Client not found.",
-        variant: "destructive",
-      });
-      router.push("/clients");
-    }
-    setIsLoading(false);
+    const fetchClient = async () => {
+      setIsLoading(true);
+      const foundClient = await storage.getClientById(clientId);
+      if (foundClient) {
+        setClient(foundClient);
+        const clientDomains = storage.getClientDomains(clientId);
+        setDomains(clientDomains);
+      } else {
+        toast({
+          title: "Error",
+          description: "Client not found.",
+          variant: "destructive",
+        });
+        router.push("/clients");
+      }
+      setIsLoading(false);
+    };
+    fetchClient();
   }, [clientId, router, toast]);
 
-  const handleDelete = () => {
-    try {
-      storage.deleteClient(clientId);
-      toast({
-        title: "Success",
-        description: "Client deleted successfully.",
-      });
-      router.push("/clients");
-    } catch (error) {
-      console.error("[v0] Error deleting client:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete client. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
+  // const handleDelete = () => {
+  //   try {
+  //     storage.deleteClient(clientId);
+  //     toast({
+  //       title: "Success",
+  //       description: "Client deleted successfully.",
+  //     });
+  //     router.push("/clients");
+  //   } catch (error) {
+  //     console.error("Error deleting client:", error);
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to delete client. Please try again.",
+  //       variant: "destructive",
+  //     });
+  //   }
+  // };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -115,7 +118,7 @@ export function ClientDetailPage() {
                 {client.status.charAt(0).toUpperCase() + client.status.slice(1)}
               </Badge>
             </div>
-            <p className="text-muted-foreground">Client Profile</p>
+            <p className="text-muted-foreground">  Client ID : {client.clientId}</p>
           </div>
           <div className="flex gap-2">
               {/* Delete Button */}

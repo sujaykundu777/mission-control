@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Client } from '@/lib/types'
 import { storage } from '@/lib/storage'
 import { Button } from '@/components/ui/button'
@@ -28,7 +28,14 @@ export function ClientSelectorDialog({
   excludeIds = [],
 }: ClientSelectorDialogProps) {
   const [searchTerm, setSearchTerm] = useState('')
-  const allClients = storage.getClients()
+  const [allClients, setAllClients] = useState<Client[]>([])
+
+  useEffect(() => {
+    const loadClients = async () => {
+      await storage.getClients().then(setAllClients)
+    }
+    loadClients()
+  }, [])
 
   const filteredClients = useMemo(() => {
     return allClients.filter((client) => {
@@ -41,7 +48,7 @@ export function ClientSelectorDialog({
         (client.company && client.company.toLowerCase().includes(searchTerm.toLowerCase()))
       )
     })
-  }, [searchTerm, allClients, excludeIds])
+  }, [searchTerm, excludeIds, allClients])
 
   const handleSelect = (client: Client) => {
     onSelect(client)
