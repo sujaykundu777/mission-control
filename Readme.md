@@ -93,11 +93,11 @@ Admin can manage or onboard clients
 - Associate Domains 
 - Import clients via CSV
 - Import clients via JSON
+- Export clients (CSV)
 
 Todo: 
 
-- Export clients (CSV) (in progress)
-- Add Validations using Joi
+- Add Validations using Yup and Zod (in progress)
 - Add mysql database with prisma orm
 - Need to write test cases in Jest
 - Configure Playwright

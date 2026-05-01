@@ -7,6 +7,7 @@ import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Edit2, Trash2, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -142,219 +143,228 @@ export function ClientDetailPage() {
           </div>
         </div>
       </div>
-      
-      {/* Notes */}
-      {client.notes && (
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-xl font-semibold text-foreground mb-4">Notes</h2>
-          <p className="text-foreground whitespace-pre-wrap">{client.notes}</p>
-        </Card>
-      )}
 
-
-      {/* Contact Information */}
-      <Card className="p-6 bg-card border-border">
-        <h2 className="text-xl font-semibold text-foreground mb-4">
-          Contact Information
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">
-              Email
-            </p>
-            <p className="text-foreground">{client.email}</p>
-          </div>
-          {client.phone && (
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">
-                Phone
-              </p>
-              <p className="text-foreground">{client.phone}</p>
-            </div>
-          )}
-        </div>
-      </Card>
-
-      {/* Company Information */}
-      {(client.company || client.industry || client.website) && (
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            Company Information
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {client.company && (
+      <Tabs defaultValue="overview">
+      <TabsList>
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="notes">Notes</TabsTrigger>
+        <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+        <TabsTrigger value="other">Other</TabsTrigger>
+      </TabsList>
+      <TabsContent value="overview">
+         <div className="py-4">
+          {/* Contact Information */}
+          <Card className="p-6 bg-card border-border">
+            <h2 className="text-xl font-semibold text-foreground mb-4">
+              Contact Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">
-                  Company
+                  Email
                 </p>
-                <p className="text-foreground">{client.company}</p>
+                <p className="text-foreground">{client.email}</p>
               </div>
-            )}
-            {client.industry && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">
-                  Industry
-                </p>
-                <p className="text-foreground">{client.industry}</p>
-              </div>
-            )}
-            {client.website && (
-              <div className="md:col-span-2">
-                <p className="text-sm font-medium text-muted-foreground mb-1">
-                  Website
-                </p>
-                <a
-                  href={client.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  {client.website}
-                </a>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {/* Billing Information */}
-      {(client.billingAddress ||
-        client.billingEmail ||
-        client.billingPhone) && (
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            Billing Information
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {client.billingAddress && (
-              <div className="md:col-span-2">
-                <p className="text-sm font-medium text-muted-foreground mb-1">
-                  Billing Address
-                </p>
-                <p className="text-foreground whitespace-pre-wrap">
-                  {client.billingAddress}
-                </p>
-              </div>
-            )}
-            {client.billingEmail && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">
-                  Billing Email
-                </p>
-                <p className="text-foreground">{client.billingEmail}</p>
-              </div>
-            )}
-            {client.billingPhone && (
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">
-                  Billing Phone
-                </p>
-                <p className="text-foreground">{client.billingPhone}</p>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {/* Custom Fields */}
-      {client.customFields.length > 0 && (
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            Custom Fields
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {client.customFields.map((field, index) => (
-              <div key={index}>
-                <p className="text-sm font-medium text-muted-foreground mb-1">
-                  {field.key}
-                </p>
-                <p className="text-foreground">{field.value}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Associated Domains */}
-      <Card className="p-6 bg-card border-border">
-        <h2 className="text-xl font-semibold text-foreground mb-4">
-          Associated Domains ({domains.length})
-        </h2>
-        {domains.length === 0 ? (
-          <p className="text-muted-foreground">
-            No domains associated with this client yet.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {domains.map((domain) => (
-              <div
-                key={domain.id}
-                className="flex items-center justify-between p-3 bg-background border border-border rounded-md"
-              >
-                <div className="flex-1 min-w-0">
-                  <Link href={`/domains/${domain.id}`}>
-                    <p className="font-semibold text-primary hover:underline truncate">
-                      {domain.name}
-                    </p>
-                  </Link>
-                  <p className="text-sm text-muted-foreground">
-                    Expires:{" "}
-                    {new Date(domain.expirationDate).toLocaleDateString()}
+              {client.phone && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">
+                    Phone
                   </p>
+                  <p className="text-foreground">{client.phone}</p>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+              )}
+            </div>
+          </Card>
 
- 
-      {/* Metadata */}
-      <Card className="p-6 bg-card border-border">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Metadata</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">
-              Created
-            </p>
-            <p className="text-foreground">
-              {new Date(client.createdAt).toLocaleString()}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground mb-1">
-              Last Updated
-            </p>
-            <p className="text-foreground">
-              {new Date(client.updatedAt).toLocaleString()}
-            </p>
-          </div>
+            {/* Company Information */}
+            {(client.company || client.industry || client.website) && (
+              <Card className="p-6 my-2 bg-card border-border">
+                <h2 className="text-xl font-semibold text-foreground mb-4">
+                  Company Information
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {client.company && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Company
+                      </p>
+                      <p className="text-foreground">{client.company}</p>
+                    </div>
+                  )}
+                  {client.industry && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Industry
+                      </p>
+                      <p className="text-foreground">{client.industry}</p>
+                    </div>
+                  )}
+                  {client.website && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Website
+                      </p>
+                      <a
+                        href={client.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        {client.website}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
+
+            {/* Billing Information */}
+            {(client.billingAddress ||
+              client.billingEmail ||
+              client.billingPhone) && (
+              <Card className="p-6 my-2 bg-card border-border">
+                <h2 className="text-xl font-semibold text-foreground mb-4">
+                  Billing Information
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {client.billingAddress && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Billing Address
+                      </p>
+                      <p className="text-foreground whitespace-pre-wrap">
+                        {client.billingAddress}
+                      </p>
+                    </div>
+                  )}
+                  {client.billingEmail && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Billing Email
+                      </p>
+                      <p className="text-foreground">{client.billingEmail}</p>
+                    </div>
+                  )}
+                  {client.billingPhone && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Billing Phone
+                      </p>
+                      <p className="text-foreground">{client.billingPhone}</p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
+
+
+              {/* Custom Fields */}
+              {client.customFields.length > 0 && (
+                <Card className="p-6 my-2 bg-card border-border">
+                  <h2 className="text-xl font-semibold text-foreground mb-4">
+                    Custom Fields
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {client.customFields.map((field, index) => (
+                      <div key={index}>
+                        <p className="text-sm font-medium text-muted-foreground mb-1">
+                          {field.key}
+                        </p>
+                        <p className="text-foreground">{field.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
         </div>
-      </Card>
 
-      {/* Delete Confirmation Dialog */}
-      {/* <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-card border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Client</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this client? This action cannot be
-              undone. Associated domains will be unlinked from this client.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex gap-3 justify-end">
-            <AlertDialogCancel className="border-border">
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
+      </TabsContent>
+      <TabsContent value="notes">
+
+          <div className="py-4">
+                {/* Notes */}
+                {client.notes && (
+                  <Card className="p-6 bg-card border-border">
+                    <h2 className="text-xl font-semibold text-foreground mb-4">Notes</h2>
+                    <p className="text-foreground whitespace-pre-wrap">{client.notes}</p>
+                  </Card>
+                )}
           </div>
-        </AlertDialogContent>
-      </AlertDialog> */}
+
+      </TabsContent>
+
+      <TabsContent value="subscriptions">
+         
+          <div className="py-4">
+                 {/* Associated Domains */}
+                  <Card className="p-6 bg-card border-border">
+                    <h2 className="text-xl font-semibold text-foreground mb-4">
+                      Associated Domains ({domains.length})
+                    </h2>
+                    {domains.length === 0 ? (
+                      <p className="text-muted-foreground">
+                        No domains associated with this client yet.
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {domains.map((domain) => (
+                          <div
+                            key={domain.id}
+                            className="flex items-center justify-between p-3 bg-background border border-border rounded-md"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <Link href={`/domains/${domain.id}`}>
+                                <p className="font-semibold text-primary hover:underline truncate">
+                                  {domain.name}
+                                </p>
+                              </Link>
+                              <p className="text-sm text-muted-foreground">
+                                Expires:{" "}
+                                {new Date(domain.expirationDate).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </Card>
+
+          </div>
+
+      </TabsContent>
+
+       <TabsContent value="other">
+
+            <div className="py-4">
+            
+            {/* Metadata */}
+              <Card className="p-6 bg-card border-border">
+                <h2 className="text-xl font-semibold text-foreground mb-4">Metadata</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">
+                      Created
+                    </p>
+                    <p className="text-foreground">
+                      {new Date(client.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">
+                      Last Updated
+                    </p>
+                    <p className="text-foreground">
+                      {new Date(client.updatedAt).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+            </div>
+       </TabsContent>
+    </Tabs>
+
     </div>
   );
 }

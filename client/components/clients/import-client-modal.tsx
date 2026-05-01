@@ -77,7 +77,6 @@ export function ImportClientModal({
             setImportErrors(['Failed to read CSV file:' + (error instanceof Error ? error.message : 'Unknown error')])
         } finally {
             setIsProcessing(false);
-            
         }
     }
 
@@ -118,8 +117,9 @@ export function ImportClientModal({
                 const isDuplicate = existingClients.some((ec) => ec.email.toLowerCase() === client.email.toLowerCase())
 
                 if (!isDuplicate) {
-                await storage.addClient(client)
-                importedCount++
+                 await storage.addClient(client).then(() => {
+                    importedCount++
+                 })
                 }
             })
 
