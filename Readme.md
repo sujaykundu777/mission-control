@@ -94,11 +94,12 @@ Admin can manage or onboard clients
 - Import clients via CSV
 - Import clients via JSON
 - Export clients (CSV)
+- Client Summary via AI
 
 Todo: 
 
 - Add Validations using Yup and Zod (in progress)
-- Add mysql database with prisma orm
+- Add supabase database with prisma orm
 - Need to write test cases in Jest
 - Configure Playwright
 - Configure Eslint 

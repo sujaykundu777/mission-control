@@ -42,6 +42,7 @@ export function ClientDetailPage() {
       const foundClient = await storage.getClientById(clientId);
       if (foundClient) {
         setClient(foundClient);
+        if (foundClient.summary) setSummary(foundClient.summary);
         const clientDomains = storage.getClientDomains(clientId);
         setDomains(clientDomains);
       } else {
@@ -73,8 +74,15 @@ export function ClientDetailPage() {
     try {
       setIsGeneratingSummary(true);
       const generatedSummary = await generateClientSummary(client, domains);
-      setSummary(generatedSummary);
-      toast.success('Client summary generated successfully')
+
+      await storage.updateClient(client.id,{
+        summary: generatedSummary
+      }).then(() => {
+        setSummary(generatedSummary);
+        toast.success('Client summary generated successfully')
+      }).catch((err) => {
+        throw new Error(err);
+      })
     }
     catch (error) {
       console.log('Error Generating Summary', error);

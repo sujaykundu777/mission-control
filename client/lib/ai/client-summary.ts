@@ -52,7 +52,7 @@ export async function generateClientSummary(client: Client, clientDomains: Domai
             prompt: `Please generate a professional summary for the following client:\n\n${clientContext}`,
             temperature: 0.7,
             maxOutputTokens: 500
-        })
+        });
 
         return result.text
 
