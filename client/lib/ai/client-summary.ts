@@ -12,7 +12,7 @@ import { createMistral } from '@ai-sdk/mistral';
 // });
 
 const mistral = createMistral({
-    apiKey: 'jTKXXqp4NbUnRd2kWIuJzMoiHcUN2Vdj'
+    apiKey: process.env.MISTRAL_API_KEY
 })
 
 export async function generateClientSummary(client: Client, clientDomains: Domain[]): Promise<string> {

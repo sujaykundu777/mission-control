@@ -12,6 +12,7 @@ import { ArrowLeft, Edit2, Trash2, Link as LinkIcon, Sparkles, Loader } from "lu
 import Link from "next/link";
 import { toast } from "sonner"
 import {generateClientSummary} from '@/lib/ai/client-summary';
+import StreamingText from "../ui/streaming-text";
 
 // import {
 //   AlertDialog,
@@ -180,7 +181,11 @@ export function ClientDetailPage() {
               </div>
               {
                 summary ? (
-                  <p className="text-foreground leading-relaxed">{summary}</p>
+                   <>
+                     {/* {summary}
+                     */}
+                     <StreamingText text={summary} />
+                    </>
                 ) : (
                   <p className="text-muted-foreground italic">
                     Click "Generate Summary" to create an AI-powered summary of this client
