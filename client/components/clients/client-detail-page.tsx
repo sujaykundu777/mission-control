@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Edit2, Trash2, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, Link as LinkIcon, Sparkles, Loader } from "lucide-react";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner"
+import {generateClientSummary} from '@/lib/ai/client-summary';
+
 // import {
 //   AlertDialog,
 //   AlertDialogAction,
@@ -24,12 +26,13 @@ import { useToast } from "@/hooks/use-toast";
 export function ClientDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { toast } = useToast();
   const clientId = params.id as string;
 
   const [isLoading, setIsLoading] = useState(true);
   const [client, setClient] = useState<Client | null>(null);
   const [domains, setDomains] = useState<Domain[]>([]);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState<boolean>(false);
   // const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
@@ -41,11 +44,7 @@ export function ClientDetailPage() {
         const clientDomains = storage.getClientDomains(clientId);
         setDomains(clientDomains);
       } else {
-        toast({
-          title: "Error",
-          description: "Client not found.",
-          variant: "destructive",
-        });
+        toast.error('Client not found')
         router.push("/clients");
       }
       setIsLoading(false);
@@ -53,23 +52,6 @@ export function ClientDetailPage() {
     fetchClient();
   }, [clientId, router, toast]);
 
-  // const handleDelete = () => {
-  //   try {
-  //     storage.deleteClient(clientId);
-  //     toast({
-  //       title: "Success",
-  //       description: "Client deleted successfully.",
-  //     });
-  //     router.push("/clients");
-  //   } catch (error) {
-  //     console.error("Error deleting client:", error);
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to delete client. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -83,6 +65,23 @@ export function ClientDetailPage() {
         return "bg-muted text-muted-foreground";
     }
   };
+
+  const handleGenerateSummary = async () => {
+    if (!client) return;
+    
+    try {
+      setIsGeneratingSummary(true);
+      const generatedSummary = await generateClientSummary(client, domains);
+      setSummary(generatedSummary);
+      toast.success('Client summary generated successfully')
+    }
+    catch (error) {
+      console.log('Error Generating Summary', error);
+      toast.error('Failed to generate summary. Please Try Again')
+    } finally {
+      setIsGeneratingSummary(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -153,6 +152,43 @@ export function ClientDetailPage() {
       </TabsList>
       <TabsContent value="overview">
          <div className="py-4">
+
+            {/* AI Summary */}
+            <Card className="p-6 my-2 bg-card border-border">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Client Summary
+                </h2>
+                <Button
+                  onClick={handleGenerateSummary}
+                  disabled={isGeneratingSummary}
+                  className="bg-primary hover:bg-primary/90 flex items-center gap-2"
+                  >
+                    {isGeneratingSummary ? (
+                      <>
+                        <Loader className="w-4 h-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4" />
+                        Generate Summary
+                      </>
+                    )}
+                  </Button>
+              </div>
+              {
+                summary ? (
+                  <p className="text-foreground leading-relaxed">{summary}</p>
+                ) : (
+                  <p className="text-muted-foreground italic">
+                    Click "Generate Summary" to create an AI-powered summary of this client
+                  </p>
+                )
+              }
+            </Card>
+
           {/* Contact Information */}
           <Card className="p-6 bg-card border-border">
             <h2 className="text-xl font-semibold text-foreground mb-4">

@@ -10,8 +10,8 @@ import { ClientsTable } from "./clients-table";
 import { ImportClientModal } from "./import-client-modal";
 import { ExportClientsDialog } from './export-clients-dialog'
 import Link from "next/link";
+// import { toast } from "sonner"
 // import { useRouter } from "next/navigation";
-// import { useToast } from "@/hooks/use-toast";
 
 export function AllClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -26,7 +26,6 @@ export function AllClientsPage() {
 
   
   // const router = useRouter();
-  // const { toast } = useToast();
 
   useEffect(() => {
     const loadClients = async () => {

@@ -1,6 +1,7 @@
 import { Domain, Client } from './types'
 import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from './indexeddb'
 import { TEST_DOMAINS } from '@/data/test-domains'
+import { TEST_CLIENT } from '@/data/test-client'
 
 const INITIALIZED_KEY = 'initialized'
 
@@ -28,10 +29,11 @@ const initializeCacheFromDB = async (): Promise<void> => {
     if (clients.length === 0) {
       if (!isInitialized) {
       
+        // Save test client
+        await saveToDB(DB_STORES.CLIENTS, TEST_CLIENT)
         // Mark as initialized
-        // await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
-        // domainsCache = TEST_DOMAINS
-        clientsCache = clients;
+        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
+        clientsCache = [TEST_CLIENT]
       } else {
         clientsCache = []
       }
@@ -73,8 +75,9 @@ const initializeCacheFromDB = async (): Promise<void> => {
 export const storage = {
 
   getClients: async (): Promise<Client[]> => {
+    // console.log('window', window);
     if (typeof window === 'undefined') return []
-    
+    console.log('clientsCache', clientsCache);
     if (clientsCache === null) {
       await initializeCacheFromDB()
     }
@@ -186,12 +189,15 @@ export const storage = {
   // get client by id
   getClientById: async (id: string): Promise<Client | null> => {
     const clients = await storage.getClients()
+    console.log('id', id);
+    console.log('clients', clients);
     return clients.find((c) => c.id === id) || null
   },
 
   // update existing client 
   updateClient: async (id: string, updates: Partial<Client>): Promise<Client[]> => {
     const clients = await storage.getClients()
+    console.log('clients >> update')
     const index = clients.findIndex((c) => c.id === id)
     if (index !== -1) {
       clients[index] = {
@@ -264,3 +270,5 @@ export const storage = {
   },
 
 }
+
+

@@ -9,12 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { toast } from "sonner"
 
 export function AddClientForm() {
   const router = useRouter();
-  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -84,11 +83,7 @@ export function AddClientForm() {
 
     try {
       if (!formData.name.trim() || !formData.email.trim()) {
-        toast({
-          title: "Validation Error",
-          description: "Name and email are required fields",
-          variant: "destructive",
-        });
+        toast.warning('Name and email are required fields');
         setIsSubmitting(false);
         return;
       }
@@ -115,21 +110,14 @@ export function AddClientForm() {
       };
 
       await storage.addClient(newClient).then(() => {
-        toast({
-          title: "Success",
-          description: "Client added successfully.",
-        });
+        toast.success('Client added successfully');
         router.push(`/clients/${newClient.id}`);
       });
 
    
     } catch (error) {
       console.error("Error Adding client", error);
-      toast({
-        title: "Error",
-        description: "Failed to add client. Please try again.",
-        variant: "destructive",
-      });
+      toast.error('Failed to add client. Please try again.')
       setIsSubmitting(false);
     }
   };
