@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Client, CustomField } from "@/lib/types";
+import { Contact, CustomField } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner"
 
-export function AddClientForm() {
+export function AddContactForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -88,11 +88,11 @@ export function AddClientForm() {
         return;
       }
 
-      const existingClients = await storage.getClients();
-      const newClientCount = `CL000` + (existingClients.length + 1); 
-      const newClient: Client = {
-        id: `client-${Date.now()}`,
-        clientId: newClientCount,
+      const existingContacts = await storage.getContacts();
+      const newContactCount = `CL000` + (existingContacts.length + 1); 
+      const newContact: Contact = {
+        id: `contact-${Date.now()}`,
+        contactId: newContactCount,
         name: formData.name,
         email: formData.email,
         phone: formData.phone || undefined,
@@ -109,15 +109,15 @@ export function AddClientForm() {
         updatedAt: new Date().toISOString(),
       };
 
-      await storage.addClient(newClient).then(() => {
-        toast.success('Client added successfully');
-        router.push(`/clients/${newClient.id}`);
+      await storage.addContact(newContact).then(() => {
+        toast.success('Contact added successfully');
+        router.push(`/contacts/${newContact.id}`);
       });
 
    
     } catch (error) {
-      console.error("Error Adding client", error);
-      toast.error('Failed to add client. Please try again.')
+      console.error("Error Adding Contact", error);
+      toast.error('Failed to add contact. Please try again.')
       setIsSubmitting(false);
     }
   };
@@ -126,18 +126,18 @@ export function AddClientForm() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <Link href="/clients">
+        <Link href="/contacts">
           <Button
             variant="ghost"
             className="mb-4 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Clients
+            Back to Contacts
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold text-foreground">Add New Client</h1>
+        <h1 className="text-3xl font-bold text-foreground">Add New Contact</h1>
         <p className="text-muted-foreground mt-2">
-          Create a new client profile with all relevant information
+          Create a new contact profile with all relevant information
         </p>
       </div>
 
@@ -157,7 +157,7 @@ export function AddClientForm() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Client name"
+                placeholder="Contact name"
                 className="bg-background border-border"
                 required
               />
@@ -172,7 +172,7 @@ export function AddClientForm() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="client@example.com"
+                placeholder="johndoe@gmail.com"
                 className="bg-background border-border"
                 required
               />
@@ -311,7 +311,7 @@ export function AddClientForm() {
             name="notes"
             value={formData.notes}
             onChange={handleChange}
-            placeholder="Add any additional notes or information about this client..."
+            placeholder="Add any additional notes or information about this contact..."
             className="bg-background border-border"
             rows={4}
           />
@@ -369,7 +369,7 @@ export function AddClientForm() {
 
         {/* Form Actions */}
         <div className="flex gap-3 justify-end">
-          <Link href="/clients">
+          <Link href="/contacts">
             <Button type="button" variant="outline" className="border-border">
               Cancel
             </Button>
@@ -379,7 +379,7 @@ export function AddClientForm() {
             className="bg-primary hover:bg-primary/90"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Adding Client..." : "Add Client"}
+            {isSubmitting ? "Adding Contact..." : "Add Contact"}
           </Button>
         </div>
       </form>

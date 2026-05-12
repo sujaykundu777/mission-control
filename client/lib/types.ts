@@ -3,6 +3,27 @@ export interface CustomField {
   value: string
 }
 
+
+export interface Contact {
+  id: string;
+  contactId: string;
+  summary?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  industry?: string;
+  website?: string;
+  billingAddress?: string;
+  billingEmail?: string;
+  billingPhone?: string;
+  status: 'active' | 'inactive' | 'archived'
+  customFields: CustomField[]
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Client {
   id: string;
   clientId: string;
@@ -67,13 +88,13 @@ export interface Domain {
   services: Service[];
   dnsRecords: DNSRecord[];
   contactInfo: ContactInfo;
-  clientId?: string;
+  contactId?: string;
   notes?: string;
   currency?: 'USD' | 'EUR' | 'INR'
 }
 
 export interface ImportCSVResult {
-  clients: Client[]
+  contacts: Contact[]
   duplicates: number
   errors: string[]
 }

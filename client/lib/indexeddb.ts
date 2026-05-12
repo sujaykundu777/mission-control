@@ -2,6 +2,7 @@ const DB_NAME = 'mission-control-db'
 const DB_VERSION = 1
 const STORES = {
     CLIENTS: 'clients',
+    CONTACTS: 'contacts',
     DOMAINS: 'domains',
     SETTINGS: 'settings'
 }
@@ -31,9 +32,15 @@ export const initDB = async (): Promise<IDBDatabase> => {
             const db = (event.target as IDBOpenDBRequest).result
 
             // Create clients store
-            if (!db.objectStoreNames.contains(STORES.CLIENTS)) {
-              db.createObjectStore(STORES.CLIENTS, { keyPath: 'id'})
+            // if (!db.objectStoreNames.contains(STORES.CLIENTS)) {
+            //   db.createObjectStore(STORES.CLIENTS, { keyPath: 'id'})
+            // }
+
+            // Create Contacts Store
+             if (!db.objectStoreNames.contains(STORES.CONTACTS)) {
+              db.createObjectStore(STORES.CONTACTS, { keyPath: 'id'})
             }
+
 
             // Create domains store 
             if (!db.objectStoreNames.contains(STORES.DOMAINS)) {

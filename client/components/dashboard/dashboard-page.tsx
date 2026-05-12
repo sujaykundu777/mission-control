@@ -18,12 +18,20 @@ export function DashboardPage() {
     totalCosts: 0,
   });
 
-  const [clientStats, setClientStats] = useState({
-    totalClients: 0,
-    activeClients: 0,
-    inactiveClients: 0,
-    archivedClients: 0,
+  // const [clientStats, setClientStats] = useState({
+  //   totalClients: 0,
+  //   activeClients: 0,
+  //   inactiveClients: 0,
+  //   archivedClients: 0,
+  // });
+
+  const [contactStats, setContactStats] = useState({
+    totalContacts: 0,
+    activeContacts: 0,
+    inactiveContacts: 0,
+    archivedContacts: 0,
   });
+
 
   const [domains, setDomains] = useState<Domain[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,10 +41,10 @@ export function DashboardPage() {
       setIsLoading(true);
       const allDomains = storage.getDomains();
       const calculatedStats = storage.getStats();
-      const calculatedClientStats = await storage.getClientStats();
+      const calculatedContactStats = await storage.getContactsStats();
       setDomains(allDomains);
       setStats(calculatedStats);
-      setClientStats(calculatedClientStats);
+      setContactStats(calculatedContactStats);
       setIsLoading(false);
     };
     loadData();
@@ -57,7 +65,7 @@ export function DashboardPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground mt-2">
-            Manage and monitor all your domains and clients
+            Manage and monitor all your activities
           </p>
         </div>
         <Link href="/domains/add">
@@ -68,10 +76,10 @@ export function DashboardPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <StatCard
-          title="Total Clients"
-          value={clientStats.totalClients}
+          title="Total Contacts"
+          value={contactStats.totalContacts}
           icon={<Users className="w-6 h-6" />}
-          description={`${clientStats.activeClients} active`}
+          description={`${contactStats.activeContacts} active`}
         />
         <StatCard
           title="Total Domains"

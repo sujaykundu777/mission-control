@@ -11,31 +11,31 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Client } from '@/lib/types';
-import { exportClientsAsCSV, exportClientsAsJSON } from '@/lib/export/export-clients';
+import { Contact } from '@/lib/types';
+import { exportContactsAsCSV, exportContactsAsJSON } from '@/lib/export/export-clients';
 import { Download, FileText, Code } from 'lucide-react';
 
 
-interface ExportClientsDialogProps {
+interface ExportContactsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  clients: Client[]
+  contacts: Contact[]
 }
 
-export function ExportClientsDialog({
+export function ExportContactsDialog({
   open,
   onOpenChange,
-  clients,
-}: ExportClientsDialogProps) {
+  contacts,
+}: ExportContactsDialogProps) {
   const [selectedFormat, setSelectedFormat] = useState<'csv' | 'json' | null>(null)
 
   const handleExportCSV = () => {
-    exportClientsAsCSV(clients)
+    exportContactsAsCSV(contacts)
     onOpenChange(false)
   }
 
   const handleExportJSON = () => {
-    exportClientsAsJSON(clients)
+    exportContactsAsJSON(contacts)
     onOpenChange(false)
   }
 
@@ -43,9 +43,9 @@ export function ExportClientsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Export Clients</DialogTitle>
+          <DialogTitle>Export Contacts</DialogTitle>
           <DialogDescription>
-            Choose a format to export your {clients.length} client{clients.length !== 1 ? 's' : ''}
+            Choose a format to export your {contacts.length} contact{contacts.length !== 1 ? 's' : ''}
           </DialogDescription>
         </DialogHeader>
 

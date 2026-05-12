@@ -1,7 +1,7 @@
-import { Domain, Client } from './types'
+import { Domain, Client, Contact } from './types'
 import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from './indexeddb'
 import { TEST_DOMAINS } from '@/data/test-domains'
-import { TEST_CLIENT } from '@/data/test-client'
+import { TEST_CLIENT, TEST_CONTACT} from '@/data/test-client'
 
 const INITIALIZED_KEY = 'initialized'
 
@@ -9,7 +9,8 @@ const INITIALIZED_KEY = 'initialized'
 // const CLIENTS_STORAGE_KEY = 'mission-control-os-clients'
 
 // In-memory cache for synchronous access
-let clientsCache: Client[] | null = null;
+// let clientsCache: Client[] | null = null;
+let contactsCache: Contact[] | null = null;
 let domainsCache: Domain[] | null = null
 let isCacheInitialized = false
 
@@ -20,26 +21,27 @@ const initializeCacheFromDB = async (): Promise<void> => {
 
   try {
 
-    const clients = await getAllFromDB<Client>(DB_STORES.CLIENTS)
+    // const clients = await getAllFromDB<Client>(DB_STORES.CLIENTS)
+    const contacts = await getAllFromDB<Contact>(DB_STORES.CONTACTS)
     const domains = await getAllFromDB<Domain>(DB_STORES.DOMAINS)
     const isInitialized = await getFromDB<{ key: string; value: boolean }>(
         DB_STORES.SETTINGS,
         INITIALIZED_KEY
     )
-    if (clients.length === 0) {
+    if (contacts.length === 0) {
       if (!isInitialized) {
       
-        // Save test client
-        await saveToDB(DB_STORES.CLIENTS, TEST_CLIENT)
+        // Save test contact
+        await saveToDB(DB_STORES.CONTACTS, TEST_CONTACT)
         // Mark as initialized
         await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
-        clientsCache = [TEST_CLIENT]
+        contactsCache = [TEST_CONTACT]
       } else {
-        clientsCache = []
+        contactsCache = []
       }
       
     } else {
-      clientsCache = clients;
+      contactsCache = contacts;
     }
     
     if (domains.length === 0) {
@@ -66,7 +68,8 @@ const initializeCacheFromDB = async (): Promise<void> => {
     isCacheInitialized = true
   } catch (error) {
     console.error('Failed to initialize cache from IndexedDB:', error)
-    clientsCache = []
+    // clientsCache = []
+    contactsCache = [];
     domainsCache = []
     isCacheInitialized = true
   }
@@ -74,30 +77,45 @@ const initializeCacheFromDB = async (): Promise<void> => {
 
 export const storage = {
 
-  getClients: async (): Promise<Client[]> => {
-    // console.log('window', window);
+  getContacts: async (): Promise<Contact[]> => {
     if (typeof window === 'undefined') return []
-    console.log('clientsCache', clientsCache);
-    if (clientsCache === null) {
+    if (contactsCache === null) {
       await initializeCacheFromDB()
     }
-    return clientsCache || []
+    return contactsCache || []
   },
 
-  saveClients: (clients: Client[]) : void => {
+  // saveClients: (clients: Client[]) : void => {
+  //   if (typeof window === 'undefined') return
+
+  //   clientsCache = clients
+  //   Promise.all(clients.map((client) => saveToDB(DB_STORES.CLIENTS, client))).catch(
+  //     (error) => console.error('Failed to save client to IndexedDB:', error)
+  //   )
+  // },
+
+  // addClient: async (client: Client): Promise<Client[]> => {
+  //   const clients = await storage.getContacts()
+  //   clients.push(client)
+  //   storage.saveClients(clients);
+  //   return clients;
+  // },
+
+
+  saveContacts: (contacts: Contact[]) : void => {
     if (typeof window === 'undefined') return
 
-    clientsCache = clients
-    Promise.all(clients.map((client) => saveToDB(DB_STORES.CLIENTS, client))).catch(
-      (error) => console.error('Failed to save client to IndexedDB:', error)
+    contactsCache = contacts
+    Promise.all(contacts.map((contact) => saveToDB(DB_STORES.CONTACTS, contact))).catch(
+      (error) => console.error('Failed to save contact to IndexedDB:', error)
     )
   },
 
-  addClient: async (client: Client): Promise<Client[]> => {
-    const clients = await storage.getClients()
-    clients.push(client)
-    storage.saveClients(clients);
-    return clients;
+  addContact: async (contact: Contact): Promise<Contact[]> => {
+    const contacts = await storage.getContacts()
+    contacts.push(contact)
+    storage.saveContacts(contacts);
+    return contacts;
   },
  
   getDomains: (): Domain[] => {
@@ -187,56 +205,98 @@ export const storage = {
   // },
 
   // get client by id
-  getClientById: async (id: string): Promise<Client | null> => {
-    const clients = await storage.getClients()
-    console.log('id', id);
-    console.log('clients', clients);
-    return clients.find((c) => c.id === id) || null
+  // getClientById: async (id: string): Promise<Client | null> => {
+  //   const clients = await storage.getContacts()
+  //   console.log('id', id);
+  //   console.log('clients', clients);
+  //   return clients.find((c) => c.id === id) || null
+  // },
+
+  getContactById: async (id: string): Promise<Contact | null> => {
+    const contacts = await storage.getContacts()
+    return contacts.find((c) => c.id === id) || null
   },
 
+
   // update existing client 
-  updateClient: async (id: string, updates: Partial<Client>): Promise<Client[]> => {
-    const clients = await storage.getClients()
-    console.log('clients >> update')
-    const index = clients.findIndex((c) => c.id === id)
+  // updateClient: async (id: string, updates: Partial<Client>): Promise<Client[]> => {
+  //   const clients = await storage.getContacts()
+  //   console.log('clients >> update')
+  //   const index = clients.findIndex((c) => c.id === id)
+  //   if (index !== -1) {
+  //     clients[index] = {
+  //       ...clients[index],
+  //       ...updates,
+  //       updatedAt: new Date().toISOString(),
+  //     }
+  //     storage.saveClients(clients);
+  //   }
+  //   return clients;
+  // },
+
+  updateContact: async (id: string, updates: Partial<Contact>): Promise<Contact[]> => {
+    const contacts = await storage.getContacts()
+    const index = contacts.findIndex((c) => c.id === id)
     if (index !== -1) {
-      clients[index] = {
-        ...clients[index],
+      contacts[index] = {
+        ...contacts[index],
         ...updates,
         updatedAt: new Date().toISOString(),
       }
-      storage.saveClients(clients);
+      storage.saveContacts(contacts);
     }
-    return clients;
+    return contacts;
   },
 
-  deleteClient: async (id: string): Promise<Client[]> => {
-    const clients = (await storage.getClients()).filter((c) => c.id !== id)
-    clientsCache = clients
-    storage.saveClients(clients)
-    deleteFromDB(DB_STORES.CLIENTS, id).catch((error) =>
-      console.error('Failed to delete client from IndexedDB:', error)
+  // deleteClient: async (id: string): Promise<Client[]> => {
+  //   const clients = (await storage.getContacts()).filter((c) => c.id !== id)
+  //   clientsCache = clients
+  //   storage.saveClients(clients)
+  //   deleteFromDB(DB_STORES.CLIENTS, id).catch((error) =>
+  //     console.error('Failed to delete client from IndexedDB:', error)
+  //   )
+
+  //   // clean up domain associations
+  //   const domains = storage.getDomains()
+  //   const updatedDomains = domains.map((d) => d.clientId === id ? { ...d, clientId: undefined } : d);
+  //   storage.saveDomains(updatedDomains);
+  //   return clients;
+  // },
+
+  deleteContact: async (id: string): Promise<Contact[]> => {
+    const contacts = (await storage.getContacts()).filter((c) => c.id !== id)
+    contactsCache = contacts
+    storage.saveContacts(contacts)
+    deleteFromDB(DB_STORES.CONTACTS, id).catch((error) =>
+      console.error('Failed to delete contact from IndexedDB:', error)
     )
 
     // clean up domain associations
     const domains = storage.getDomains()
-    const updatedDomains = domains.map((d) => d.clientId === id ? { ...d, clientId: undefined } : d);
+    const updatedDomains = domains.map((d) => d.contactId === id ? { ...d, contactId: undefined } : d); // need to use contact id 
     storage.saveDomains(updatedDomains);
-    return clients;
+    return contacts;
   },
+
 
   // get client domains
-  getClientDomains: (clientId: string): Domain[] => {
+  // getClientDomains: (clientId: string): Domain[] => {
+  //   const domains = storage.getDomains()
+  //   return domains.filter((d) => d.clientId === clientId);
+  // },
+
+  getContactDomains: (contactId: string): Domain[] => {
     const domains = storage.getDomains()
-    return domains.filter((d) => d.clientId === clientId);
+    return domains.filter((d) => d.contactId === contactId);
   },
 
+
   // Associate domain to client
-  associateDomainToClient: (domainId: string, clientId: string): Domain[] => {
+  associateDomainToContact: (domainId: string, contactId: string): Domain[] => {
     const domains = storage.getDomains()
     const index = domains.findIndex((d) => d.id === domainId)
     if (index !== -1) {
-      domains[index] = { ...domains[index], clientId }
+      domains[index] = { ...domains[index], contactId }
       storage.saveDomains(domains)
     }
     return domains
@@ -247,25 +307,25 @@ export const storage = {
     const domains = storage.getDomains()
     const index = domains.findIndex((d) => d.id === domainId)
     if (index !== -1) {
-      domains[index] = { ...domains[index], clientId: undefined }
+      domains[index] = { ...domains[index], contactId: undefined }
       storage.saveDomains(domains)
     }
     return domains
   },
 
-  // client stats
-  getClientStats: async () => {
-    const clients = await storage.getClients()
-    const totalClients = clients.length
-    const activeClients = clients.filter((c) => c.status === 'active').length
-    const inactiveClients = clients.filter((c) => c.status === 'inactive').length
-    const archivedClients = clients.filter((c) => c.status === 'archived').length
+  // contact stats
+  getContactsStats: async () => {
+    const contacts = await storage.getContacts()
+    const totalContacts = contacts.length
+    const activeContacts = contacts.filter((c) => c.status === 'active').length
+    const inactiveContacts = contacts.filter((c) => c.status === 'inactive').length
+    const archivedContacts = contacts.filter((c) => c.status === 'archived').length
 
     return {
-      totalClients,
-      activeClients,
-      inactiveClients,
-      archivedClients,
+      totalContacts,
+      activeContacts,
+      inactiveContacts,
+      archivedContacts,
     }
   },
 

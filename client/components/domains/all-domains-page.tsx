@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { search, Settings2 } from "lucide-react";
+import { Settings2 } from "lucide-react";
 import { Domain } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";

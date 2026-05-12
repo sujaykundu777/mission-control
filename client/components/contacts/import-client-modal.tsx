@@ -4,7 +4,7 @@ import Link from "next/link";
 import {useState} from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Client } from '@/lib/types'
+import { Contact } from '@/lib/types'
 import { storage } from "@/lib/storage";
 import { ArrowLeft, Download, Upload, AlertCircle, CheckCircle2} from "lucide-react";
 import {
@@ -14,27 +14,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { downloadCSVTemplate, downloadJSONTemplate, importClientsFromCSV, importClientsFromJSON } from "@/lib/import/import-clients";
+import { downloadCSVTemplate, downloadJSONTemplate, importContactsFromCSV, importContactsFromJSON } from "@/lib/import/import-contacts";
 import { Input } from "../ui/input";
 
-interface ImportClientModalProps {
+interface ImportContactModalProps {
     open: boolean
     onOpenChange: (open: boolean) => void,
-    onImportComplete?: (clients: Client[]) => void
+    onImportComplete?: (contacts: Contact[]) => void
 }
 
-export function ImportClientModal({
+export function ImportContactModal({
     open,
     onOpenChange,
     onImportComplete
-}: ImportClientModalProps) {
+}: ImportContactModalProps) {
 
     const [importStep, setImportStep] = useState<'options' | 'uploading' | 'preview' | 'results'>('options');
     const [isProcessing, setIsProcessing] = useState(false);
     const [importErrors, setImportErrors] = useState<string[]>([]);
     const [duplicateCount, setDuplicateCount] = useState(0);
     const [successCount, setSuccessCount] = useState(0)
-    const [importedClients, setImportedClients] = useState<Client[]>([]);
+    const [importedContacts, setImportedContacts] = useState<Contact[]>([]);
 
     const handleDownloadTemplate = () => {
         downloadCSVTemplate();
@@ -52,7 +52,7 @@ export function ImportClientModal({
         setImportErrors([]);
         try {
             const text = await file.text()
-            const result = await importClientsFromCSV(text);
+            const result = await importContactsFromCSV(text);
 
               if (result.duplicates > 0) {
                 setDuplicateCount(result.duplicates)
@@ -67,8 +67,8 @@ export function ImportClientModal({
                  setImportStep('preview');
             }
 
-            if (result.clients.length > 0) {
-                setImportedClients(result.clients);
+            if (result.contacts.length > 0) {
+                setImportedContacts(result.contacts);
                 setDuplicateCount(result.duplicates);
                 setImportStep('preview');
             }
@@ -89,14 +89,14 @@ export function ImportClientModal({
 
         try {
         const text = await file.text()
-        const result = await importClientsFromJSON(text)
+        const result = await importContactsFromJSON(text)
 
         if (result.errors.length > 0) {
             setImportErrors(result.errors)
         }
 
-        if (result.clients.length > 0) {
-            setImportedClients(result.clients)
+        if (result.contacts.length > 0) {
+            setImportedContacts(result.contacts)
             setDuplicateCount(result.duplicates)
             setImportStep('preview')
         }
@@ -111,13 +111,13 @@ export function ImportClientModal({
          setIsProcessing(true)
          try {
             let importedCount = 0
-            const existingClients = await storage.getClients()
+            const existingContacts = await storage.getContacts()
 
-            importedClients.forEach(async (client) => {
-                const isDuplicate = existingClients.some((ec) => ec.email.toLowerCase() === client.email.toLowerCase())
+            importedContacts.forEach(async (contact) => {
+                const isDuplicate = existingContacts.some((ec) => ec.email.toLowerCase() === contact.email.toLowerCase())
 
                 if (!isDuplicate) {
-                 await storage.addClient(client).then(() => {
+                 await storage.addContact(contact).then(() => {
                     importedCount++
                  })
                 }
@@ -127,17 +127,17 @@ export function ImportClientModal({
             setImportStep('results')
 
             if (onImportComplete) {
-                const updatedClients = await storage.getClients()
+                const updatedContacts = await storage.getContacts()
                
                 setTimeout(() => {
                      setImportStep('results')
-                     onImportComplete(updatedClients)
+                     onImportComplete(updatedContacts)
                      setImportStep('options');
                 }, 2000)
                
             }
             } catch (error) {
-                setImportErrors(['Failed to import clients: ' + (error instanceof Error ? error.message : 'Unknown error')])
+                setImportErrors(['Failed to import contacts: ' + (error instanceof Error ? error.message : 'Unknown error')])
                 setImportStep('preview')
             } finally {
                 setIsProcessing(false)
@@ -147,7 +147,7 @@ export function ImportClientModal({
 
     const handleClose = () => {
         setImportStep('options')
-        setImportedClients([])
+        setImportedContacts([])
         setImportErrors([])
         setDuplicateCount(0)
         setSuccessCount(0)
@@ -159,10 +159,10 @@ export function ImportClientModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
          <DialogContent className="max-w-2xl">
             <DialogHeader>
-                <DialogTitle> Import Clients</DialogTitle>
-                <DialogDescription> Import clients via CSV or JSON
-                    {importStep === 'options' && 'Choose how you want to import your clients.'}
-                    {importStep === 'preview' && 'Review the clients before importing.'}
+                <DialogTitle> Import Contacts</DialogTitle>
+                <DialogDescription> Import contacts via CSV or JSON
+                    {importStep === 'options' && 'Choose how you want to import your contacts.'}
+                    {importStep === 'preview' && 'Review the contacts before importing.'}
                     {importStep === 'results' && 'Import complete! See the results below.'}
 
                 </DialogDescription>
@@ -183,7 +183,7 @@ export function ImportClientModal({
                             <div>
                                 <p className="font-medium">Download CSV Template</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Get a pre-filled CSV template to import your clients data.
+                                    Get a pre-filled CSV template to import your contacts data.
                                 </p>
                             </div>
                         </Button>
@@ -198,7 +198,7 @@ export function ImportClientModal({
                             <Download className="w-6 h-6 text-primary mt-1" />
                             <div>
                                 <h3 className="font-semibold text-foreground">Download JSON Template</h3>
-                                <p className="text-sm text-muted-foreground mt-1">Get a template JSON file to fill in with your client data</p>
+                                <p className="text-sm text-muted-foreground mt-1">Get a template JSON file to fill in with your contact data</p>
                             </div>
                         </Button>
                     </Card>
@@ -217,7 +217,7 @@ export function ImportClientModal({
                             <Upload className="w-6 h-6 text-primary mt-1" />
                             <div className="flex-1">
                                 <h3 className="font-semibold text-foreground"> Import CSV File</h3>
-                                <p className="text-sm text-muted-foreground mt-1"> Upload a CSV file with your client data</p>
+                                <p className="text-sm text-muted-foreground mt-1"> Upload a CSV file with your contact data</p>
                                 <Input
                                     type="file"
                                     accept=".csv"
@@ -235,7 +235,7 @@ export function ImportClientModal({
                             <Upload className="w-6 h-6 text-primary mt-1" />
                             <div className="flex-1">
                                 <h3 className="font-semibold text-foreground">Import JSON File</h3>
-                                <p className="text-sm text-muted-foreground mt-1">Upload a JSON file with your client data</p>
+                                <p className="text-sm text-muted-foreground mt-1">Upload a JSON file with your contact data</p>
                                 <Input
                                 type="file"
                                 accept=".json"
@@ -274,7 +274,7 @@ export function ImportClientModal({
 
                     <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                         <div className="text-sm">
-                        <p className="text-muted-foreground">Clients to import: <span className="font-semibold text-foreground">{importedClients.length}</span></p>
+                        <p className="text-muted-foreground">Contacts to import: <span className="font-semibold text-foreground">{importedContacts.length}</span></p>
                         {duplicateCount > 0 && (
                             <p className="text-muted-foreground">Duplicates found: <span className="font-semibold text-yellow-600">+{duplicateCount}</span></p>
                         )}
@@ -292,14 +292,14 @@ export function ImportClientModal({
                             </tr>
                         </thead>
                         <tbody>
-                            {importedClients.map((client, index) => (
+                            {importedContacts.map((contact, index) => (
                             <tr key={index} className="border-b border-border hover:bg-muted/30">
-                                <td className="p-3">{client.name}</td>
-                                <td className="p-3 text-muted-foreground">{client.email}</td>
-                                <td className="p-3 text-muted-foreground">{client.company || '-'}</td>
+                                <td className="p-3">{contact.name}</td>
+                                <td className="p-3 text-muted-foreground">{contact.email}</td>
+                                <td className="p-3 text-muted-foreground">{contact.company || '-'}</td>
                                 <td className="p-3">
                                 <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary">
-                                    {client.status}
+                                    {contact.status}
                                 </span>
                                 </td>
                             </tr>
@@ -314,7 +314,7 @@ export function ImportClientModal({
                         </Button>
                         <Button
                         onClick={handleConfirmImport}
-                        disabled={isProcessing || importedClients.length === 0}
+                        disabled={isProcessing || importedContacts.length === 0}
                         className="bg-primary hover:bg-primary/90"
                         >
                         {isProcessing ? 'Importing...' : 'Confirm Import'}
@@ -332,7 +332,7 @@ export function ImportClientModal({
                   <div>
                     <h3 className="font-semibold text-green-900 dark:text-green-100">Import Successful</h3>
                     <p className="text-sm text-green-800 dark:text-green-200 mt-1">
-                      {successCount} client{successCount !== 1 ? 's' : ''} imported successfully
+                      {successCount} contact{successCount !== 1 ? 's' : ''} imported successfully
                     </p>
                     {duplicateCount > 0 && (
                       <p className="text-sm text-green-700 dark:text-green-300 mt-2">

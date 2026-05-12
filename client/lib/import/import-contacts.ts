@@ -1,24 +1,24 @@
-import { ImportCSVResult, Client } from "../types";
+import { ImportCSVResult, Client, Contact } from "../types";
 import { storage } from "../storage";
 
 export function downloadCSVTemplate() {
     const template = `name,email,phone,company,industry,website,notes,status
-John Doe,john@example.com,+1-666-123-4567,Acme Corp,Technology,https://www.acme.com,"Important client",active
+John Doe,john@example.com,+1-666-123-4567,Acme Corp,Technology,https://www.acme.com,"Important contact",active
 Jane Smith,jane@example.com,+1-666-987-6543,Globex Inc,Finance,https://www.globex.com,"Follow up next week",active
     `
 
     const blob = new Blob([template], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'client-import-template.csv';
+    link.download = 'contact-import-template.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 }
 
-export async function importClientsFromCSV(csvContent: string): Promise<ImportCSVResult> {
+export async function importContactsFromCSV(csvContent: string): Promise<ImportCSVResult> {
     const lines = csvContent.trim().split('\n');
-    const clients: Client[] = []
+    const contacts: Contact[] = []
     const errors: string[] = []
 
     let duplicateCount = 0
@@ -26,7 +26,7 @@ export async function importClientsFromCSV(csvContent: string): Promise<ImportCS
     if (lines.length < 2) {
         errors.push('CSV file must contain at least a header row and one data row')
         return { 
-            clients: [],
+            contacts: [],
             duplicates: 0,
             errors
         }
@@ -34,7 +34,7 @@ export async function importClientsFromCSV(csvContent: string): Promise<ImportCS
 
     const headers = lines[0].split(',').map((h) => h.trim().toLowerCase().replace(/"/g, ''));
     // fetch existing emails
-    const existingEmails = new Set((await storage.getClients()).map((c) => c.email.toLowerCase()));
+    const existingEmails = new Set((await storage.getContacts()).map((c) => c.email.toLowerCase()));
 
     // expected headers
     const nameIndex = headers.indexOf('name');
@@ -49,7 +49,7 @@ export async function importClientsFromCSV(csvContent: string): Promise<ImportCS
     if (nameIndex === -1 || emailIndex === -1) {
         errors.push('CSV must contain at least "name" and "email" columns')
         return {
-            clients: [],
+            contacts: [],
             duplicates: 0,
             errors
         }
@@ -81,11 +81,11 @@ export async function importClientsFromCSV(csvContent: string): Promise<ImportCS
                 duplicateCount++
                 continue
             }
-            const existingClients = await storage.getClients();
-            const newClientCount = `CL000` + (existingClients.length + 1); 
-            const newClient: Client = {
-                id: `client-${Date.now()}-${i}`,
-                clientId: newClientCount,
+            const existingContacts = await storage.getContacts();
+            const newContactCount = `CN000` + (existingContacts.length + 1); 
+            const newContact: Contact = {
+                id: `contact-${Date.now()}-${i}`,
+                contactId: newContactCount,
                 name,
                 email,
                 phone: phone || undefined,
@@ -98,15 +98,14 @@ export async function importClientsFromCSV(csvContent: string): Promise<ImportCS
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             }
-            clients.push(newClient)
+            contacts.push(newContact)
             existingEmails.add(email.toLowerCase())
         } catch (error) {
             errors.push(`Row ${i + 1}: ${(error as Error).message}`)
         }
     }
 
-    return { clients, duplicates: duplicateCount, errors};
-
+    return { contacts, duplicates: duplicateCount, errors};
 }
 
 export function downloadJSONTemplate() {
@@ -147,59 +146,59 @@ export function downloadJSONTemplate() {
   const url = URL.createObjectURL(blob)
 
   link.setAttribute('href', url)
-  link.setAttribute('download', 'clients-template.json')
+  link.setAttribute('download', 'contacts-template.json')
   link.style.visibility = 'hidden'
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
 }
 
-export async function importClientsFromJSON(jsonContent: string): Promise<ImportCSVResult> {
-  const clients: Client[] = []
+export async function importContactsFromJSON(jsonContent: string): Promise<ImportCSVResult> {
+  const contacts: Contact[] = []
   const errors: string[] = []
   let duplicateCount = 0
 
   try {
     const data = JSON.parse(jsonContent)
-    const clientsData = Array.isArray(data) ? data : [data]
-    const existingEmails = new Set(await (await storage.getClients()).map((c) => c.email.toLowerCase()))
+    const contactsData = Array.isArray(data) ? data : [data]
+    const existingEmails = new Set(await (await storage.getContacts()).map((c) => c.email.toLowerCase()))
 
-    for (let i = 0; i < clientsData.length; i++) {
+    for (let i = 0; i < contactsData.length; i++) {
       try {
-        const clientData = clientsData[i]
+        const contactData = contactsData[i]
 
-        if (!clientData.name || !clientData.email) {
+        if (!contactData.name || !contactData.email) {
           errors.push(`Item ${i + 1}: Name and email are required`)
           continue
         }
 
-        if (existingEmails.has(clientData.email.toLowerCase())) {
+        if (existingEmails.has(contactData.email.toLowerCase())) {
           duplicateCount++
           continue
         }
-        const existingClients = await storage.getClients();
-        const newClientCount = `CL000` + (existingClients.length + 1); 
-        const newClient: Client = {
-          id: `client-${Date.now()}-${i}`,
-          clientId: newClientCount,
-          name: clientData.name,
-          email: clientData.email,
-          phone: clientData.phone || undefined,
-          company: clientData.company || undefined,
-          industry: clientData.industry || undefined,
-          website: clientData.website || undefined,
-          billingAddress: clientData.billingAddress || undefined,
-          billingEmail: clientData.billingEmail || undefined,
-          billingPhone: clientData.billingPhone || undefined,
-          status: clientData.status || 'active',
-          customFields: clientData.customFields || [],
-          notes: clientData.notes || undefined,
+        const existingContacts = await storage.getContacts();
+        const newContactCount = `CL000` + (existingContacts.length + 1); 
+        const newContact: Contact = {
+          id: `contact-${Date.now()}-${i}`,
+          contactId: newContactCount,
+          name: contactData.name,
+          email: contactData.email,
+          phone: contactData.phone || undefined,
+          company: contactData.company || undefined,
+          industry: contactData.industry || undefined,
+          website: contactData.website || undefined,
+          billingAddress: contactData.billingAddress || undefined,
+          billingEmail: contactData.billingEmail || undefined,
+          billingPhone: contactData.billingPhone || undefined,
+          status: contactData.status || 'active',
+          customFields: contactData.customFields || [],
+          notes: contactData.notes || undefined,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
 
-        clients.push(newClient)
-        existingEmails.add(clientData.email.toLowerCase())
+        contacts.push(newContact)
+        existingEmails.add(contactData.email.toLowerCase())
       } catch (error) {
         errors.push(`Item ${i + 1}: ${(error as Error).message}`)
       }
@@ -208,5 +207,5 @@ export async function importClientsFromJSON(jsonContent: string): Promise<Import
     errors.push(`Invalid JSON format: ${(error as Error).message}`)
   }
 
-  return { clients, duplicates: duplicateCount, errors }
+  return { contacts, duplicates: duplicateCount, errors }
 }

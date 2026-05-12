@@ -1,10 +1,10 @@
 import { AppLayout } from "@/components/layout/app-layout";
-import { EditClientForm } from "@/components/clients/edit-client-form";
+import { EditContactForm } from "@/components/contacts/edit-contact-form";
 
 export default function EditClientPage() {
     return (
         <AppLayout>
-            <EditClientForm />
+            <EditContactForm />
         </AppLayout>
     )
 }

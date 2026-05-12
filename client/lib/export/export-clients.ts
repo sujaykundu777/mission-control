@@ -1,4 +1,4 @@
-import { Client } from '../types';
+import { Client, Contact } from '../types';
 
 function downloadFile(content: string, filename: string, mimeType: string): void {
     const blob = new Blob([content], { type: mimeType});
@@ -16,9 +16,9 @@ function downloadFile(content: string, filename: string, mimeType: string): void
     URL.revokeObjectURL(url);
 }
 
-export function exportClientsAsCSV(clients: Client[]): void {
-    if (clients.length === 0) {
-        alert('No clients to export');
+export function exportContactsAsCSV(contacts: Contact[]): void {
+    if (contacts.length === 0) {
+        alert('No contacts to export');
         return;
     }
 
@@ -50,35 +50,35 @@ export function exportClientsAsCSV(clients: Client[]): void {
     }
 
     // Build CSV rows 
-    const rows = clients.map((client) => [
-        escapeCSV(client.name),
-        escapeCSV(client.email),
-        escapeCSV(client.phone),
-        escapeCSV(client.company),
-        escapeCSV(client.industry),
-        escapeCSV(client.website),
-        escapeCSV(client.billingAddress),
-        escapeCSV(client.billingEmail),
-        escapeCSV(client.billingPhone),
-        escapeCSV(client.status),
-        escapeCSV(client.notes),
-        escapeCSV(client.createdAt),
-        escapeCSV(client.updatedAt),
+    const rows = contacts.map((c) => [
+        escapeCSV(c.name),
+        escapeCSV(c.email),
+        escapeCSV(c.phone),
+        escapeCSV(c.company),
+        escapeCSV(c.industry),
+        escapeCSV(c.website),
+        escapeCSV(c.billingAddress),
+        escapeCSV(c.billingEmail),
+        escapeCSV(c.billingPhone),
+        escapeCSV(c.status),
+        escapeCSV(c.notes),
+        escapeCSV(c.createdAt),
+        escapeCSV(c.updatedAt),
     ]);
 
     // Combine headers and rows
     const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
 
     // Download
-    downloadFile(csvContent, 'clients.csv', 'text/csv;charset=utf-8;')
+    downloadFile(csvContent, 'contacts.csv', 'text/csv;charset=utf-8;')
 }
 
-export function exportClientsAsJSON(clients: Client[]): void {
-  if (clients.length === 0) {
-    alert('No clients to export')
+export function exportContactsAsJSON(contacts: Contact[]): void {
+  if (contacts.length === 0) {
+    alert('No contacts to export')
     return
   }
 
-  const jsonContent = JSON.stringify(clients, null, 2)
-  downloadFile(jsonContent, 'clients.json', 'application/json;charset=utf-8;')
+  const jsonContent = JSON.stringify(contacts, null, 2)
+  downloadFile(jsonContent, 'contacts.json', 'application/json;charset=utf-8;')
 }

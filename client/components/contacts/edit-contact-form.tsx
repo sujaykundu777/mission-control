@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Client, CustomField, Domain} from '@/lib/types';
+import { Contact, CustomField, Domain} from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card'
@@ -21,15 +21,15 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-export function EditClientForm() {
+export function EditContactForm() {
     const router = useRouter();
     const params = useParams();
-    const clientId = params.id as string;
+    const contactId = params.id as string;
 
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-    const [client, setClient] = useState<Client | null>(null);
+    const [contact, setContact] = useState<Contact | null>(null);
     const [domains, setDomains] = useState<Domain[]>([]);
     
 
@@ -49,38 +49,38 @@ export function EditClientForm() {
     });
 
     useEffect(() => {
-        const fetchClient = async () => {
+        const fetchContact = async () => {
             setIsLoading(true);
 
-            const foundClient = await storage.getClientById(clientId);
+            const foundContact = await storage.getContactById(contactId);
 
-            if (foundClient) {
-                setClient(foundClient)
-                const clientDomains = storage.getClientDomains(clientId);
+            if (foundContact) {
+                setContact(foundContact)
+                const clientDomains = storage.getContactDomains(contactId);
                 setDomains(clientDomains);
                 setFormData({
-                    name: foundClient.name,
-                    email: foundClient.email,
-                    phone: foundClient.phone || '',
-                    status: foundClient.status,
-                    company: foundClient.company || '',
-                    industry: foundClient.industry || '',
-                    website: foundClient.website || '',
-                    billingAddress: foundClient.billingAddress || '',
-                    billingEmail: foundClient.billingEmail || '',
-                    billingPhone: foundClient.billingPhone || '',
-                    customFields: foundClient.customFields,
-                    notes: foundClient.notes || ''
+                    name: foundContact.name,
+                    email: foundContact.email,
+                    phone: foundContact.phone || '',
+                    status: foundContact.status,
+                    company: foundContact.company || '',
+                    industry: foundContact.industry || '',
+                    website: foundContact.website || '',
+                    billingAddress: foundContact.billingAddress || '',
+                    billingEmail: foundContact.billingEmail || '',
+                    billingPhone: foundContact.billingPhone || '',
+                    customFields: foundContact.customFields,
+                    notes: foundContact.notes || ''
                 });
             } else {
-                toast.error('Client not found');
-                router.push('/clients');
+                toast.error('Contact not found');
+                router.push('/contacts');
             }
             setIsLoading(false);
         };
 
-        fetchClient();
-    }, [clientId, router, toast]);
+        fetchContact();
+    }, [contactId, router, toast]);
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -94,8 +94,8 @@ export function EditClientForm() {
                 return;
             }
 
-            // update the client
-            await storage.updateClient(clientId, {
+            // update the contact
+            await storage.updateContact(contactId, {
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone || undefined,
@@ -110,12 +110,12 @@ export function EditClientForm() {
                 notes: formData.notes || undefined
             });
 
-            toast.success('Client updated successfully');
-            router.push(`/clients/${clientId}`);
+            toast.success('Contact updated successfully');
+            router.push(`/contacts/${contactId}`);
 
         } catch (error) {
-            console.error('Error updating client:', error);
-            toast.error('Failed to update client. Please try again')
+            console.error('Error updating contact:', error);
+            toast.error('Failed to update contact. Please try again')
             setIsSubmitting(false);
         }
     }
@@ -152,20 +152,20 @@ export function EditClientForm() {
     }
 
     const handleRemoveDomain = (domainId: string) => {
-        storage.disassociateDomainFromClient(domainId);
-        setDomains(storage.getClientDomains(clientId));
-        toast.success('Domain removed from client.')
+        storage.disassociateDomainFromClient(domainId); //todo
+        setDomains(storage.getContactDomains(contactId));
+        toast.success('Domain removed from contact.')
     };
 
 
     const handleDelete = async () => {
         try {
-        await storage.deleteClient(clientId)
-        toast.success('Client deleted successfully');
-        router.push('/clients')
+        await storage.deleteContact(contactId)
+        toast.success('Contact deleted successfully');
+        router.push('/contacts')
         } catch (error) {
-        console.error(' Error deleting client:', error)
-        toast.error('Failed to delete client. Please try again.')
+        console.error(' Error deleting contact:', error)
+        toast.error('Failed to delete contact. Please try again.')
       }
     }
 
@@ -174,10 +174,10 @@ export function EditClientForm() {
             {/* Header */}
             <div>
                 <div className='flex flex-row justify-end'>
-                    <Link href={`/clients/${clientId}`}>
+                    <Link href={`/contacts/${contactId}`}>
                     <Button variant="ghost" className='mb-4 text-muted-foreground hover:text-foreground'>
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back to clients
+                        Back to contacts
                     </Button>
                     </Link>
                    <Button
@@ -186,12 +186,12 @@ export function EditClientForm() {
                         onClick={() => setShowDeleteDialog(true)}
                         className="bg-destructive hover:bg-destructive/90"
                     >
-                        Delete Client
+                        Delete Contact
                     </Button>
                 
                 </div>
-                <h1 className='text-3xl font-bold text-foreground'> Edit Client </h1>
-                <p className='text-muted-foreground mt-2'> Update client information</p>
+                <h1 className='text-3xl font-bold text-foreground'> Edit Contact </h1>
+                <p className='text-muted-foreground mt-2'> Update contact information</p>
             </div>
 
             <form onSubmit={handleSubmit} className='space-y-6'>
@@ -207,7 +207,7 @@ export function EditClientForm() {
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            placeholder="Client name"
+                            placeholder="Contact name"
                             className="bg-background border-border"
                             required
                         />
@@ -219,7 +219,7 @@ export function EditClientForm() {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder='client@example.com'
+                            placeholder='contact@example.com'
                             className="bg-background border-border"
                             required
                         />
@@ -436,7 +436,7 @@ export function EditClientForm() {
                  <div className="flex gap-3 justify-end">
                   
                     <div className="flex gap-3">
-                        <Link href={`/clients/${clientId}`}>
+                        <Link href={`/contacts/${contactId}`}>
                         <Button type="button" variant="outline" className="border-border">
                             Cancel
                         </Button>
@@ -452,9 +452,9 @@ export function EditClientForm() {
                 <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                     <AlertDialogContent className="bg-card border-border">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Client</AlertDialogTitle>
+                        <AlertDialogTitle>Delete Contact</AlertDialogTitle>
                         <AlertDialogDescription>
-                        Are you sure you want to delete this client? This action cannot be undone. Associated domains will be unlinked from this client.
+                        Are you sure you want to delete this contact? This action cannot be undone. Associated domains will be unlinked from this contact.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <div className="flex gap-3 justify-end">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Client } from "@/lib/types";
+import { Client, Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,13 +18,13 @@ import { Edit2, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-interface ClientsTableProps {
-  clients: Client[];
-  onClientsChange?: () => void;
+interface ContactsTableProps {
+  contacts: Contact[];
+  onContactsChange?: () => void;
   alignment: 'grid' | 'list'
 }
 
-export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTableProps) {
+export function ContactsTable({ contacts, onContactsChange, alignment }: ContactsTableProps) {
   // const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // const handleDelete = () => {
@@ -48,11 +48,11 @@ export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTab
     }
   };
 
-  const getDomainsCount = (clientId: string) => {
-    return storage.getClientDomains(clientId).length;
+  const getDomainsCount = (contactId: string) => {
+    return storage.getContactDomains(contactId).length;
   };
 
-  if (clients.length === 0) {
+  if (contacts.length === 0) {
     return null;
   }
 
@@ -62,9 +62,9 @@ export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTab
       <div className={`w-[100%] grid gap-10 ${
         alignment==="grid" ? "grid-cols-1 md:grid-cols-3 lg-grid-cols-3" : null
       }`}>
-        {clients.map((client) => (
+        {contacts.map((c: Contact) => (
           <Card
-            key={client.id}
+            key={c.id}
             className="p-4 bg-card border-border hover:border-primary/50 transition-colors"
           >
             {alignment === 'list' && (
@@ -72,11 +72,11 @@ export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTab
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
                   <h3 className="text-lg font-semibold text-foreground truncate">
-                    {client.name}
+                    {c.name}
                   </h3>
-                  <Badge className={getStatusColor(client.status)}>
-                    {client.status.charAt(0).toUpperCase() +
-                      client.status.slice(1)}
+                  <Badge className={getStatusColor(c.status)}>
+                    {c.status.charAt(0).toUpperCase() +
+                      c.status.slice(1)}
                   </Badge>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
@@ -84,14 +84,14 @@ export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTab
                     <p className="font-medium text-foreground text-xs mb-1">
                       Email
                     </p>
-                    <p className="truncate">{client.email}</p>
+                    <p className="truncate">{c.email}</p>
                   </div>
-                  {client.company && (
+                  {c.company && (
                     <div>
                       <p className="font-medium text-foreground text-xs mb-1">
                         Company
                       </p>
-                      <p className="truncate">{client.company}</p>
+                      <p className="truncate">{c.company}</p>
                     </div>
                   )}
                   <div>
@@ -99,14 +99,14 @@ export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTab
                       Associated Domains
                     </p>
                     <p className="font-semibold text-foreground">
-                      {getDomainsCount(client.id)}
+                      {getDomainsCount(c.id)}
                     </p>
                   </div>
                 </div>
               </div>
 
               <div className="flex gap-2 ml-4">
-                <Link href={`/clients/${client.id}`}>
+                <Link href={`/contacts/${c.id}`}>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -115,7 +115,7 @@ export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTab
                     <Eye className="w-4 h-4" />
                   </Button>
                 </Link>
-                <Link href={`/clients/${client.id}/edit`}>
+                <Link href={`/contacts/${c.id}/edit`}>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -138,21 +138,21 @@ export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTab
 
             {alignment === 'grid' && (
               <>
-                <Badge className={getStatusColor(client.status)}>
-                  {client.status.charAt(0).toUpperCase() +
-                    client.status.slice(1)}
+                <Badge className={getStatusColor(c.status)}>
+                  {c.status.charAt(0).toUpperCase() +
+                    c.status.slice(1)}
                 </Badge>
                  <CardHeader>
                  
-                   <CardTitle>{client.name}</CardTitle>
-                   <CardDescription> {client.company} </CardDescription>
+                   <CardTitle>{c.name}</CardTitle>
+                   <CardDescription> {c.company} </CardDescription>
                    
                  </CardHeader>
                  <CardContent>
-                  <p className="truncate">{client.email}</p>
+                  <p className="truncate">{c.email}</p>
                  </CardContent>
                    <CardFooter>
-                      <Link href={`/clients/${client.id}`}>
+                      <Link href={`/contacts/${c.id}`}>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -161,7 +161,7 @@ export function ClientsTable({ clients, onClientsChange, alignment }: ClientsTab
                           <Eye className="w-4 h-4" />
                         </Button>
                       </Link>
-                      <Link href={`/clients/${client.id}/edit`}>
+                      <Link href={`/contacts/${c.id}/edit`}>
                         <Button
                           variant="ghost"
                           size="sm"

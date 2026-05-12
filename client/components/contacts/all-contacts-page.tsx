@@ -4,43 +4,45 @@ import { useEffect, useState } from "react";
 import { Search, Plus, ImportIcon, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input'
-import { Client } from "@/lib/types";
+import { Client, Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
-import { ClientsTable } from "./clients-table";
-import { ImportClientModal } from "./import-client-modal";
-import { ExportClientsDialog } from './export-clients-dialog'
+import { ContactsTable } from "./contacts-table";
+import { ImportContactModal } from "./import-client-modal";
+import { ExportContactsDialog } from './export-contacts-dialog'
 import Link from "next/link";
 // import { toast } from "sonner"
 // import { useRouter } from "next/navigation";
 
-export function AllClientsPage() {
-  const [clients, setClients] = useState<Client[]>([]);
+export function AllContactsPage() {
+
+  // const [clients, setClients] = useState<Client[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+
   const [isLoading, setIsLoading] = useState(true);
-  const [filteredClients, setFilteredClients] = useState<Client[]>([]);
+  const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'archived'>('all');
-  const [showImportClientModal, setShowImportClientModal] = useState(false);
+  const [showImportContactModal, setShowImportContactModal] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false)
-  const [clientsView, setClientsView] = useState<'grid' | 'list'>('list')
-  const [stats, setStats] = useState({ totalClients: 0, activeClients: 0 });
+  const [contactsView, setContactsView] = useState<'grid' | 'list'>('list')
+  const [stats, setStats] = useState({ totalContacts: 0, activeContacts: 0 });
 
-  
   // const router = useRouter();
 
   useEffect(() => {
-    const loadClients = async () => {
+    const loadContacts = async () => {
       setIsLoading(true);
-      const allClients = await storage.getClients();
-      setClients(allClients);
-      const clientStats = await storage.getClientStats();
-      setStats(clientStats);
+      const allContacts = await storage.getContacts();
+      setContacts(allContacts);
+      const contactStats = await storage.getContactsStats();
+      setStats(contactStats);
       setIsLoading(false);
     };
-    loadClients();
+    loadContacts();
   }, []);
 
   useEffect(() => {
-    let filtered = clients;
+    let filtered = contacts;
 
     // search filter
     if (searchTerm) {
@@ -56,9 +58,9 @@ export function AllClientsPage() {
     if (statusFilter !== 'all') {
       filtered = filtered.filter((c) => c.status === statusFilter)
     }
-    setFilteredClients(filtered);
+    setFilteredContacts(filtered);
 
-  }, [clients, searchTerm, statusFilter]);
+  }, [contacts, searchTerm, statusFilter]);
 
   if (isLoading) {
     return (
@@ -73,10 +75,10 @@ export function AllClientsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Clients</h1>
+          <h1 className="text-3xl font-bold text-foreground">Contacts</h1>
           <p className="text-muted-foreground mt-2">
             {" "}
-            {stats.totalClients} total • {stats.activeClients} active
+            {stats.totalContacts} total • {stats.activeContacts} active
           </p>
         </div>
         <div className="flex">
@@ -84,19 +86,19 @@ export function AllClientsPage() {
             variant="outline"
             className="border-border mx-2 hover:bg-card"
             onClick={() => setShowExportDialog(true)}
-            disabled={clients.length === 0}
+            disabled={contacts.length === 0}
           >
           <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-        <Link href="/clients/add">
+        <Link href="/contacts/add">
           <Button className="bg-primary hover:bg-primary/90">
             <Plus className="w-4 h-4 mr-2" />
-            Add Client
+            Add Contact
           </Button>
         </Link>
         
-          <Button onClick={() => setShowImportClientModal(true)} className="bg-gray-800 border-1 mx-2 border-gray-200 hover:bg-gray/90">
+          <Button onClick={() => setShowImportContactModal(true)} className="bg-gray-800 border-1 mx-2 border-gray-200 hover:bg-gray/90">
               <ImportIcon  className="w-4 h-4 mr-2" />
               Import via CSV
           </Button>
@@ -109,7 +111,7 @@ export function AllClientsPage() {
           <div className="flex-1 min-w-64 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Search clients by name, email or company..."
+                placeholder="Search contacts by name, email or company..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 bg-card border-border"
@@ -135,12 +137,14 @@ export function AllClientsPage() {
         </div>
       </div>
 
+    {
+      filteredContacts.length !== 0 && (
       <div className="inline-flex rounded-md shadow-sm" role="group">
         <button
           type="button"
-          onClick={() => setClientsView("grid")}
+          onClick={() => setContactsView("grid")}
           className={`flex justify-center px-4 py-2 ${
-            clientsView === "grid" ? "bg-primary" : "bg-dark"
+            contactsView === "grid" ? "bg-primary" : "bg-dark"
           } text-sm font-medium border border-gray-200 rounded-s-lg hover:bg-black hover:text-[#101827]`}
           >
                <svg
@@ -182,9 +186,9 @@ export function AllClientsPage() {
           </button>
            <button
               type="button"
-              onClick={() => setClientsView("list")}
+              onClick={() => setContactsView("list")}
               className={`flex justify-center px-4 py-2  ${
-                clientsView === "list" ? "bg-primary" : "bg-dark"
+                contactsView === "list" ? "bg-primary" : "bg-dark"
               } text-sm font-medium border border-gray-200 rounded-e-lg hover:bg-black hover:text-[#101827] focus:z-10`}
             >
             <svg
@@ -233,51 +237,54 @@ export function AllClientsPage() {
             </svg>
           </button>
       </div>
+      )
+    }
+      
 
       {/* Results */}
       {
-        filteredClients.length === 0 ? (
+        filteredContacts.length === 0 ? (
           <div className="bg-card border border-border rounded-lg p-12 text-center">
             <div className="w-12 h-12 bg-muted rounded-lg mx-auto mb-4 flex items-center justify-center">
                 <Plus className="w-6 h-6 text-muted-foreground" />
             </div>
-             <h3 className="text-lg font-semibold text-foreground mb-2">No clients found</h3>
+             <h3 className="text-lg font-semibold text-foreground mb-2">No contacts found</h3>
               <p className="text-muted-foreground mb-6">
-              {searchTerm || statusFilter !== 'all' ? 'Try adjusting your filters' : 'Get started by adding your first client'}
+              {searchTerm || statusFilter !== 'all' ? 'Try adjusting your filters' : 'Get started by adding your first contact'}
             </p>
             {!searchTerm && statusFilter === 'all' && (
-            <Link href="/clients/add">
-              <Button>Add Your First Client</Button>
+            <Link href="/contacts/add">
+              <Button>Add Your First Contact</Button>
             </Link>
           )}
           </div>
         ) : (
-           <ClientsTable
-              clients={filteredClients}
-              onClientsChange={async () => setClients(await storage.getClients())}
-              alignment={clientsView}
+           <ContactsTable
+              contacts={filteredContacts}
+              onContactsChange={async () => setContacts(await storage.getContacts())}
+              alignment={contactsView}
             />
         )
       }
 
       {/* Export Dialog */}
-      <ExportClientsDialog
+      <ExportContactsDialog
         open={showExportDialog}
         onOpenChange={setShowExportDialog}
-        clients={filteredClients}
+        contacts={filteredContacts}
       />
 
-      {/* Import client dialog */}
-      <ImportClientModal
-          open={showImportClientModal}
-          onOpenChange={setShowImportClientModal}
-          onImportComplete={(clients) => {
-            setShowImportClientModal(false)
-            if (clients.length > 0) {
-             setClients(clients)
+      {/* Import contact dialog */}
+      <ImportContactModal
+          open={showImportContactModal}
+          onOpenChange={setShowImportContactModal}
+          onImportComplete={(contacts) => {
+            setShowImportContactModal(false)
+            if (contacts.length > 0) {
+             setContacts(contacts)
             }
         }}
-        />
+      />
     </div>
   );
 }

@@ -52,19 +52,17 @@ export function Sidebar() {
           </Button>
         </Link>
 
-      
-
-        <Link href="/clients">
+        <Link href="/contacts">
           <Button
             variant="ghost"
             className={cn(
               "w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              isActive("/clients") &&
+              isActive("/contacts") &&
                 "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary",
             )}
           >
             <Users className="w-5 h-5" />
-            Clients
+            Contacts
           </Button>
         </Link>
 

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Client, Domain } from "@/lib/types";
+import { Client, Contact, Domain } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Edit2, Trash2, Link as LinkIcon, Sparkles, Loader } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner"
-import {generateClientSummary} from '@/lib/ai/client-summary';
+import {generateContactSummary} from '@/lib/ai/contact-summary';
 import StreamingText from "../ui/streaming-text";
 
 // import {
@@ -24,35 +24,35 @@ import StreamingText from "../ui/streaming-text";
 //   AlertDialogTitle,
 // } from "@/components/ui/alert-dialog";
 
-export function ClientDetailPage() {
+export function ContactDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const clientId = params.id as string;
+  const contactId = params.id as string;
 
   const [isLoading, setIsLoading] = useState(true);
-  const [client, setClient] = useState<Client | null>(null);
+  const [contact, setContact] = useState<Contact | null>(null);
   const [domains, setDomains] = useState<Domain[]>([]);
   const [summary, setSummary] = useState<string | null>(null);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState<boolean>(false);
   // const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
-    const fetchClient = async () => {
+    const fetchContact = async () => {
       setIsLoading(true);
-      const foundClient = await storage.getClientById(clientId);
-      if (foundClient) {
-        setClient(foundClient);
-        if (foundClient.summary) setSummary(foundClient.summary);
-        const clientDomains = storage.getClientDomains(clientId);
-        setDomains(clientDomains);
+      const foundContact = await storage.getContactById(contactId);
+      if (foundContact) {
+        setContact(foundContact);
+        if (foundContact.summary) setSummary(foundContact.summary);
+        const contactDomains = storage.getContactDomains(contactId);
+        setDomains(contactDomains);
       } else {
-        toast.error('Client not found')
-        router.push("/clients");
+        toast.error('Contact not found')
+        router.push("/contacts");
       }
       setIsLoading(false);
     };
-    fetchClient();
-  }, [clientId, router, toast]);
+    fetchContact();
+  }, [contactId, router, toast]);
 
 
   const getStatusColor = (status: string) => {
@@ -69,13 +69,13 @@ export function ClientDetailPage() {
   };
 
   const handleGenerateSummary = async () => {
-    if (!client) return;
+    if (!contact) return;
     
     try {
       setIsGeneratingSummary(true);
-      const generatedSummary = await generateClientSummary(client, domains);
+      const generatedSummary = await generateContactSummary(contact, domains);
 
-      await storage.updateClient(client.id,{
+      await storage.updateContact(contact.id,{
         summary: generatedSummary
       }).then(() => {
         setSummary(generatedSummary);
@@ -100,7 +100,7 @@ export function ClientDetailPage() {
     );
   }
 
-  if (!client) {
+  if (!contact) {
     return null;
   }
 
@@ -108,26 +108,26 @@ export function ClientDetailPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <Link href="/clients">
+        <Link href="/contacts">
           <Button
             variant="ghost"
             className="mb-4 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Clients
+            Back to Contacts
           </Button>
         </Link>
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold text-foreground">
-                {client.name}
+                {contact.name}
               </h1>
-              <Badge className={getStatusColor(client.status)}>
-                {client.status.charAt(0).toUpperCase() + client.status.slice(1)}
+              <Badge className={getStatusColor(contact.status)}>
+                {contact.status.charAt(0).toUpperCase() + contact.status.slice(1)}
               </Badge>
             </div>
-            <p className="text-muted-foreground">  Client ID : {client.clientId}</p>
+            <p className="text-muted-foreground">  Contact ID : {contact.contactId}</p>
           </div>
           <div className="flex gap-2">
               {/* Delete Button */}
@@ -141,7 +141,7 @@ export function ClientDetailPage() {
                 Delete Client
               </Button>
             </div> */}
-            <Link href={`/clients/${clientId}/edit`}>
+            <Link href={`/contacts/${contactId}/edit`}>
               <Button className="bg-primary hover:bg-primary/90">
                 <Edit2 className="w-4 h-4 mr-2" />
                 Edit
@@ -167,7 +167,7 @@ export function ClientDetailPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-primary" />
-                    Client Summary
+                    Contact Summary
                 </h2>
                 <Button
                   onClick={handleGenerateSummary}
@@ -196,7 +196,7 @@ export function ClientDetailPage() {
                     </>
                 ) : (
                   <p className="text-muted-foreground italic">
-                    Click "Generate Summary" to create an AI-powered summary of this client
+                    Click "Generate Summary" to create an AI-powered summary of this contact
                   </p>
                 )
               }
@@ -212,54 +212,54 @@ export function ClientDetailPage() {
                 <p className="text-sm font-medium text-muted-foreground mb-1">
                   Email
                 </p>
-                <p className="text-foreground">{client.email}</p>
+                <p className="text-foreground">{contact.email}</p>
               </div>
-              {client.phone && (
+              {contact.phone && (
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">
                     Phone
                   </p>
-                  <p className="text-foreground">{client.phone}</p>
+                  <p className="text-foreground">{contact.phone}</p>
                 </div>
               )}
             </div>
           </Card>
 
             {/* Company Information */}
-            {(client.company || client.industry || client.website) && (
+            {(contact.company || contact.industry || contact.website) && (
               <Card className="p-6 my-2 bg-card border-border">
                 <h2 className="text-xl font-semibold text-foreground mb-4">
                   Company Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {client.company && (
+                  {contact.company && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">
                         Company
                       </p>
-                      <p className="text-foreground">{client.company}</p>
+                      <p className="text-foreground">{contact.company}</p>
                     </div>
                   )}
-                  {client.industry && (
+                  {contact.industry && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">
                         Industry
                       </p>
-                      <p className="text-foreground">{client.industry}</p>
+                      <p className="text-foreground">{contact.industry}</p>
                     </div>
                   )}
-                  {client.website && (
+                  {contact.website && (
                     <div className="md:col-span-2">
                       <p className="text-sm font-medium text-muted-foreground mb-1">
                         Website
                       </p>
                       <a
-                        href={client.website}
+                        href={contact.website}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
                       >
-                        {client.website}
+                        {contact.website}
                       </a>
                     </div>
                   )}
@@ -268,38 +268,38 @@ export function ClientDetailPage() {
             )}
 
             {/* Billing Information */}
-            {(client.billingAddress ||
-              client.billingEmail ||
-              client.billingPhone) && (
+            {(contact.billingAddress ||
+              contact.billingEmail ||
+              contact.billingPhone) && (
               <Card className="p-6 my-2 bg-card border-border">
                 <h2 className="text-xl font-semibold text-foreground mb-4">
                   Billing Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {client.billingAddress && (
+                  {contact.billingAddress && (
                     <div className="md:col-span-2">
                       <p className="text-sm font-medium text-muted-foreground mb-1">
                         Billing Address
                       </p>
                       <p className="text-foreground whitespace-pre-wrap">
-                        {client.billingAddress}
+                        {contact.billingAddress}
                       </p>
                     </div>
                   )}
-                  {client.billingEmail && (
+                  {contact.billingEmail && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">
                         Billing Email
                       </p>
-                      <p className="text-foreground">{client.billingEmail}</p>
+                      <p className="text-foreground">{contact.billingEmail}</p>
                     </div>
                   )}
-                  {client.billingPhone && (
+                  {contact.billingPhone && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">
                         Billing Phone
                       </p>
-                      <p className="text-foreground">{client.billingPhone}</p>
+                      <p className="text-foreground">{contact.billingPhone}</p>
                     </div>
                   )}
                 </div>
@@ -308,13 +308,13 @@ export function ClientDetailPage() {
 
 
               {/* Custom Fields */}
-              {client.customFields.length > 0 && (
+              {contact.customFields.length > 0 && (
                 <Card className="p-6 my-2 bg-card border-border">
                   <h2 className="text-xl font-semibold text-foreground mb-4">
                     Custom Fields
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {client.customFields.map((field, index) => (
+                    {contact.customFields.map((field, index) => (
                       <div key={index}>
                         <p className="text-sm font-medium text-muted-foreground mb-1">
                           {field.key}
@@ -333,10 +333,10 @@ export function ClientDetailPage() {
 
           <div className="py-4">
                 {/* Notes */}
-                {client.notes && (
+                {contact.notes && (
                   <Card className="p-6 bg-card border-border">
                     <h2 className="text-xl font-semibold text-foreground mb-4">Notes</h2>
-                    <p className="text-foreground whitespace-pre-wrap">{client.notes}</p>
+                    <p className="text-foreground whitespace-pre-wrap">{contact.notes}</p>
                   </Card>
                 )}
           </div>
@@ -396,7 +396,7 @@ export function ClientDetailPage() {
                       Created
                     </p>
                     <p className="text-foreground">
-                      {new Date(client.createdAt).toLocaleString()}
+                      {new Date(contact.createdAt).toLocaleString()}
                     </p>
                   </div>
                   <div>
@@ -404,7 +404,7 @@ export function ClientDetailPage() {
                       Last Updated
                     </p>
                     <p className="text-foreground">
-                      {new Date(client.updatedAt).toLocaleString()}
+                      {new Date(contact.updatedAt).toLocaleString()}
                     </p>
                   </div>
                 </div>

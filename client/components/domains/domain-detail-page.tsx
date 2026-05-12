@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Domain, Client } from "@/lib/types";
+import { Domain, Client, Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,7 +27,7 @@ interface DomainDetailPageProps {
 export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
   const router = useRouter();
   const [domain, setDomain] = useState<Domain | null>(null);
-  const [client, setClient] = useState<Client | null>(null);
+  const [contact, setContact] = useState<Contact | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -36,9 +36,9 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
       const foundDomain = storage.getDomainById(domainId);
       setDomain(foundDomain);
 
-      if (foundDomain?.clientId) {
-        const foundClient = await storage.getClientById(foundDomain.clientId);
-        setClient(foundClient);
+      if (foundDomain?.contactId) {
+        const foundContact = await storage.getContactById(foundDomain.contactId);
+        setContact(foundContact);
       }
 
       setIsLoading(false);
@@ -299,28 +299,28 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
         </Card>
 
         {
-          client && (
+          contact && (
               <Card className="p-6 bg-card border-border">
-                <h2 className="text-lg font-semibold text-foreground mb-4">Associated Client</h2>
+                <h2 className="text-lg font-semibold text-foreground mb-4">Associated Contact</h2>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground">CLIENT NAME</p>
-                    <Link href={`/clients/${client.id}`}>
-                      <p className="text-primary hover:underline mt-1">{client.name}</p>
+                    <p className="text-xs font-medium text-muted-foreground">CONTACT NAME</p>
+                    <Link href={`/contacts/${contact.id}`}>
+                      <p className="text-primary hover:underline mt-1">{contact.name}</p>
                     </Link>
                   </div>
                   <div>
                     <p className="text-xs font-medium text-muted-foreground">EMAIL</p>
                     <p className="text-foreground mt-1">
-                      <a href={`mailto:${client.email}`} className="text-primary hover:underline">
-                        {client.email}
+                      <a href={`mailto:${contact.email}`} className="text-primary hover:underline">
+                        {contact.email}
                       </a>
                     </p>
                   </div>
-                  {client.company && (
+                  {contact.company && (
                     <div>
                       <p className="text-xs font-medium text-muted-foreground">COMPANY</p>
-                      <p className="text-foreground mt-1">{client.company}</p>
+                      <p className="text-foreground mt-1">{contact.company}</p>
                     </div>
                   )}
                   <div className="pt-2">

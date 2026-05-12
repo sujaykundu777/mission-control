@@ -1,10 +1,10 @@
 import { AppLayout } from "@/components/layout/app-layout";
-import { ClientDetailPage } from "@/components/clients/client-detail-page";
+import { ContactDetailPage } from "@/components/contacts/contact-detail-page";
 
 export default function ClientPage() {
   return (
     <AppLayout>
-      <ClientDetailPage />
+      <ContactDetailPage />
     </AppLayout>
   );
 }
