@@ -11,6 +11,7 @@ export interface Contact {
   name: string;
   email: string;
   phone?: string;
+  gender?: string;
   company?: string;
   industry?: string;
   website?: string;

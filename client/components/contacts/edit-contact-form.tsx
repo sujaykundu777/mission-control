@@ -9,7 +9,10 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { storage } from "@/lib/storage";
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+
+import { Label } from "@/components/ui/label";
+import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Plus, Save, Trash2 } from 'lucide-react'
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -37,6 +40,7 @@ export function EditContactForm() {
         name: '',
         email: '',
         phone: '',
+        gender: '',
         status: 'active',
         company: '',
         industry: '',
@@ -62,6 +66,7 @@ export function EditContactForm() {
                     name: foundContact.name,
                     email: foundContact.email,
                     phone: foundContact.phone || '',
+                    gender: foundContact.gender || '',
                     status: foundContact.status,
                     company: foundContact.company || '',
                     industry: foundContact.industry || '',
@@ -99,6 +104,7 @@ export function EditContactForm() {
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone || undefined,
+                gender: formData.gender || undefined,
                 status: (formData.status as 'active' | 'inactive' | 'archived') || 'inactive',
                 company: formData.company || undefined,
                 industry: formData.industry || undefined,
@@ -127,6 +133,13 @@ export function EditContactForm() {
             [name]: value,
         }))
     }
+
+    const handleSelectChange = (name: string, value: string) => {
+        setFormData((prev) => ({
+        ...prev,
+            [name]: value,
+        }));
+    };
 
     const handleAddCustomField = () => {
         setFormData((prev) => ({
@@ -173,29 +186,49 @@ export function EditContactForm() {
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <div className='flex flex-row justify-end'>
-                    <Link href={`/contacts/${contactId}`}>
-                    <Button variant="ghost" className='mb-4 text-muted-foreground hover:text-foreground'>
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Back to contacts
-                    </Button>
+                <div className='flex flex-row space-around'>
+                    <Link href={`/contacts`}>
+                        <Button variant="ghost" className='mb-4 text-muted-foreground hover:text-foreground'>
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            Back to contacts
+                        </Button>
                     </Link>
-                   <Button
+                
+                
+                </div>
+          
+            </div>
+
+            <form onSubmit={handleSubmit} className='space-y-6'>
+                  <div className='flex flex-row flex-wrap'>
+                <div className='flex-1 flex-col'>
+                    <h1 className='text-3xl font-bold text-foreground'> Edit Contact </h1>
+                    <p className='text-muted-foreground mt-2'> Update contact information</p>
+                </div>
+                    {/* Form Actions */}
+                 <div className="flex gap-3 justify-end">
+                  
+                    <div className="flex gap-3">
+                           <Button
                         type="button"
                         variant="destructive"
                         onClick={() => setShowDeleteDialog(true)}
                         className="bg-destructive hover:bg-destructive/90"
-                    >
-                        Delete Contact
+                    > 
+                       <Trash2 /> Delete 
                     </Button>
-                
-                </div>
-                <h1 className='text-3xl font-bold text-foreground'> Edit Contact </h1>
-                <p className='text-muted-foreground mt-2'> Update contact information</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className='space-y-6'>
-                
+                        {/* <Link href={`/contacts/${contactId}`}>
+                        <Button type="button" variant="outline" className="border-border">
+                            Cancel
+                        </Button>
+                        
+                        </Link> */}
+                        <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={isSubmitting}>
+                            {isSubmitting ? 'Saving...' : <><Save /> Save</>}
+                        </Button>
+                    </div>
+                  </div>
+                  </div>
                  {/* Basic Information */}
                 <Card className="p-6 bg-card border-border">
                 <h2 className="text-xl font-semibold text-foreground mb-4">Basic Information</h2>
@@ -234,6 +267,21 @@ export function EditContactForm() {
                             placeholder="+1 (555) 000-0000"
                             className="bg-background border-border"
                         />
+                    </div>
+
+                         {/* Gender */}
+                    <div>
+                    <Label htmlFor="gender" className="block text-sm font-medium text-foreground mb-2"> Gender </Label>
+                        <Select value={formData.gender} onValueChange={(value) => handleSelectChange('gender', value)}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female"> Female </SelectItem>
+                            <SelectItem value="Other"> Other </SelectItem>
+                        </SelectContent>
+                        </Select>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-2">

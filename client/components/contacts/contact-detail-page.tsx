@@ -222,6 +222,17 @@ export function ContactDetailPage() {
                   <p className="text-foreground">{contact.phone}</p>
                 </div>
               )}
+
+              {
+                contact.gender && (
+                   <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-1">
+                    Gender
+                  </p>
+                  <p className="text-foreground">{contact.gender}</p>
+                </div>
+                )
+              }
             </div>
           </Card>
 

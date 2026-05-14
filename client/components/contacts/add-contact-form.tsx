@@ -6,6 +6,8 @@ import { Contact, CustomField } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
@@ -20,6 +22,7 @@ export function AddContactForm() {
     name: "",
     email: "",
     phone: "",
+    gender: "",
     company: "",
     industry: "",
     website: "",
@@ -44,6 +47,13 @@ export function AddContactForm() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+        setFormData((prev) => ({
+        ...prev,
+            [name]: value,
+        }));
   };
 
   // Add custom field
@@ -96,6 +106,7 @@ export function AddContactForm() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone || undefined,
+        gender: formData.gender || undefined,
         company: formData.company || undefined,
         industry: formData.industry || undefined,
         website: formData.website || undefined,
@@ -190,6 +201,22 @@ export function AddContactForm() {
                 className="bg-background border-border"
               />
             </div>
+
+            {/* Gender */}
+            <div>
+               <Label htmlFor="gender" className="block text-sm font-medium text-foreground mb-2"> Gender </Label>
+                <Select value={formData.gender} onValueChange={(value) => handleSelectChange('gender', value)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female"> Female </SelectItem>
+                    <SelectItem value="Other"> Other </SelectItem>
+                  </SelectContent>
+                </Select>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Status
