@@ -7,10 +7,10 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { useToast } from '../ui/use-toast';
 import { storage } from "@/lib/storage";
 import { Textarea } from '@/components/ui/textarea'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { toast } from "sonner"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +24,6 @@ import {
 export function EditClientForm() {
     const router = useRouter();
     const params = useParams();
-    const {toast} = useToast();
     const clientId = params.id as string;
 
     const [isLoading, setIsLoading] = useState(true);
@@ -74,11 +73,7 @@ export function EditClientForm() {
                     notes: foundClient.notes || ''
                 });
             } else {
-                toast({
-                    title: 'Error',
-                    description: 'Client not found',
-                    variant: 'destructive'
-                });
+                toast.error('Client not found');
                 router.push('/clients');
             }
             setIsLoading(false);
@@ -88,23 +83,19 @@ export function EditClientForm() {
     }, [clientId, router, toast]);
 
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
             if (!formData.name.trim()) {
-                toast({
-                    title: 'Validation Error',
-                    description: 'Name is a required field',
-                    variant: 'destructive'
-                });
+                toast.warning('Name is a required field')
                 setIsSubmitting(false);
                 return;
             }
 
             // update the client
-            storage.updateClient(clientId, {
+            await storage.updateClient(clientId, {
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone || undefined,
@@ -119,19 +110,12 @@ export function EditClientForm() {
                 notes: formData.notes || undefined
             });
 
-            toast({
-                title: 'success',
-                description: 'Client updated successfully'
-            });
+            toast.success('Client updated successfully');
             router.push(`/clients/${clientId}`);
 
         } catch (error) {
             console.error('Error updating client:', error);
-            toast({
-                title: 'Error',
-                description: 'Failed to update client. Please try again',
-                variant: 'destructive'
-            });
+            toast.error('Failed to update client. Please try again')
             setIsSubmitting(false);
         }
     }
@@ -170,28 +154,18 @@ export function EditClientForm() {
     const handleRemoveDomain = (domainId: string) => {
         storage.disassociateDomainFromClient(domainId);
         setDomains(storage.getClientDomains(clientId));
-        toast({
-        title: "Success",
-        description: "Domain removed from client.",
-        });
+        toast.success('Domain removed from client.')
     };
 
 
     const handleDelete = async () => {
         try {
         await storage.deleteClient(clientId)
-        toast({
-            title: 'Success',
-            description: 'Client deleted successfully.',
-        })
+        toast.success('Client deleted successfully');
         router.push('/clients')
         } catch (error) {
         console.error(' Error deleting client:', error)
-        toast({
-            title: 'Error',
-            description: 'Failed to delete client. Please try again.',
-            variant: 'destructive',
-        })
+        toast.error('Failed to delete client. Please try again.')
       }
     }
 
