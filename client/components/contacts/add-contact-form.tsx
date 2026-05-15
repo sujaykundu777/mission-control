@@ -7,22 +7,31 @@ import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
 import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Calendar1Icon } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner"
 
 export function AddContactForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     gender: "",
+    dob: "",
     company: "",
     industry: "",
     website: "",
@@ -107,6 +116,7 @@ export function AddContactForm() {
         email: formData.email,
         phone: formData.phone || undefined,
         gender: formData.gender || undefined,
+        dob: formData.dob || undefined,
         company: formData.company || undefined,
         industry: formData.industry || undefined,
         website: formData.website || undefined,
@@ -152,7 +162,7 @@ export function AddContactForm() {
         </p>
       </div>
 
-      <form className="space-y-6" onSubmit={handleSubmit}>
+      <form className="space-y-2" onSubmit={handleSubmit}>
         {/* Basic Information */}
         <Card className="p-6 bg-card border-border">
           <h2 className="text-xl font-semibold text-foreground mb-4">
@@ -217,6 +227,44 @@ export function AddContactForm() {
                 </Select>
             </div>
 
+            {/* DOB */}
+            <div className="grid grid-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Date of birth
+              </label>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date"
+                    className="w-40 justify-start font-normal bg-background border-border"
+                  >
+                    <Calendar1Icon className="mr-2 h-4 w-4" />
+                    {date ? date.toLocaleDateString() : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                 <div className="w-auto">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    defaultMonth={date}
+                    className='text-foreground text-sm mb-2 font-medium'
+                    onSelect={(date) => {
+                      setDate(date);
+                      setFormData((prev) => ({
+                        ...prev,
+                        dob: date ? date.toLocaleDateString('en-CA') : "",
+                      }));
+                      setOpen(false);
+                    }}
+                    autoFocus
+                  />
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Status
@@ -237,7 +285,7 @@ export function AddContactForm() {
         {/* Company Information */}
         <Card className="p-6 bg-card border-border">
           <h2 className="text-xl font-semibold text-foreground mb-4">
-            Company Information
+            Work Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

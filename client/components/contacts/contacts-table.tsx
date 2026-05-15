@@ -94,14 +94,14 @@ export function ContactsTable({ contacts, onContactsChange, alignment }: Contact
                       <p className="truncate">{c.company}</p>
                     </div>
                   )}
-                  <div>
+                  {/* <div>
                     <p className="font-medium text-foreground text-xs mb-1">
                       Associated Domains
                     </p>
                     <p className="font-semibold text-foreground">
                       {getDomainsCount(c.id)}
                     </p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 

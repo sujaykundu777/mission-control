@@ -6,13 +6,13 @@ import { Contact, CustomField, Domain} from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card'
+import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input'
 import { storage } from "@/lib/storage";
 import { Textarea } from '@/components/ui/textarea'
-
 import { Label } from "@/components/ui/label";
 import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, Plus, Save, Trash2, Calendar1Icon } from 'lucide-react'
 import { toast } from "sonner"
 import {
   AlertDialog,
@@ -23,6 +23,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
 
 export function EditContactForm() {
     const router = useRouter();
@@ -34,6 +39,8 @@ export function EditContactForm() {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [contact, setContact] = useState<Contact | null>(null);
     const [domains, setDomains] = useState<Domain[]>([]);
+    const [open, setOpen] = useState(false);
+    const [date, setDate] = useState<Date | undefined>(new Date());
     
 
     const [formData, setFormData] = useState({
@@ -41,6 +48,7 @@ export function EditContactForm() {
         email: '',
         phone: '',
         gender: '',
+        dob: '',
         status: 'active',
         company: '',
         industry: '',
@@ -62,11 +70,15 @@ export function EditContactForm() {
                 setContact(foundContact)
                 const clientDomains = storage.getContactDomains(contactId);
                 setDomains(clientDomains);
+                if (foundContact.dob) {
+                    setDate(new Date(foundContact.dob));
+                }
                 setFormData({
                     name: foundContact.name,
                     email: foundContact.email,
                     phone: foundContact.phone || '',
                     gender: foundContact.gender || '',
+                    dob: foundContact.dob || '',
                     status: foundContact.status,
                     company: foundContact.company || '',
                     industry: foundContact.industry || '',
@@ -105,6 +117,7 @@ export function EditContactForm() {
                 email: formData.email,
                 phone: formData.phone || undefined,
                 gender: formData.gender || undefined,
+                dob: formData.dob || undefined,
                 status: (formData.status as 'active' | 'inactive' | 'archived') || 'inactive',
                 company: formData.company || undefined,
                 industry: formData.industry || undefined,
@@ -193,10 +206,7 @@ export function EditContactForm() {
                             Back to contacts
                         </Button>
                     </Link>
-                
-                
                 </div>
-          
             </div>
 
             <form onSubmit={handleSubmit} className='space-y-6'>
@@ -283,6 +293,43 @@ export function EditContactForm() {
                         </SelectContent>
                         </Select>
                     </div>
+
+                    {/* DOB */}
+                    <div className="grid grid-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                        Date of birth
+                    </label>
+                    <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                        <Button
+                            variant="outline"
+                            id="date"
+                            className="w-40 justify-start font-normal bg-background border-border"
+                        >
+                            <Calendar1Icon className="mr-2 h-4 w-4" />
+                            {date ? date.toLocaleDateString() : "Select date"}
+                        </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                         
+                            <div className='w-auto'>
+                                <Calendar 
+                                    mode="single" 
+                                    selected={date} 
+                                    className='text-foreground text-sm mb-2 font-medium'
+                                    onSelect={(date) => {
+                                        setDate(date);
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            dob: date ? date.toLocaleDateString('en-CA') : "",
+                                        }));
+                                    setOpen(false);
+                                }} autoFocus />
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
                             Status

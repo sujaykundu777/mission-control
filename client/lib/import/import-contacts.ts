@@ -2,9 +2,9 @@ import { ImportCSVResult, Client, Contact } from "../types";
 import { storage } from "../storage";
 
 export function downloadCSVTemplate() {
-    const template = `name,email,phone,gender,company,industry,website,notes,status
-John Doe,john@example.com,+1-666-123-4567,Male,Acme Corp,Technology,https://www.acme.com,"Important contact",active
-Jane Smith,jane@example.com,+1-666-987-6543,Female,Globex Inc,Finance,https://www.globex.com,"Follow up next week",active
+    const template = `name,email,phone,gender,dob,company,industry,website,notes,status
+John Doe,john@example.com,+1-666-123-4567,Male,15-9-1985,Acme Corp,Technology,https://www.acme.com,"Important contact",active
+Jane Smith,jane@example.com,+1-666-987-6543,Female,15-10-1995,Globex Inc,Finance,https://www.globex.com,"Follow up next week",active
     `
 
     const blob = new Blob([template], { type: 'text/csv;charset=utf-8' });
@@ -41,6 +41,7 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
     const emailIndex = headers.indexOf('email');
     const phoneIndex = headers.indexOf('phone');
     const genderIndex = headers.indexOf('gender');
+    const dobIndex = headers.indexOf('dob');
     const companyIndex = headers.indexOf('company')
     const industryIndex = headers.indexOf('industry')
     const websiteIndex = headers.indexOf('website')
@@ -68,6 +69,7 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
             const email = values[emailIndex]
             const phone = phoneIndex !== -1 ? values[phoneIndex] : undefined
             const gender = genderIndex !== -1 ? values[genderIndex] : undefined
+            const dob = genderIndex !== -1 ? values[dobIndex] : undefined
             const company = companyIndex !== -1 ? values[companyIndex] : undefined
             const industry = industryIndex !== -1 ? values[industryIndex] : undefined
             const website = websiteIndex !== -1 ? values[websiteIndex] : undefined
@@ -92,6 +94,7 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
                 email,
                 phone: phone || undefined,
                 gender: gender || undefined,
+                dob: dob || undefined,
                 company: company || undefined,
                 industry: industry || undefined,
                 website: website || undefined,
@@ -118,6 +121,7 @@ export function downloadJSONTemplate() {
       email: 'john@example.com',
       phone: '+1-555-0123',
       gender: 'Male',
+      dob: '15-9-1985',
       company: 'Acme Corp',
       industry: 'Technology',
       website: 'https://example.com',
@@ -133,6 +137,7 @@ export function downloadJSONTemplate() {
       email: 'jane@example.com',
       phone: '+1-555-0124',
       gender: 'Female',
+      dob: '15-10-1995',
       company: 'Tech Solutions',
       industry: 'Software',
       website: 'https://tech.com',
@@ -190,6 +195,7 @@ export async function importContactsFromJSON(jsonContent: string): Promise<Impor
           email: contactData.email,
           phone: contactData.phone || undefined,
           gender: contactData.gender || undefined,
+          dob: contactData.dob || undefined,
           company: contactData.company || undefined,
           industry: contactData.industry || undefined,
           website: contactData.website || undefined,

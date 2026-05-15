@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Contact } from '@/lib/types';
-import { exportContactsAsCSV, exportContactsAsJSON } from '@/lib/export/export-clients';
+import { exportContactsAsCSV, exportContactsAsJSON } from '@/lib/export/export-contacts';
 import { Download, FileText, Code } from 'lucide-react';
 
 

@@ -12,7 +12,12 @@ export interface Contact {
   email: string;
   phone?: string;
   gender?: string;
+  relationshipType?: string;
+  dob?: string;
+  address?: string;
+  jobTitle?: string;
   company?: string;
+  workEmail?: string;
   industry?: string;
   website?: string;
   billingAddress?: string;

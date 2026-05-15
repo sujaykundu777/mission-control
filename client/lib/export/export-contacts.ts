@@ -1,4 +1,4 @@
-import { Client, Contact } from '../types';
+import { Contact } from '../types';
 
 function downloadFile(content: string, filename: string, mimeType: string): void {
     const blob = new Blob([content], { type: mimeType});
@@ -28,6 +28,7 @@ export function exportContactsAsCSV(contacts: Contact[]): void {
         'email',
         'phone',
         'gender',
+        'dob',
         'company',
         'industry',
         'website',
@@ -56,6 +57,7 @@ export function exportContactsAsCSV(contacts: Contact[]): void {
         escapeCSV(c.email),
         escapeCSV(c.phone),
         escapeCSV(c.gender),
+        escapeCSV(c.dob),
         escapeCSV(c.company),
         escapeCSV(c.industry),
         escapeCSV(c.website),

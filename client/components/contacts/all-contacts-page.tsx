@@ -7,17 +7,14 @@ import { Input } from '@/components/ui/input'
 import { Client, Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { ContactsTable } from "./contacts-table";
-import { ImportContactModal } from "./import-client-modal";
+import { ImportContactModal } from "./import-contact-modal";
 import { ExportContactsDialog } from './export-contacts-dialog'
 import Link from "next/link";
 // import { toast } from "sonner"
 // import { useRouter } from "next/navigation";
 
 export function AllContactsPage() {
-
-  // const [clients, setClients] = useState<Client[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
-
   const [isLoading, setIsLoading] = useState(true);
   const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
