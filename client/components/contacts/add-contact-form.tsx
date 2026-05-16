@@ -32,6 +32,7 @@ export function AddContactForm() {
     phone: "",
     gender: "",
     dob: "",
+    jobTitle: "",
     company: "",
     industry: "",
     website: "",
@@ -117,6 +118,7 @@ export function AddContactForm() {
         phone: formData.phone || undefined,
         gender: formData.gender || undefined,
         dob: formData.dob || undefined,
+        jobTitle: formData.jobTitle || undefined,
         company: formData.company || undefined,
         industry: formData.industry || undefined,
         website: formData.website || undefined,
@@ -288,6 +290,20 @@ export function AddContactForm() {
             Work Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                 Job Title
+              </label>
+              <Input
+                  type="text"
+                  name="jobTitle"
+                  value={formData.jobTitle}
+                  onChange={handleChange}
+                  placeholder="Software Engineer"
+                  className="bg-background border-border"
+                />
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Company Name

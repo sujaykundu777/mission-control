@@ -38,7 +38,8 @@ export function exportContactsAsCSV(contacts: Contact[]): void {
         'status',
         'notes',
         'createdAt',
-        'updatedAt'
+        'updatedAt',
+        'jobTitle'
     ];
 
     // Escape CSV values
@@ -68,6 +69,7 @@ export function exportContactsAsCSV(contacts: Contact[]): void {
         escapeCSV(c.notes),
         escapeCSV(c.createdAt),
         escapeCSV(c.updatedAt),
+        escapeCSV(c.jobTitle),
     ]);
 
     // Combine headers and rows
@@ -86,3 +88,5 @@ export function exportContactsAsJSON(contacts: Contact[]): void {
   const jsonContent = JSON.stringify(contacts, null, 2)
   downloadFile(jsonContent, 'contacts.json', 'application/json;charset=utf-8;')
 }
+
+

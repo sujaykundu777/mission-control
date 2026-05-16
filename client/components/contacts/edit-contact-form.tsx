@@ -50,6 +50,7 @@ export function EditContactForm() {
         gender: '',
         dob: '',
         status: 'active',
+        jobTitle: '',
         company: '',
         industry: '',
         website: '',
@@ -80,6 +81,7 @@ export function EditContactForm() {
                     gender: foundContact.gender || '',
                     dob: foundContact.dob || '',
                     status: foundContact.status,
+                    jobTitle: foundContact.jobTitle || '',
                     company: foundContact.company || '',
                     industry: foundContact.industry || '',
                     website: foundContact.website || '',
@@ -119,6 +121,7 @@ export function EditContactForm() {
                 gender: formData.gender || undefined,
                 dob: formData.dob || undefined,
                 status: (formData.status as 'active' | 'inactive' | 'archived') || 'inactive',
+                jobTitle: formData.jobTitle || undefined,
                 company: formData.company || undefined,
                 industry: formData.industry || undefined,
                 website: formData.website || undefined,
@@ -351,6 +354,18 @@ export function EditContactForm() {
                 <Card className="p-6 bg-card border-border">
                     <h2 className="text-xl font-semibold text-foreground mb-4"> Company Information </h2>
                     <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                         {/* Job Title */}
+                        <div>
+                            <label className="block text-sm font-medium text-foreground mb-2"> Job Title </label>
+                            <Input
+                                type="text"
+                                name="jobTitle"
+                                value={formData.jobTitle}
+                                onChange={handleChange}
+                                placeholder="e.g. Marketing Director"
+                                className="bg-background border-border"
+                            />
+                        </div>
                         <div>
                             <label className='block text-sm font-medium text-foreground mb-2'> Company Name </label>
                             <Input

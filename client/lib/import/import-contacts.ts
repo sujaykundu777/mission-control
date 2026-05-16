@@ -2,9 +2,9 @@ import { ImportCSVResult, Client, Contact } from "../types";
 import { storage } from "../storage";
 
 export function downloadCSVTemplate() {
-    const template = `name,email,phone,gender,dob,company,industry,website,notes,status
-John Doe,john@example.com,+1-666-123-4567,Male,15-9-1985,Acme Corp,Technology,https://www.acme.com,"Important contact",active
-Jane Smith,jane@example.com,+1-666-987-6543,Female,15-10-1995,Globex Inc,Finance,https://www.globex.com,"Follow up next week",active
+    const template = `name,email,phone,gender,dob,company,industry,website,notes,status,jobTitle
+John Doe,john@example.com,+1-666-123-4567,Male,15-9-1985,Acme Corp,Technology,https://www.acme.com,"Important contact",active,Software Engineer
+Jane Smith,jane@example.com,+1-666-987-6543,Female,15-10-1995,Globex Inc,Finance,https://www.globex.com,"Follow up next week",active,Product Manager
     `
 
     const blob = new Blob([template], { type: 'text/csv;charset=utf-8' });
@@ -47,6 +47,7 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
     const websiteIndex = headers.indexOf('website')
     const notesIndex = headers.indexOf('notes')
     const statusIndex = headers.indexOf('status')
+    const jobTitleIndex = headers.indexOf('jobTitle')
 
     if (nameIndex === -1 || emailIndex === -1) {
         errors.push('CSV must contain at least "name" and "email" columns')
@@ -75,6 +76,7 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
             const website = websiteIndex !== -1 ? values[websiteIndex] : undefined
             const notes = notesIndex !== -1 ? values[notesIndex] : undefined
             const status = (statusIndex !== -1 ? values[statusIndex] : 'active') as 'active' | 'inactive' | 'archived'
+            const jobTitle = jobTitleIndex !== -1 ? values[jobTitleIndex] : undefined
 
             if (!name || !email) {
                 errors.push(`Row ${i + 1}: Name and email are required`)
@@ -99,6 +101,7 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
                 industry: industry || undefined,
                 website: website || undefined,
                 status,
+                jobTitle: jobTitle || undefined,
                 customFields: [],
                 notes: notes || undefined,
                 createdAt: new Date().toISOString(),
@@ -130,6 +133,7 @@ export function downloadJSONTemplate() {
       billingPhone: '+1-555-0100',
       notes: 'Primary contact',
       status: 'active',
+      jobTitle: 'Software Engineer',
       customFields: [],
     },
     {
@@ -146,6 +150,7 @@ export function downloadJSONTemplate() {
       billingPhone: '+1-555-0200',
       notes: 'Billing contact',
       status: 'active',
+      jobTitle: 'Product Manager',
       customFields: [],
     },
   ]
@@ -203,6 +208,7 @@ export async function importContactsFromJSON(jsonContent: string): Promise<Impor
           billingEmail: contactData.billingEmail || undefined,
           billingPhone: contactData.billingPhone || undefined,
           status: contactData.status || 'active',
+          jobTitle: contactData.jobTitle || undefined,
           customFields: contactData.customFields || [],
           notes: contactData.notes || undefined,
           createdAt: new Date().toISOString(),

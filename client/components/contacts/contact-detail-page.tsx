@@ -240,20 +240,29 @@ export function ContactDetailPage() {
                   <p className="text-sm font-medium text-muted-foreground mb-1">
                     Date of birth
                   </p>
-                  <p className="text-foreground">{contact.dob ? new Date(contact.dob).toLocaleDateString() : ''}</p>
+                  <p className="text-foreground">{contact.dob}</p>
                 </div>
                 )
               }
             </div>
           </Card>
 
-            {/* Work Information */}
+            {/* Company Information */}
             {(contact.company || contact.industry || contact.website) && (
               <Card className="p-6 my-2 bg-card border-border">
                 <h2 className="text-xl font-semibold text-foreground mb-4">
-                  Work Information
+                  Company Information
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {contact.jobTitle && (
+                    <div className="md:col-span-2">
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Job Title
+                      </p>
+                      <p className="text-foreground">{contact.jobTitle}</p>
+                    </div>
+                  )}
+
                   {contact.company && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">
