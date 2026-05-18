@@ -214,6 +214,7 @@ export function ContactDetailPage() {
                 </p>
                 <p className="text-foreground">{contact.email}</p>
               </div>
+
               {contact.phone && (
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">
@@ -242,6 +243,28 @@ export function ContactDetailPage() {
                   </p>
                   <p className="text-foreground">{contact.dob}</p>
                 </div>
+                )
+              }
+
+              {
+                contact.relationshipType && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">
+                      Relationship Type
+                    </p>
+                    <p className="text-foreground"> {contact.relationshipType} </p>
+                  </div>
+                )
+              }
+
+              {
+                contact.martialStatus && (
+                  <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">
+                        Martial Status
+                      </p>
+                      <p className="text-foreground"> {contact.martialStatus} </p>
+                  </div>
                 )
               }
             </div>

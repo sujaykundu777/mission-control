@@ -16,6 +16,7 @@ export interface Contact {
   dob?: string;
   address?: string;
   jobTitle?: string;
+  martialStatus?: 'Single' | 'Married' | 'Divorce' | 'Widowed';
   company?: string;
   workEmail?: string;
   industry?: string;

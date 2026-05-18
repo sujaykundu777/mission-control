@@ -51,6 +51,7 @@ export function EditContactForm() {
         dob: '',
         status: 'active',
         jobTitle: '',
+        martialStatus: 'Single',
         company: '',
         industry: '',
         website: '',
@@ -59,6 +60,7 @@ export function EditContactForm() {
         billingPhone: '',
         customFields: [] as CustomField[],
         notes: '',
+        relationshipType: '',
     });
 
     useEffect(() => {
@@ -82,6 +84,7 @@ export function EditContactForm() {
                     dob: foundContact.dob || '',
                     status: foundContact.status,
                     jobTitle: foundContact.jobTitle || '',
+                    martialStatus: foundContact.martialStatus || '',
                     company: foundContact.company || '',
                     industry: foundContact.industry || '',
                     website: foundContact.website || '',
@@ -89,7 +92,8 @@ export function EditContactForm() {
                     billingEmail: foundContact.billingEmail || '',
                     billingPhone: foundContact.billingPhone || '',
                     customFields: foundContact.customFields,
-                    notes: foundContact.notes || ''
+                    notes: foundContact.notes || '',
+                    relationshipType: foundContact.relationshipType || '',
                 });
             } else {
                 toast.error('Contact not found');
@@ -121,6 +125,7 @@ export function EditContactForm() {
                 gender: formData.gender || undefined,
                 dob: formData.dob || undefined,
                 status: (formData.status as 'active' | 'inactive' | 'archived') || 'inactive',
+                martialStatus: (formData.martialStatus as 'Single' | 'Married' | 'Divorce' | 'Widowed') || 'Single',
                 jobTitle: formData.jobTitle || undefined,
                 company: formData.company || undefined,
                 industry: formData.industry || undefined,
@@ -129,7 +134,8 @@ export function EditContactForm() {
                 billingEmail: formData.billingEmail || undefined,
                 billingPhone: formData.billingPhone || undefined,
                 customFields: formData.customFields.filter((cf) => cf.key && cf.value),
-                notes: formData.notes || undefined
+                notes: formData.notes || undefined,
+                relationshipType: formData.relationshipType || undefined,
             });
 
             toast.success('Contact updated successfully');
@@ -282,7 +288,24 @@ export function EditContactForm() {
                         />
                     </div>
 
-                         {/* Gender */}
+                    <div>
+                        <label className='block text-sm font-medium text-foreground mb-2'>
+                            Relationship Type
+                        </label>
+                        <Select value={formData.relationshipType} onValueChange={(value) => handleSelectChange('relationshipType', value)}>
+                            <SelectTrigger className='w-full'>
+                                <SelectValue placeholder="Select relationship type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Family">Family</SelectItem>
+                                <SelectItem value="Friend"> Friend </SelectItem>
+                                <SelectItem value="Colleague"> Colleague </SelectItem>
+                                <SelectItem value="Other"> Other </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Gender */}
                     <div>
                     <Label htmlFor="gender" className="block text-sm font-medium text-foreground mb-2"> Gender </Label>
                         <Select value={formData.gender} onValueChange={(value) => handleSelectChange('gender', value)}>
@@ -298,7 +321,7 @@ export function EditContactForm() {
                     </div>
 
                     {/* DOB */}
-                    <div className="grid grid-2">
+                <div className="grid grid-2">
                     <label className="block text-sm font-medium text-foreground mb-2">
                         Date of birth
                     </label>
@@ -331,23 +354,40 @@ export function EditContactForm() {
                             </div>
                         </PopoverContent>
                     </Popover>
-                    </div>
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                            Status
-                        </label>
-                        <select
-                            name="status"
-                            value={formData.status}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground text-sm">
-                                <option value="active"> Active </option>
-                                <option value="inactive"> Inactive </option>
-                                <option value="archived"> Archived </option>
-                        </select>
+                <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                        Status
+                    </label>
+                    <select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground text-sm">
+                            <option value="active"> Active </option>
+                            <option value="inactive"> Inactive </option>
+                            <option value="archived"> Archived </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label className='block text-sm font-medium text-foreground mb-2'>
+                        Martial Status
+                    </label>
+                    <select
+                        name="martialStatus"
+                        value={formData.martialStatus}
+                        onChange={handleChange}
+                        className='w-full px-3 py-2 bg-background border border-border rounded-md text-foreground text-sm'>
+                            <option value='Single'> Single </option>
+                            <option value="Married"> Married </option>
+                            <option value='Divorce'> Divorced </option>
+                            <option value='Widowed'> Widowed </option>
+                    </select>
                     </div>
                 </div>
+
                 </Card>
 
                 {/* Company Information */}

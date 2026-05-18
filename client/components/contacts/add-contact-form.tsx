@@ -33,6 +33,7 @@ export function AddContactForm() {
     gender: "",
     dob: "",
     jobTitle: "",
+    martialStatus:  "Single" as const,
     company: "",
     industry: "",
     website: "",
@@ -42,6 +43,7 @@ export function AddContactForm() {
     status: "active" as const,
     customFields: [] as CustomField[],
     notes: "",
+    relationshipType: "",
   });
 
   const handleChange = (
@@ -96,6 +98,8 @@ export function AddContactForm() {
     }));
   };
 
+
+
   // On submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +123,7 @@ export function AddContactForm() {
         gender: formData.gender || undefined,
         dob: formData.dob || undefined,
         jobTitle: formData.jobTitle || undefined,
+        martialStatus: formData.martialStatus,
         company: formData.company || undefined,
         industry: formData.industry || undefined,
         website: formData.website || undefined,
@@ -128,6 +133,7 @@ export function AddContactForm() {
         status: formData.status,
         customFields: formData.customFields.filter((cf) => cf.key && cf.value),
         notes: formData.notes || undefined,
+        relationshipType: formData.relationshipType,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -213,6 +219,23 @@ export function AddContactForm() {
                 className="bg-background border-border"
               />
             </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Relationship Type
+              </label>
+              <Select value={formData.relationshipType} onValueChange={(value) => handleSelectChange('relationshipType', value)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select relationship type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Family">Family</SelectItem>
+                  <SelectItem value="Friend"> Friend </SelectItem>
+                  <SelectItem value="Colleague"> Colleague </SelectItem>
+                  <SelectItem value="Other"> Other </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Gender */}
             <div>
@@ -229,8 +252,42 @@ export function AddContactForm() {
                 </Select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Status
+              </label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground text-sm"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="archived">Archived</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Martial Status
+              </label>
+              <select
+               name="martialStatus"
+               value={formData.martialStatus}
+               onChange={handleChange}
+               className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground text-sm"
+               >
+                <option value="single">Single</option>
+                <option value="married">Married</option>
+                <option value="divorce">Divorced</option>
+                <option value="widowed">Widowed</option>
+               </select>
+
+            </div>
+
             {/* DOB */}
-            <div className="grid grid-2">
+            <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Date of birth
               </label>
@@ -266,24 +323,11 @@ export function AddContactForm() {
                 </PopoverContent>
               </Popover>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Status
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground text-sm"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="archived">Archived</option>
-              </select>
-            </div>
+ 
           </div>
         </Card>
+
+  
         {/* Company Information */}
         <Card className="p-6 bg-card border-border">
           <h2 className="text-xl font-semibold text-foreground mb-4">

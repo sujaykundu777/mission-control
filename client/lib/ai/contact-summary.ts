@@ -29,9 +29,12 @@ export async function generateContactSummary(contact: Contact, contactDomains: D
             Email: ${contact.email}
             Phone: ${contact.phone || 'N/A'}
             Company: ${contact.company || 'N/A'}
+            Job Title: ${contact.jobTitle || 'N/A'}
             Industry: ${contact.industry || 'N/A'}
             Website: ${contact.website || 'N/A'}
             Status: ${contact.status}
+            Gender: ${contact.gender}
+            Relationship Type: ${contact.relationshipType}
             Number of Associated Domains: ${contactDomains.length}
            
             ${contactDomains.length > 0 ? `Domains: ${contactDomains.map((d) => d.name).join(', ')}` : ''}
