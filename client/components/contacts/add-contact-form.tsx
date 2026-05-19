@@ -40,6 +40,7 @@ export function AddContactForm() {
     billingAddress: "",
     billingEmail: "",
     billingPhone: "",
+    workPhone: "", 
     status: "active" as const,
     customFields: [] as CustomField[],
     notes: "",
@@ -123,6 +124,7 @@ export function AddContactForm() {
         gender: formData.gender || undefined,
         dob: formData.dob || undefined,
         jobTitle: formData.jobTitle || undefined,
+        workPhone: formData.workPhone || undefined,
         martialStatus: formData.martialStatus,
         company: formData.company || undefined,
         industry: formData.industry || undefined,
@@ -378,15 +380,26 @@ export function AddContactForm() {
               <label className="block text-sm font-medium text-foreground mb-2">
                 Website
               </label>
-              <Input
-                type="url"
-                name="website"
-                value={formData.website}
-                onChange={handleChange}
-                placeholder="https://example.com"
-                className="bg-background border-border"
-              />
-            </div>
+                <Input
+                  type="url"
+                  name="website"
+                  value={formData.website}
+                  onChange={handleChange}
+                  placeholder="https://example.com"
+                  className="bg-background border-border"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">Work Phone</label>
+                <Input
+                  type="tel"
+                  name="workPhone"
+                  value={formData.workPhone}
+                  onChange={handleChange}
+                  placeholder="+1 (555) 000-0000"
+                  className="bg-background border-border"
+                />
+              </div>
           </div>
         </Card>
         {/* Billing Information */}

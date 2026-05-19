@@ -2,9 +2,9 @@ import { ImportCSVResult, Client, Contact } from "../types";
 import { storage } from "../storage";
 
 export function downloadCSVTemplate() {
-    const template = `name,email,phone,gender,dob,relationshipType,martialStatus,company,industry,website,notes,status,jobTitle
-John Doe,john@example.com,+1-666-123-4567,Male,15-9-1985,'Friend','Single',Acme Corp,Technology,https://www.acme.com,"Important contact",active,Software Engineer
-Jane Smith,jane@example.com,+1-666-987-6543,Female,15-10-1995,'Other','Married',Globex Inc,Finance,https://www.globex.com,"Follow up next week",active,Product Manager
+    const template = `name,email,phone,workPhone,gender,dob,relationshipType,martialStatus,company,industry,website,notes,status,jobTitle
+John Doe,john@example.com,+1-666-123-4567,+1-666-123-5678,Male,15-9-1985,'Friend','Single',Acme Corp,Technology,https://www.acme.com,"Important contact",active,Software Engineer
+Jane Smith,jane@example.com,+1-666-987-6543,+1-666-987-6544,Female,15-10-1995,'Other','Married',Globex Inc,Finance,https://www.globex.com,"Follow up next week",active,Product Manager
     `
 
     const blob = new Blob([template], { type: 'text/csv;charset=utf-8' });
@@ -40,16 +40,17 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
     const nameIndex = headers.indexOf('name');
     const emailIndex = headers.indexOf('email');
     const phoneIndex = headers.indexOf('phone');
+    const workPhoneIndex = headers.indexOf('workphone');
     const genderIndex = headers.indexOf('gender');
     const dobIndex = headers.indexOf('dob');
-    const relationshipTypeIndex = headers.indexOf('relationshipType');
-    const martialStatusIndex = headers.indexOf('martialStatus');
+    const relationshipTypeIndex = headers.indexOf('relationshiptype');
+    const martialStatusIndex = headers.indexOf('martialstatus');
     const companyIndex = headers.indexOf('company')
     const industryIndex = headers.indexOf('industry')
     const websiteIndex = headers.indexOf('website')
     const notesIndex = headers.indexOf('notes')
     const statusIndex = headers.indexOf('status')
-    const jobTitleIndex = headers.indexOf('jobTitle')
+    const jobTitleIndex = headers.indexOf('jobtitle')
 
     if (nameIndex === -1 || emailIndex === -1) {
         errors.push('CSV must contain at least "name" and "email" columns')
@@ -71,6 +72,7 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
             const name = values[nameIndex]
             const email = values[emailIndex]
             const phone = phoneIndex !== -1 ? values[phoneIndex] : undefined
+            const workPhone = workPhoneIndex !== -1 ? values[workPhoneIndex] : undefined
             const gender = genderIndex !== -1 ? values[genderIndex] : undefined
             const dob = genderIndex !== -1 ? values[dobIndex] : undefined
             const relationshipType = relationshipTypeIndex !== -1 ? values[relationshipTypeIndex] : undefined
@@ -99,6 +101,7 @@ export async function importContactsFromCSV(csvContent: string): Promise<ImportC
                 name,
                 email,
                 phone: phone || undefined,
+                workPhone: workPhone || undefined,
                 gender: gender || undefined,
                 dob: dob || undefined,
                 relationshipType: relationshipType || undefined,
@@ -129,6 +132,7 @@ export function downloadJSONTemplate() {
       name: 'John Doe',
       email: 'john@example.com',
       phone: '+1-555-0123',
+      workPhone: '+1-555-0124',
       gender: 'Male',
       dob: '15-9-1985',
       relationshipType: 'Friend',
@@ -148,6 +152,7 @@ export function downloadJSONTemplate() {
       name: 'Jane Smith',
       email: 'jane@example.com',
       phone: '+1-555-0124',
+      workPhone: '+1-555-0125',
       gender: 'Female',
       dob: '15-10-1995',
       relationshipType: 'Colleague',
@@ -209,6 +214,7 @@ export async function importContactsFromJSON(jsonContent: string): Promise<Impor
           name: contactData.name,
           email: contactData.email,
           phone: contactData.phone || undefined,
+          workPhone: contactData.workPhone || undefined,
           gender: contactData.gender || undefined,
           dob: contactData.dob || undefined,
           relationshipType: contactData.relationshipType || 'friend',

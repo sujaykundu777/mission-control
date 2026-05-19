@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Contact, CustomField, Domain} from '@/lib/types';
+import { CustomField, Domain} from '@/lib/types';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card'
@@ -34,10 +34,8 @@ export function EditContactForm() {
     const params = useParams();
     const contactId = params.id as string;
 
-    const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-    const [contact, setContact] = useState<Contact | null>(null);
     const [domains, setDomains] = useState<Domain[]>([]);
     const [open, setOpen] = useState(false);
     const [date, setDate] = useState<Date | undefined>(new Date());
@@ -51,6 +49,7 @@ export function EditContactForm() {
         dob: '',
         status: 'active',
         jobTitle: '',
+        workPhone: '',
         martialStatus: 'Single',
         company: '',
         industry: '',
@@ -65,12 +64,9 @@ export function EditContactForm() {
 
     useEffect(() => {
         const fetchContact = async () => {
-            setIsLoading(true);
-
             const foundContact = await storage.getContactById(contactId);
 
             if (foundContact) {
-                setContact(foundContact)
                 const clientDomains = storage.getContactDomains(contactId);
                 setDomains(clientDomains);
                 if (foundContact.dob) {
@@ -84,6 +80,7 @@ export function EditContactForm() {
                     dob: foundContact.dob || '',
                     status: foundContact.status,
                     jobTitle: foundContact.jobTitle || '',
+                    workPhone: foundContact.workPhone || '',
                     martialStatus: foundContact.martialStatus || '',
                     company: foundContact.company || '',
                     industry: foundContact.industry || '',
@@ -99,7 +96,6 @@ export function EditContactForm() {
                 toast.error('Contact not found');
                 router.push('/contacts');
             }
-            setIsLoading(false);
         };
 
         fetchContact();
@@ -127,6 +123,7 @@ export function EditContactForm() {
                 status: (formData.status as 'active' | 'inactive' | 'archived') || 'inactive',
                 martialStatus: (formData.martialStatus as 'Single' | 'Married' | 'Divorce' | 'Widowed') || 'Single',
                 jobTitle: formData.jobTitle || undefined,
+                workPhone: formData.workPhone || undefined,
                 company: formData.company || undefined,
                 industry: formData.industry || undefined,
                 website: formData.website || undefined,
@@ -403,6 +400,17 @@ export function EditContactForm() {
                                 value={formData.jobTitle}
                                 onChange={handleChange}
                                 placeholder="e.g. Marketing Director"
+                                className="bg-background border-border"
+                            />
+                        </div>
+                        <div>
+                            <label className='block text-sm font-medium text-foreground mb-2'> Work Phone </label>
+                            <Input
+                                type="tel"
+                                name="workPhone"
+                                value={formData.workPhone}
+                                onChange={handleChange}
+                                placeholder="+1 (555) 000-0000"
                                 className="bg-background border-border"
                             />
                         </div>

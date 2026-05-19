@@ -27,6 +27,7 @@ export function exportContactsAsCSV(contacts: Contact[]): void {
         'name',
         'email',
         'phone',
+        'workPhone',
         'gender',
         'dob',
         'relationshipType',
@@ -54,11 +55,12 @@ export function exportContactsAsCSV(contacts: Contact[]): void {
         return stringValue;
     }
 
-    // Build CSV rows 
+    // Build CSV rows
     const rows = contacts.map((c) => [
         escapeCSV(c.name),
         escapeCSV(c.email),
         escapeCSV(c.phone),
+        escapeCSV(c.workPhone),
         escapeCSV(c.gender),
         escapeCSV(c.dob),
         escapeCSV(c.relationshipType),

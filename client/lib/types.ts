@@ -19,6 +19,7 @@ export interface Contact {
   martialStatus?: 'Single' | 'Married' | 'Divorce' | 'Widowed';
   company?: string;
   workEmail?: string;
+  workPhone?: string;
   industry?: string;
   website?: string;
   billingAddress?: string;
