@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Contact {
+  id             String   @id @default(cuid())
+  contactId      String   @unique
+  name           String
+  email          String
+  phone          String?
+  gender         String?
+  dob            String?
+  jobTitle       String?
+  company        String?
+  industry       String?
+  website        String?
+  billingAddress String?
+  billingEmail   String?
+  billingPhone   String?
+  status         String   @default("active")
+  customFields   Json     @default("[]")
+  notes          String?
+  summary        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("contacts")
+}

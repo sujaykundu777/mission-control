@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getContactsStore } from '../route'
+import { prisma } from '@/lib/prisma'
 
 // GET /api/contacts/[id] - Get a single contact
 export async function GET(
@@ -8,8 +8,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const contactsStore = getContactsStore()
-    const contact = contactsStore.get(id)
+    const contact = await prisma.contact.findUnique({
+      where: { id },
+    })
 
     if (!contact) {
       return NextResponse.json(
@@ -35,31 +36,37 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const contactsStore = getContactsStore()
-    const existingContact = contactsStore.get(id)
+    const body = await request.json()
 
-    if (!existingContact) {
+    const contact = await prisma.contact.update({
+      where: { id },
+      data: {
+        name: body.name,
+        email: body.email,
+        phone: body.phone || null,
+        gender: body.gender || null,
+        dob: body.dob || null,
+        jobTitle: body.jobTitle || null,
+        company: body.company || null,
+        industry: body.industry || null,
+        website: body.website || null,
+        billingAddress: body.billingAddress || null,
+        billingEmail: body.billingEmail || null,
+        billingPhone: body.billingPhone || null,
+        status: body.status,
+        customFields: body.customFields,
+        notes: body.notes || null,
+      },
+    })
+
+    return NextResponse.json(contact)
+  } catch (error: any) {
+    if (error?.code === 'P2025') {
       return NextResponse.json(
         { error: 'Contact not found' },
         { status: 404 }
       )
     }
-
-    const body = await request.json()
-
-    const updatedContact = {
-      ...existingContact,
-      ...body,
-      id: existingContact.id,
-      contactId: existingContact.contactId,
-      createdAt: existingContact.createdAt,
-      updatedAt: new Date().toISOString(),
-    }
-
-    contactsStore.set(id, updatedContact)
-
-    return NextResponse.json(updatedContact)
-  } catch (error) {
     console.error('Error updating contact:', error)
     return NextResponse.json(
       { error: 'Failed to update contact' },
@@ -75,19 +82,19 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const contactsStore = getContactsStore()
 
-    if (!contactsStore.has(id)) {
+    await prisma.contact.delete({
+      where: { id },
+    })
+
+    return new NextResponse(null, { status: 204 })
+  } catch (error: any) {
+    if (error?.code === 'P2025') {
       return NextResponse.json(
         { error: 'Contact not found' },
         { status: 404 }
       )
     }
-
-    contactsStore.delete(id)
-
-    return new NextResponse(null, { status: 204 })
-  } catch (error) {
     console.error('Error deleting contact:', error)
     return NextResponse.json(
       { error: 'Failed to delete contact' },

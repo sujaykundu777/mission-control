@@ -1,4 +1,6 @@
 allowBuilds:
+  '@prisma/engines': true
   cypress: true
   esbuild: false
+  prisma: true
   sharp: false

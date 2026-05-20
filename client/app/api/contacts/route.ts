@@ -1,18 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Contact } from '@/lib/types'
-
-// In-memory store for server-side contacts (mirrors client IndexedDB)
-// This will be replaced with a real database in the future
-const contactsStore: Map<string, Contact> = new Map()
-
-export function getContactsStore() {
-  return contactsStore
-}
+import { prisma } from '@/lib/prisma'
 
 // GET /api/contacts - List all contacts
 export async function GET() {
   try {
-    const contacts = Array.from(contactsStore.values())
+    const contacts = await prisma.contact.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
     return NextResponse.json(contacts)
   } catch (error) {
     console.error('Error fetching contacts:', error)
@@ -43,34 +37,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const contactCount = contactsStore.size + 1
-    const newContact: Contact = {
-      id: `contact-${Date.now()}`,
-      contactId: `CL000${contactCount}`,
-      name: body.name,
-      email: body.email,
-      phone: body.phone || undefined,
-      gender: body.gender || undefined,
-      dob: body.dob || undefined,
-      jobTitle: body.jobTitle || undefined,
-      company: body.company || undefined,
-      industry: body.industry || undefined,
-      website: body.website || undefined,
-      billingAddress: body.billingAddress || undefined,
-      billingEmail: body.billingEmail || undefined,
-      billingPhone: body.billingPhone || undefined,
-      status: body.status || 'active',
-      customFields: body.customFields?.filter(
-        (cf: { key: string; value: string }) => cf.key && cf.value
-      ) || [],
-      notes: body.notes || undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    // Generate contactId
+    const count = await prisma.contact.count()
+    const contactId = `CL000${count + 1}`
 
-    contactsStore.set(newContact.id, newContact)
+    const contact = await prisma.contact.create({
+      data: {
+        contactId,
+        name: body.name,
+        email: body.email,
+        phone: body.phone || null,
+        gender: body.gender || null,
+        dob: body.dob || null,
+        jobTitle: body.jobTitle || null,
+        company: body.company || null,
+        industry: body.industry || null,
+        website: body.website || null,
+        billingAddress: body.billingAddress || null,
+        billingEmail: body.billingEmail || null,
+        billingPhone: body.billingPhone || null,
+        status: body.status || 'active',
+        customFields: body.customFields?.filter(
+          (cf: { key: string; value: string }) => cf.key && cf.value
+        ) || [],
+        notes: body.notes || null,
+      },
+    })
 
-    return NextResponse.json(newContact, { status: 201 })
+    return NextResponse.json(contact, { status: 201 })
   } catch (error) {
     console.error('Error creating contact:', error)
     return NextResponse.json(
