@@ -1,56 +1,67 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Service } from '@/lib/types'
-import { storage } from '@/lib/storage'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Service } from "@/lib/types";
+import { storage } from "@/lib/storage";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 interface AddServiceFormProps {
-  domainId: string
-  serviceId?: string
-  isEdit?: boolean
+  domainId: string;
+  serviceId?: string;
+  isEdit?: boolean;
 }
 
-const SERVICE_TYPES: Service['type'][] = ['hosting', 'ssl', 'email', 'cdn', 'backup', 'monitoring', 'other']
-const BILLING_CYCLES: Service['billingCycle'][] = ['monthly', 'annual', 'one-time']
+const SERVICE_TYPES: Service["type"][] = [
+  "hosting",
+  "ssl",
+  "email",
+  "cdn",
+  "backup",
+  "monitoring",
+  "other",
+];
+const BILLING_CYCLES: Service["billingCycle"][] = ["monthly", "annual", "one-time"];
 
 export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServiceFormProps) {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const domain = storage.getDomainById(domainId)
-  const existingService = isEdit && serviceId ? domain?.services.find((s) => s.id === serviceId) : null
+  const domain = storage.getDomainById(domainId);
+  const existingService =
+    isEdit && serviceId ? domain?.services.find((s) => s.id === serviceId) : null;
 
   const [formData, setFormData] = useState({
-    name: existingService?.name || '',
-    type: (existingService?.type || 'hosting') as Service['type'],
-    provider: existingService?.provider || '',
-    status: (existingService?.status || 'active') as Service['status'],
-    billingCycle: (existingService?.billingCycle || 'annual') as Service['billingCycle'],
+    name: existingService?.name || "",
+    type: (existingService?.type || "hosting") as Service["type"],
+    provider: existingService?.provider || "",
+    status: (existingService?.status || "active") as Service["status"],
+    billingCycle: (existingService?.billingCycle || "annual") as Service["billingCycle"],
     cost: existingService?.cost || 0,
-    renewalDate: existingService?.renewalDate || '',
-    notes: existingService?.notes || '',
-  })
+    renewalDate: existingService?.renewalDate || "",
+    notes: existingService?.notes || "",
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'cost' ? parseFloat(value) : value,
-    }))
-  }
+      [name]: name === "cost" ? parseFloat(value) : value,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      if (!domain) throw new Error('Domain not found')
+      if (!domain) throw new Error("Domain not found");
 
       if (isEdit && serviceId) {
         // Update existing service
@@ -67,9 +78,9 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
                 renewalDate: formData.renewalDate,
                 notes: formData.notes,
               }
-            : s
-        )
-        storage.updateDomain(domainId, { services: updatedServices })
+            : s,
+        );
+        storage.updateDomain(domainId, { services: updatedServices });
       } else {
         // Add new service
         const newService: Service = {
@@ -82,24 +93,24 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
           cost: formData.cost,
           renewalDate: formData.renewalDate,
           notes: formData.notes,
-        }
-        domain.services.push(newService)
-        storage.updateDomain(domainId, { services: domain.services })
+        };
+        domain.services.push(newService);
+        storage.updateDomain(domainId, { services: domain.services });
       }
 
-      router.push(`/domains/${domainId}`)
+      router.push(`/domains/${domainId}`);
     } catch (error) {
-      console.error('Error saving service:', error)
-      setIsSubmitting(false)
+      console.error("Error saving service:", error);
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (!domain) {
     return (
       <div className="text-center">
         <p className="text-muted-foreground">Domain not found</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -108,26 +119,28 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
       <div>
         <Link href={`/domains/${domainId}`}>
           <Button variant="ghost" className="mb-4 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Domain
           </Button>
         </Link>
         <h1 className="text-3xl font-bold text-foreground">
-          {isEdit ? 'Edit Service' : 'Add New Service'}
+          {isEdit ? "Edit Service" : "Add New Service"}
         </h1>
-        <p className="text-muted-foreground mt-2">
-          {domain.name} • {isEdit ? 'Update service details' : 'Add a service to this domain'}
+        <p className="mt-2 text-muted-foreground">
+          {domain.name} • {isEdit ? "Update service details" : "Add a service to this domain"}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Service Details */}
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Service Details</h2>
+        <Card className="border-border bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Service Details</h2>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Service Name *</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Service Name *
+                </label>
                 <Input
                   type="text"
                   name="name"
@@ -135,16 +148,18 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Service Type *</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Service Type *
+                </label>
                 <select
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-foreground"
+                  className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-foreground"
                 >
                   {SERVICE_TYPES.map((type) => (
                     <option key={type} value={type}>
@@ -155,25 +170,25 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Provider</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Provider</label>
                 <Input
                   type="text"
                   name="provider"
                   placeholder="e.g., Bluehost, Namecheap"
                   value={formData.provider}
                   onChange={handleChange}
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Status *</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Status *</label>
                 <select
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-foreground"
+                  className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-foreground"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -182,14 +197,16 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Billing Cycle *</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Billing Cycle *
+                </label>
                 <select
                   name="billingCycle"
                   value={formData.billingCycle}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-foreground"
+                  className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-foreground"
                 >
                   {BILLING_CYCLES.map((cycle) => (
                     <option key={cycle} value={cycle}>
@@ -199,7 +216,7 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Cost ($) *</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Cost ($) *</label>
                 <Input
                   type="number"
                   name="cost"
@@ -208,17 +225,19 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
                   onChange={handleChange}
                   step="0.01"
                   required
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Renewal Date</label>
+                <label className="mb-2 block text-sm font-medium text-foreground">
+                  Renewal Date
+                </label>
                 <Input
                   type="date"
                   name="renewalDate"
                   value={formData.renewalDate}
                   onChange={handleChange}
-                  className="bg-secondary border-border text-foreground"
+                  className="border-border bg-secondary text-foreground"
                 />
               </div>
             </div>
@@ -226,26 +245,28 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
         </Card>
 
         {/* Notes */}
-        <Card className="p-6 bg-card border-border">
-          <label className="block text-sm font-medium text-foreground mb-2">Notes</label>
+        <Card className="border-border bg-card p-6">
+          <label className="mb-2 block text-sm font-medium text-foreground">Notes</label>
           <textarea
             name="notes"
             placeholder="Add any additional notes about this service..."
             value={formData.notes}
             onChange={handleChange}
             rows={4}
-            className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </Card>
 
         {/* Submit */}
         <div className="flex gap-3">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-primary hover:bg-primary/90"
-          >
-            {isSubmitting ? (isEdit ? 'Updating...' : 'Adding...') : isEdit ? 'Update Service' : 'Add Service'}
+          <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90">
+            {isSubmitting
+              ? isEdit
+                ? "Updating..."
+                : "Adding..."
+              : isEdit
+                ? "Update Service"
+                : "Add Service"}
           </Button>
           <Link href={`/domains/${domainId}`}>
             <Button variant="outline" className="border-border hover:bg-card">
@@ -255,5 +276,5 @@ export function AddServiceForm({ domainId, serviceId, isEdit = false }: AddServi
         </div>
       </form>
     </div>
-  )
+  );
 }

@@ -10,8 +10,7 @@ import { useCurrency } from "@/hooks/use-currency";
 
 export function SettingsPage() {
   const [isExporting, setIsExporting] = useState(false);
-  const { currency: savedCurrency, setCurrency: setSavedCurrency } =
-    useCurrency();
+  const { currency: savedCurrency, setCurrency: setSavedCurrency } = useCurrency();
   const [tempCurrency, setTempCurrency] = useState<Currency>(savedCurrency);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -48,9 +47,7 @@ export function SettingsPage() {
 
   const handleClearData = () => {
     if (
-      window.confirm(
-        "Are you sure you want to delete all domains? This action cannot be undone.",
-      )
+      window.confirm("Are you sure you want to delete all domains? This action cannot be undone.")
     ) {
       storage.saveDomains([]);
       window.location.reload();
@@ -62,28 +59,26 @@ export function SettingsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="mt-2 text-muted-foreground">
           Manage your Mission Control preferences and data
         </p>
       </div>
 
       {/* Preferences */}
-      <Card className="p-6 bg-card border-border">
-        <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-          <Globe className="w-5 h-5" />
+      <Card className="border-border bg-card p-6">
+        <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+          <Globe className="h-5 w-5" />
           Preferences
         </h2>
         <div className="space-y-4">
           <div>
-            <p className="text-sm font-medium text-foreground mb-3">
-              Currency for Cost Display
-            </p>
+            <p className="mb-3 text-sm font-medium text-foreground">Currency for Cost Display</p>
             <div className="grid grid-cols-3 gap-3">
               {(["USD", "EUR", "INR"] as const).map((curr) => (
                 <button
                   key={curr}
                   onClick={() => handleCurrencyChange(curr)}
-                  className={`p-3 rounded-lg border-2 transition-colors relative ${
+                  className={`relative rounded-lg border-2 p-3 transition-colors ${
                     tempCurrency === curr
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border text-muted-foreground hover:border-primary/50"
@@ -94,16 +89,16 @@ export function SettingsPage() {
                   }`}
                 >
                   <div className="font-semibold">{curr}</div>
-                  <div className="text-xs mt-1">{CURRENCY_NAMES[curr]}</div>
+                  <div className="mt-1 text-xs">{CURRENCY_NAMES[curr]}</div>
                   {savedCurrency === curr && tempCurrency === curr && (
-                    <div className="absolute top-1 right-1">
-                      <Check className="w-4 h-4 text-green-500" />
+                    <div className="absolute right-1 top-1">
+                      <Check className="h-4 w-4 text-green-500" />
                     </div>
                   )}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-3 mt-4">
+            <div className="mt-4 flex items-center gap-3">
               <Button
                 onClick={handleSaveCurrency}
                 disabled={tempCurrency === savedCurrency || isSaving}
@@ -117,32 +112,28 @@ export function SettingsPage() {
                 </p>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-3">
-              Prices will be displayed in the selected currency with real-time
-              conversion rates.
+            <p className="mt-3 text-xs text-muted-foreground">
+              Prices will be displayed in the selected currency with real-time conversion rates.
             </p>
           </div>
         </div>
       </Card>
 
       {/* Data Management */}
-      <Card className="p-6 bg-card border-border">
-        <h2 className="text-lg font-semibold text-foreground mb-4">
-          Data Management
-        </h2>
+      <Card className="border-border bg-card p-6">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Data Management</h2>
         <div className="space-y-4">
-          <p className="text-muted-foreground text-sm">
-            Export your domains and services data as a JSON file for backup or
-            migration purposes.
+          <p className="text-sm text-muted-foreground">
+            Export your domains and services data as a JSON file for backup or migration purposes.
           </p>
 
-          <div className="flex gap-3 flex-wrap">
+          <div className="flex flex-wrap gap-3">
             <Button
               onClick={handleExportData}
               disabled={isExporting}
               className="bg-primary hover:bg-primary/90"
             >
-              <Download className="w-4 h-4 mr-2" />
+              <Download className="mr-2 h-4 w-4" />
               {isExporting ? "Exporting..." : "Export Data"}
             </Button>
           </div>
@@ -150,40 +141,33 @@ export function SettingsPage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="p-6 bg-card border-destructive/50">
-        <h2 className="text-lg font-semibold text-destructive mb-4">
-          Danger Zone
-        </h2>
-        <p className="text-muted-foreground text-sm mb-4">
-          Deleting all data will permanently remove all your domains and
-          services. This action cannot be undone.
+      <Card className="border-destructive/50 bg-card p-6">
+        <h2 className="mb-4 text-lg font-semibold text-destructive">Danger Zone</h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Deleting all data will permanently remove all your domains and services. This action
+          cannot be undone.
         </p>
         <Button
           onClick={handleClearData}
           variant="destructive"
           className="bg-destructive hover:bg-destructive/90"
         >
-          <Trash2 className="w-4 h-4 mr-2" />
+          <Trash2 className="mr-2 h-4 w-4" />
           Delete All Data
         </Button>
       </Card>
 
       {/* About */}
-      <Card className="p-6 bg-card border-border">
-        <h2 className="text-lg font-semibold text-foreground mb-4">
-          About Mission Control OS
-        </h2>
+      <Card className="border-border bg-card p-6">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">About Mission Control OS</h2>
         <div className="space-y-2 text-sm text-muted-foreground">
           <p>
-            <span className="font-semibold text-foreground">
-              Mission Control OS
-            </span>{" "}
-            is a comprehensive tool for managing your domains, services, and DNS
-            records in one place.
+            <span className="font-semibold text-foreground">Mission Control OS</span> is a
+            comprehensive tool for managing your domains, services, and DNS records in one place.
           </p>
           <p>
-            All your data is stored locally in your browser using localStorage,
-            ensuring privacy and security.
+            All your data is stored locally in your browser using localStorage, ensuring privacy and
+            security.
           </p>
           <p className="text-xs text-muted-foreground/60">Version 1.0.0</p>
         </div>
