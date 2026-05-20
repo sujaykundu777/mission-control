@@ -9,7 +9,11 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "cypress run",
+    "test:e2e:ui": "cypress open",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.38",
@@ -71,10 +75,11 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
-    "@types/node": "^22",
+    "@types/node": "^22.19.11",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitest/coverage-v8": "^4.0.18",
+    "cypress": "^15.15.0",
     "fake-indexeddb": "^6.2.5",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
