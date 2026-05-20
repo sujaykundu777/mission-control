@@ -11,6 +11,7 @@ import {
   RocketIcon,
   User,
   LogOut,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -97,6 +98,22 @@ export function Sidebar() {
             Profile
           </Button>
         </Link>
+
+        {session?.user?.role === "superadmin" && (
+          <Link href="/admin">
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                isActive("/admin") &&
+                  "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary",
+              )}
+            >
+              <Shield className="w-5 h-5" />
+              Admin
+            </Button>
+          </Link>
+        )}
       </nav>
 
       {/* User & Settings */}

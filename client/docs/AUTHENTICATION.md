@@ -343,6 +343,86 @@ pnpm db:seed
 
 ---
 
+## Admin Panel
+
+### Overview
+
+The admin panel is accessible at `/admin` and is restricted to users with `role: "superadmin"`. It provides user management capabilities including viewing, editing roles, and deleting users.
+
+### Access Control
+
+- **Route protection:** The middleware in `lib/auth.config.ts` redirects non-superadmins away from `/admin`
+- **API protection:** All `/api/admin/*` routes check `session.user.role === "superadmin"` and return 403 if not authorized
+- **Sidebar visibility:** The "Admin" nav link only appears for superadmin users
+
+### User Roles
+
+| Role | Permissions |
+|------|-------------|
+| `user` | Default role. Access to all standard features (Dashboard, Contacts, Domains, Profile) |
+| `superadmin` | Full access including the Admin Panel. Can manage all users. |
+
+### Admin API Routes
+
+#### GET `/api/admin/users`
+List all users (id, name, email, role, createdAt).
+
+#### POST `/api/admin/users`
+Create a new user.
+
+**Body:**
+```json
+{
+  "name": "New User",
+  "email": "newuser@example.com",
+  "password": "securepassword",
+  "role": "user"
+}
+```
+
+#### GET `/api/admin/users/[id]`
+Get a single user by ID.
+
+#### PUT `/api/admin/users/[id]`
+Update a user's name or role.
+
+**Body:**
+```json
+{
+  "name": "Updated Name",
+  "role": "superadmin"
+}
+```
+
+**Constraints:**
+- Superadmins cannot demote themselves (returns 400)
+
+#### DELETE `/api/admin/users/[id]`
+Delete a user.
+
+**Constraints:**
+- Superadmins cannot delete themselves (returns 400)
+
+### Files
+
+```
+├── app/admin/page.tsx                        # Admin panel page
+├── app/api/admin/users/route.ts              # GET (list), POST (create)
+├── app/api/admin/users/[id]/route.ts         # GET, PUT, DELETE
+├── components/admin/user-table.tsx           # Users data table
+├── components/admin/edit-user-dialog.tsx     # Edit user dialog
+└── components/admin/delete-user-dialog.tsx   # Delete confirmation
+```
+
+### Testing
+
+1. Login as `test@example.com` / `password123` (seeded as superadmin)
+2. Click "Admin" in the sidebar
+3. View user list, edit roles, delete users
+4. Register a new user at `/auth/register` — they won't see the Admin link
+
+---
+
 ## Security Notes
 
 - Passwords are hashed with bcrypt (12 rounds)
@@ -350,3 +430,5 @@ pnpm db:seed
 - Forgot password endpoint prevents email enumeration (always returns success)
 - JWT sessions are signed with NEXTAUTH_SECRET
 - Middleware enforces auth on all non-public routes
+- Admin routes enforce role-based access control (superadmin only)
+- Superadmins cannot demote or delete themselves (prevents lockout)
