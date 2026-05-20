@@ -2,18 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import {
   Globe,
   Settings,
   LayoutDashboard,
   Users,
   RocketIcon,
+  User,
+  LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const isActive = (path: string) => pathname === path;
 
@@ -79,10 +83,34 @@ export function Sidebar() {
             Domains
           </Button>
         </Link>
+
+        <Link href="/profile">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              isActive("/profile") &&
+                "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary",
+            )}
+          >
+            <User className="w-5 h-5" />
+            Profile
+          </Button>
+        </Link>
       </nav>
 
-      {/* Settings */}
-      <div className="p-4 border-t border-sidebar-border">
+      {/* User & Settings */}
+      <div className="p-4 border-t border-sidebar-border space-y-2">
+        {session?.user && (
+          <div className="px-3 py-2 mb-2">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">
+              {session.user.name || session.user.email}
+            </p>
+            <p className="text-xs text-sidebar-foreground/60 truncate">
+              {session.user.email}
+            </p>
+          </div>
+        )}
         <Link href="/settings">
           <Button
             variant="ghost"
@@ -96,6 +124,14 @@ export function Sidebar() {
             Settings
           </Button>
         </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          onClick={() => signOut({ callbackUrl: "/auth/login" })}
+        >
+          <LogOut className="w-5 h-5" />
+          Sign Out
+        </Button>
       </div>
     </aside>
   );
