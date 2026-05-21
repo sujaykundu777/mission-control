@@ -1,10 +1,10 @@
-import { AppLayout } from "@/components/layout/app-layout";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { AddContactForm } from "@/components/contacts/add-contact-form";
 
 export default function AddClientPage() {
   return (
-    <AppLayout>
+    <DashboardLayout>
       <AddContactForm />
-    </AppLayout>
+    </DashboardLayout>
   );
 }

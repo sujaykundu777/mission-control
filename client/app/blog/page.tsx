@@ -1,0 +1,62 @@
+import { Box } from "@/components/ui/box";
+import { Heading } from "@/components/ui/heading";
+import { Paragraph } from "@/components/ui/paragraph";
+import { Link } from "next/link";
+
+export default function BlogPage() {
+  // Mock blog posts
+  const posts = [
+    {
+      slug: "welcome-to-our-blog",
+      title: "Welcome to Our Blog",
+      excerpt: "We are excited to launch our blog about contact management and productivity tips.",
+      date: "2024-10-01",
+    },
+    {
+      slug: "productivity-tips",
+      title: "Productivity Tips for Teams",
+      excerpt: "Boost your team productivity with these helpful strategies.",
+      date: "2024-09-25",
+    },
+  ];
+
+  return (
+    <Box className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-3xl space-y-6 rounded-xl bg-white p-8 shadow-lg">
+        <Heading as="h1" size="xl" className="text-center text-gray-900">
+          Blog
+        </Heading>
+        <Paragraph className="text-center text-gray-600">Latest news and updates.</Paragraph>
+
+        <div className="space-y-6">
+          {posts.map((post) => (
+            <Box key={post.slug} className="border-b border-gray-200 pb-4">
+              <Heading as="h2" className="text-lg font-semibold text-gray-800">
+                {post.title}
+              </Heading>
+              <Paragraph className="py-2 text-gray-700">{post.excerpt}</Paragraph>
+              <Box className="text-sm text-gray-500">{post.date}</Box>
+              <Box className="mt-2 flex">
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="text-primary-600 hover:text-primary-500"
+                >
+                  Read more
+                </Link>
+              </Box>
+            </Box>
+          ))}
+        </div>
+
+        <Box className="flex justify-center">
+          <Link
+            href="/dashboard"
+            className="text-primary-600 hover:text-primary-500 text-sm font-medium"
+          >
+            Back to Dashboard
+          </Link>
+        </Box>
+      </div>
+    </Box>
+  );
+}

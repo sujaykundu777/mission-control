@@ -1,0 +1,16 @@
+.next
+node_modules
+coverage
+dist
+build
+public
+pnpm-lock.yaml
+next-env.d.ts
+*.log
+.env*
+
+# WIP files with syntax errors — re-enable once fixed
+app/login/**
+app/register/**
+app/terms-and-conditions/**
+components/landing/**

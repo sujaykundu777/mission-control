@@ -3,7 +3,14 @@
 import { Client, Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 // import {
 //   AlertDialog,
 //   AlertDialogAction,
@@ -21,7 +28,7 @@ import { useState } from "react";
 interface ContactsTableProps {
   contacts: Contact[];
   onContactsChange?: () => void;
-  alignment: 'grid' | 'list'
+  alignment: "grid" | "list";
 }
 
 export function ContactsTable({ contacts, onContactsChange, alignment }: ContactsTableProps) {
@@ -59,42 +66,37 @@ export function ContactsTable({ contacts, onContactsChange, alignment }: Contact
   return (
     <>
       {/* <div className="grid gap-4"> */}
-      <div className={`w-[100%] grid gap-10 ${
-        alignment==="grid" ? "grid-cols-1 md:grid-cols-3 lg-grid-cols-3" : null
-      }`}>
+      <div
+        className={`grid w-[100%] gap-10 ${
+          alignment === "grid" ? "lg-grid-cols-3 grid-cols-1 md:grid-cols-3" : null
+        }`}
+      >
         {contacts.map((c: Contact) => (
           <Card
             key={c.id}
-            className="p-4 bg-card border-border hover:border-primary/50 transition-colors"
+            className="border-border bg-card p-4 transition-colors hover:border-primary/50"
           >
-            {alignment === 'list' && (
-             <div className="flex items-start justify-between">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-lg font-semibold text-foreground truncate">
-                    {c.name}
-                  </h3>
-                  <Badge className={getStatusColor(c.status)}>
-                    {c.status.charAt(0).toUpperCase() +
-                      c.status.slice(1)}
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                  <div>
-                    <p className="font-medium text-foreground text-xs mb-1">
-                      Email
-                    </p>
-                    <p className="truncate">{c.email}</p>
+            {alignment === "list" && (
+              <div className="flex items-start justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex items-center gap-3">
+                    <h3 className="truncate text-lg font-semibold text-foreground">{c.name}</h3>
+                    <Badge className={getStatusColor(c.status)}>
+                      {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
+                    </Badge>
                   </div>
-                  {c.company && (
+                  <div className="grid grid-cols-1 gap-4 text-sm text-muted-foreground md:grid-cols-3">
                     <div>
-                      <p className="font-medium text-foreground text-xs mb-1">
-                        Company
-                      </p>
-                      <p className="truncate">{c.company}</p>
+                      <p className="mb-1 text-xs font-medium text-foreground">Email</p>
+                      <p className="truncate">{c.email}</p>
                     </div>
-                  )}
-                  {/* <div>
+                    {c.company && (
+                      <div>
+                        <p className="mb-1 text-xs font-medium text-foreground">Company</p>
+                        <p className="truncate">{c.company}</p>
+                      </div>
+                    )}
+                    {/* <div>
                     <p className="font-medium text-foreground text-xs mb-1">
                       Associated Domains
                     </p>
@@ -102,29 +104,29 @@ export function ContactsTable({ contacts, onContactsChange, alignment }: Contact
                       {getDomainsCount(c.id)}
                     </p>
                   </div> */}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex gap-2 ml-4">
-                <Link href={`/contacts/${c.id}`}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                </Link>
-                <Link href={`/contacts/${c.id}/edit`}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <Edit2 className="w-4 h-4" />
-                  </Button>
-                </Link>
-                {/* <Button
+                <div className="ml-4 flex gap-2">
+                  <Link href={`/contacts/${c.id}`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href={`/contacts/${c.id}/edit`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  {/* <Button
                   variant="ghost"
                   size="sm"
                   className="text-muted-foreground hover:text-destructive"
@@ -132,45 +134,42 @@ export function ContactsTable({ contacts, onContactsChange, alignment }: Contact
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button> */}
+                </div>
               </div>
-            </div>
             )}
 
-            {alignment === 'grid' && (
+            {alignment === "grid" && (
               <>
                 <Badge className={getStatusColor(c.status)}>
-                  {c.status.charAt(0).toUpperCase() +
-                    c.status.slice(1)}
+                  {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
                 </Badge>
-                 <CardHeader>
-                 
-                   <CardTitle>{c.name}</CardTitle>
-                   <CardDescription> {c.company} </CardDescription>
-                   
-                 </CardHeader>
-                 <CardContent>
+                <CardHeader>
+                  <CardTitle>{c.name}</CardTitle>
+                  <CardDescription> {c.company} </CardDescription>
+                </CardHeader>
+                <CardContent>
                   <p className="truncate">{c.email}</p>
-                 </CardContent>
-                   <CardFooter>
-                      <Link href={`/contacts/${c.id}`}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-muted-foreground hover:text-foreground"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </Link>
-                      <Link href={`/contacts/${c.id}/edit`}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-muted-foreground hover:text-foreground"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                      </Link>
-                      {/* <Button
+                </CardContent>
+                <CardFooter>
+                  <Link href={`/contacts/${c.id}`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href={`/contacts/${c.id}/edit`}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  {/* <Button
                         variant="ghost"
                         size="sm"
                         className="text-muted-foreground hover:text-destructive"
@@ -178,11 +177,9 @@ export function ContactsTable({ contacts, onContactsChange, alignment }: Contact
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button> */}
-                      
-                  </CardFooter>
+                </CardFooter>
               </>
             )}
-            
           </Card>
         ))}
       </div>

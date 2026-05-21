@@ -1,88 +1,83 @@
-import { Domain, Client, Contact } from './types'
-import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from './indexeddb'
-import { TEST_DOMAINS } from '@/data/test-domains'
-import { TEST_CLIENT, TEST_CONTACT} from '@/data/test-client'
+import { Domain, Client, Contact } from "./types";
+import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from "./indexeddb";
+import { TEST_DOMAINS } from "@/data/test-domains";
+import { TEST_CLIENT, TEST_CONTACT } from "@/data/test-client";
 
-const INITIALIZED_KEY = 'initialized'
+const INITIALIZED_KEY = "initialized";
 
-// clients 
+// clients
 // const CLIENTS_STORAGE_KEY = 'mission-control-os-clients'
 
 // In-memory cache for synchronous access
 // let clientsCache: Client[] | null = null;
 let contactsCache: Contact[] | null = null;
-let domainsCache: Domain[] | null = null
-let isCacheInitialized = false
-
+let domainsCache: Domain[] | null = null;
+let isCacheInitialized = false;
 
 // Initialize cache from IndexedDB on first access
 const initializeCacheFromDB = async (): Promise<void> => {
-  if (isCacheInitialized) return
+  if (isCacheInitialized) return;
 
   try {
-
     // const clients = await getAllFromDB<Client>(DB_STORES.CLIENTS)
-    const contacts = await getAllFromDB<Contact>(DB_STORES.CONTACTS)
-    const domains = await getAllFromDB<Domain>(DB_STORES.DOMAINS)
+    const contacts = await getAllFromDB<Contact>(DB_STORES.CONTACTS);
+    const domains = await getAllFromDB<Domain>(DB_STORES.DOMAINS);
     const isInitialized = await getFromDB<{ key: string; value: boolean }>(
-        DB_STORES.SETTINGS,
-        INITIALIZED_KEY
-    )
+      DB_STORES.SETTINGS,
+      INITIALIZED_KEY,
+    );
     if (contacts.length === 0) {
       if (!isInitialized) {
-      
         // Save test contact
-        await saveToDB(DB_STORES.CONTACTS, TEST_CONTACT)
+        await saveToDB(DB_STORES.CONTACTS, TEST_CONTACT);
         // Mark as initialized
-        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
-        contactsCache = [TEST_CONTACT]
+        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true });
+        contactsCache = [TEST_CONTACT];
       } else {
-        contactsCache = []
+        contactsCache = [];
       }
-      
     } else {
       contactsCache = contacts;
     }
-    
+
     if (domains.length === 0) {
       // const isInitialized = await getFromDB<{ key: string; value: boolean }>(
       //   DB_STORES.SETTINGS,
       //   INITIALIZED_KEY
       // )
-      
+
       if (!isInitialized) {
         // Save test domains
         for (const domain of TEST_DOMAINS) {
-          await saveToDB(DB_STORES.DOMAINS, domain)
+          await saveToDB(DB_STORES.DOMAINS, domain);
         }
         // Mark as initialized
-        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
-        domainsCache = TEST_DOMAINS
+        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true });
+        domainsCache = TEST_DOMAINS;
       } else {
-        domainsCache = []
+        domainsCache = [];
       }
     } else {
-      domainsCache = domains
+      domainsCache = domains;
     }
-    
-    isCacheInitialized = true
+
+    isCacheInitialized = true;
   } catch (error) {
-    console.error('Failed to initialize cache from IndexedDB:', error)
+    console.error("Failed to initialize cache from IndexedDB:", error);
     // clientsCache = []
     contactsCache = [];
-    domainsCache = []
-    isCacheInitialized = true
+    domainsCache = [];
+    isCacheInitialized = true;
   }
-}
+};
 
 export const storage = {
-
   getContacts: async (): Promise<Contact[]> => {
-    if (typeof window === 'undefined') return []
+    if (typeof window === "undefined") return [];
     if (contactsCache === null) {
-      await initializeCacheFromDB()
+      await initializeCacheFromDB();
     }
-    return contactsCache || []
+    return contactsCache || [];
   },
 
   // saveClients: (clients: Client[]) : void => {
@@ -101,87 +96,86 @@ export const storage = {
   //   return clients;
   // },
 
+  saveContacts: (contacts: Contact[]): void => {
+    if (typeof window === "undefined") return;
 
-  saveContacts: (contacts: Contact[]) : void => {
-    if (typeof window === 'undefined') return
-
-    contactsCache = contacts
-    Promise.all(contacts.map((contact) => saveToDB(DB_STORES.CONTACTS, contact))).catch(
-      (error) => console.error('Failed to save contact to IndexedDB:', error)
-    )
+    contactsCache = contacts;
+    Promise.all(contacts.map((contact) => saveToDB(DB_STORES.CONTACTS, contact))).catch((error) =>
+      console.error("Failed to save contact to IndexedDB:", error),
+    );
   },
 
   addContact: async (contact: Contact): Promise<Contact[]> => {
-    const contacts = await storage.getContacts()
-    contacts.push(contact)
+    const contacts = await storage.getContacts();
+    contacts.push(contact);
     storage.saveContacts(contacts);
     return contacts;
   },
- 
+
   getDomains: (): Domain[] => {
-    if (typeof window === 'undefined') return []
+    if (typeof window === "undefined") return [];
 
     if (domainsCache === null) {
       // Cache not initialized yet, initialize it in the background
       initializeCacheFromDB().catch(() => {
-        domainsCache = []
-      })
-      return domainsCache || []
+        domainsCache = [];
+      });
+      return domainsCache || [];
     }
-    return domainsCache
+    return domainsCache;
   },
 
   saveDomains: (domains: Domain[]): void => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
-    domainsCache = domains
-    Promise.all(domains.map((domain) => saveToDB(DB_STORES.DOMAINS, domain))).catch(
-      (error) => console.error('Failed to save domains to IndexedDB:', error)
-    )
+    domainsCache = domains;
+    Promise.all(domains.map((domain) => saveToDB(DB_STORES.DOMAINS, domain))).catch((error) =>
+      console.error("Failed to save domains to IndexedDB:", error),
+    );
   },
 
   addDomain: (domain: Domain): Domain[] => {
-    const domains = storage.getDomains()
-    domains.push(domain)
-    storage.saveDomains(domains)
-    return domains
+    const domains = storage.getDomains();
+    domains.push(domain);
+    storage.saveDomains(domains);
+    return domains;
   },
 
   updateDomain: (id: string, updates: Partial<Domain>): Domain[] => {
-    const domains = storage.getDomains()
-    const index = domains.findIndex((d) => d.id === id)
+    const domains = storage.getDomains();
+    const index = domains.findIndex((d) => d.id === id);
     if (index !== -1) {
-      domains[index] = { ...domains[index], ...updates }
-      storage.saveDomains(domains)
+      domains[index] = { ...domains[index], ...updates };
+      storage.saveDomains(domains);
     }
-    return domains
+    return domains;
   },
 
   deleteDomain: (id: string): Domain[] => {
-    const domains = storage.getDomains().filter((d) => d.id !== id)
-    storage.saveDomains(domains)
+    const domains = storage.getDomains().filter((d) => d.id !== id);
+    storage.saveDomains(domains);
     deleteFromDB(DB_STORES.DOMAINS, id).catch((error) =>
-      console.error('Failed to delete domain from IndexedDB:', error)
-    )
-    return domains
+      console.error("Failed to delete domain from IndexedDB:", error),
+    );
+    return domains;
   },
 
   getDomainById: (id: string): Domain | null => {
-    const domains = storage.getDomains()
-    return domains.find((d) => d.id === id) || null
+    const domains = storage.getDomains();
+    return domains.find((d) => d.id === id) || null;
   },
 
   // Analytics
   getStats: () => {
-    const domains = storage.getDomains()
-    const totalDomains = domains.length
-    const activeDomains = domains.filter((d) => d.status === 'active').length
-    const expiredDomains = domains.filter((d) => d.status === 'expired').length
-    const totalServices = domains.reduce((acc, d) => acc + d.services.length, 0)
+    const domains = storage.getDomains();
+    const totalDomains = domains.length;
+    const activeDomains = domains.filter((d) => d.status === "active").length;
+    const expiredDomains = domains.filter((d) => d.status === "expired").length;
+    const totalServices = domains.reduce((acc, d) => acc + d.services.length, 0);
     const totalCosts = domains.reduce(
       (acc, d) => acc + d.services.reduce((s, srv) => s + srv.cost, 0),
-      0
-    )
+      0,
+    );
 
     return {
       totalDomains,
@@ -189,7 +183,7 @@ export const storage = {
       expiredDomains,
       totalServices,
       totalCosts,
-    }
+    };
   },
 
   // get all clients
@@ -213,12 +207,11 @@ export const storage = {
   // },
 
   getContactById: async (id: string): Promise<Contact | null> => {
-    const contacts = await storage.getContacts()
-    return contacts.find((c) => c.id === id) || null
+    const contacts = await storage.getContacts();
+    return contacts.find((c) => c.id === id) || null;
   },
 
-
-  // update existing client 
+  // update existing client
   // updateClient: async (id: string, updates: Partial<Client>): Promise<Client[]> => {
   //   const clients = await storage.getContacts()
   //   console.log('clients >> update')
@@ -235,14 +228,14 @@ export const storage = {
   // },
 
   updateContact: async (id: string, updates: Partial<Contact>): Promise<Contact[]> => {
-    const contacts = await storage.getContacts()
-    const index = contacts.findIndex((c) => c.id === id)
+    const contacts = await storage.getContacts();
+    const index = contacts.findIndex((c) => c.id === id);
     if (index !== -1) {
       contacts[index] = {
         ...contacts[index],
         ...updates,
         updatedAt: new Date().toISOString(),
-      }
+      };
       storage.saveContacts(contacts);
     }
     return contacts;
@@ -264,20 +257,21 @@ export const storage = {
   // },
 
   deleteContact: async (id: string): Promise<Contact[]> => {
-    const contacts = (await storage.getContacts()).filter((c) => c.id !== id)
-    contactsCache = contacts
-    storage.saveContacts(contacts)
+    const contacts = (await storage.getContacts()).filter((c) => c.id !== id);
+    contactsCache = contacts;
+    storage.saveContacts(contacts);
     deleteFromDB(DB_STORES.CONTACTS, id).catch((error) =>
-      console.error('Failed to delete contact from IndexedDB:', error)
-    )
+      console.error("Failed to delete contact from IndexedDB:", error),
+    );
 
     // clean up domain associations
-    const domains = storage.getDomains()
-    const updatedDomains = domains.map((d) => d.contactId === id ? { ...d, contactId: undefined } : d); // need to use contact id 
+    const domains = storage.getDomains();
+    const updatedDomains = domains.map((d) =>
+      d.contactId === id ? { ...d, contactId: undefined } : d,
+    ); // need to use contact id
     storage.saveDomains(updatedDomains);
     return contacts;
   },
-
 
   // get client domains
   // getClientDomains: (clientId: string): Domain[] => {
@@ -286,49 +280,45 @@ export const storage = {
   // },
 
   getContactDomains: (contactId: string): Domain[] => {
-    const domains = storage.getDomains()
+    const domains = storage.getDomains();
     return domains.filter((d) => d.contactId === contactId);
   },
 
-
   // Associate domain to client
   associateDomainToContact: (domainId: string, contactId: string): Domain[] => {
-    const domains = storage.getDomains()
-    const index = domains.findIndex((d) => d.id === domainId)
+    const domains = storage.getDomains();
+    const index = domains.findIndex((d) => d.id === domainId);
     if (index !== -1) {
-      domains[index] = { ...domains[index], contactId }
-      storage.saveDomains(domains)
+      domains[index] = { ...domains[index], contactId };
+      storage.saveDomains(domains);
     }
-    return domains
+    return domains;
   },
 
   // Disassociate domain to client
   disassociateDomainFromClient: (domainId: string): Domain[] => {
-    const domains = storage.getDomains()
-    const index = domains.findIndex((d) => d.id === domainId)
+    const domains = storage.getDomains();
+    const index = domains.findIndex((d) => d.id === domainId);
     if (index !== -1) {
-      domains[index] = { ...domains[index], contactId: undefined }
-      storage.saveDomains(domains)
+      domains[index] = { ...domains[index], contactId: undefined };
+      storage.saveDomains(domains);
     }
-    return domains
+    return domains;
   },
 
   // contact stats
   getContactsStats: async () => {
-    const contacts = await storage.getContacts()
-    const totalContacts = contacts.length
-    const activeContacts = contacts.filter((c) => c.status === 'active').length
-    const inactiveContacts = contacts.filter((c) => c.status === 'inactive').length
-    const archivedContacts = contacts.filter((c) => c.status === 'archived').length
+    const contacts = await storage.getContacts();
+    const totalContacts = contacts.length;
+    const activeContacts = contacts.filter((c) => c.status === "active").length;
+    const inactiveContacts = contacts.filter((c) => c.status === "inactive").length;
+    const archivedContacts = contacts.filter((c) => c.status === "archived").length;
 
     return {
       totalContacts,
       activeContacts,
       inactiveContacts,
       archivedContacts,
-    }
+    };
   },
-
-}
-
-
+};
