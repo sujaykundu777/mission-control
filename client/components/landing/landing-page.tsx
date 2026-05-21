@@ -25,7 +25,7 @@ export function LandingPage() {
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
               {/* <Users className="w-5 h-5 text-primary" /> */}
-                <RocketIcon className="h-5 w-5 text-primary-foreground" />
+                <RocketIcon className="h-5 w-5 text-primary" />
             </div>
             <span className="text-xl font-bold">ContactOS</span>
           </div>
