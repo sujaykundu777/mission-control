@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, Server, AlertCircle, Zap, Users } from "lucide-react";
+import { Globe, Server, AlertCircle, Zap, Users,  } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { DomainsList } from "./domains-list";
 import { storage } from "@/lib/storage";
@@ -32,7 +32,6 @@ export function DashboardPage() {
     archivedContacts: 0,
   });
 
-
   const [domains, setDomains] = useState<Domain[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -52,7 +51,7 @@ export function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
@@ -63,10 +62,8 @@ export function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage and monitor all your activities
-          </p>
+          <h1 className="text-3xl font-bold text-foreground">Welcome Sujay <span className="animate-waveMe md:mt-20 text-3xl">👋</span></h1>
+          <p className="mt-2 text-muted-foreground">Manage and monitor all your activities</p>
         </div>
         <Link href="/domains/add">
           <Button className="bg-primary hover:bg-primary/90">Add Domain</Button>
@@ -74,43 +71,43 @@ export function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
         <StatCard
           title="Total Contacts"
           value={contactStats.totalContacts}
-          icon={<Users className="w-6 h-6" />}
+          icon={<Users className="h-6 w-6" />}
           description={`${contactStats.activeContacts} active`}
         />
         <StatCard
           title="Total Domains"
           value={stats.totalDomains}
-          icon={<Globe className="w-6 h-6" />}
+          icon={<Globe className="h-6 w-6" />}
           description={`${stats.activeDomains} active`}
         />
         <StatCard
           title="Active Domains"
           value={stats.activeDomains}
-          icon={<Zap className="w-6 h-6" />}
+          icon={<Zap className="h-6 w-6" />}
           description="Ready to use"
         />
         <StatCard
           title="Expired Domains"
           value={stats.expiredDomains}
-          icon={<AlertCircle className="w-6 h-6" />}
+          icon={<AlertCircle className="h-6 w-6" />}
           description="Need renewal"
           className={stats.expiredDomains > 0 ? "border-destructive/50" : ""}
         />
         <StatCard
           title="Services"
           value={stats.totalServices}
-          icon={<Server className="w-6 h-6" />}
+          icon={<Server className="h-6 w-6" />}
           description="Across all domains"
         />
       </div>
 
       {/* Recent Domains */}
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-foreground">Upcoming Renewals</h2>
           {domains.length > 0 && (
             <Link href="/domains">
@@ -119,14 +116,10 @@ export function DashboardPage() {
           )}
         </div>
         {domains.length === 0 ? (
-          <div className="bg-card border border-border rounded-lg p-12 text-center">
-            <Globe className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">
-              No domains yet
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Get started by adding your first domain
-            </p>
+          <div className="rounded-lg border border-border bg-card p-12 text-center">
+            <Globe className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+            <h3 className="mb-2 text-lg font-semibold text-foreground">No domains yet</h3>
+            <p className="mb-6 text-muted-foreground">Get started by adding your first domain</p>
             <Link href="/domains/add">
               <Button>Add Your First Domain</Button>
             </Link>

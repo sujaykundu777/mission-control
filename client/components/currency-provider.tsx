@@ -2,11 +2,7 @@
 
 import { ReactNode, useState, useEffect } from "react";
 import { CurrencyContext } from "@/lib/context/currency-context";
-import {
-  Currency,
-  getCurrencyFromStorageAsync,
-  setCurrencyInStorageAsync,
-} from "@/lib/currency";
+import { Currency, getCurrencyFromStorageAsync, setCurrencyInStorageAsync } from "@/lib/currency";
 
 interface CurrencyProviderProps {
   children: ReactNode;

@@ -1,12 +1,12 @@
-import { createContext } from 'react'
-import { Currency } from '../currency'
+import { createContext } from "react";
+import { Currency } from "../currency";
 
 export interface CurrencyContextType {
-    currency: Currency
-    setCurrency: (currency: Currency) => void
+  currency: Currency;
+  setCurrency: (currency: Currency) => void;
 }
 
 export const CurrencyContext = createContext<CurrencyContextType>({
-    currency: 'INR',
-    setCurrency: () => {}
-})
+  currency: "INR",
+  setCurrency: () => {},
+});
