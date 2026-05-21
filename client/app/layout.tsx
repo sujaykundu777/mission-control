@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Mission Control OS",
-  description: "Manage your domains, services, and billing in one place",
+  title: 'ContactOS - Privacy-First Contact Management',
+  description: 'Powerful, AI-driven offline-first contact management platform. Manage relationships, automate workflows, and never miss important moments.',
   viewport: {
     width: "device-width",
     initialScale: 1,

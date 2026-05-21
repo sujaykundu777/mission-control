@@ -1,12 +1,7 @@
-import { AppLayout } from "@/components/layout/app-layout";
-import ContactManagerLanding from "@/components/landing/ContactManagerLanding";
-import { DashboardPage } from "@/components/dashboard/dashboard-page";
+import { LandingPage } from '@/components/landing/landing-page'
 
 export default function Page() {
   return (
-    <AppLayout>
-      <ContactManagerLanding />
-      {/* <DashboardPage /> */}
-    </AppLayout>
+    <LandingPage />
   );
 }

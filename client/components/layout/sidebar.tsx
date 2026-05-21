@@ -16,24 +16,28 @@ export function Sidebar() {
       {/* Logo */}
       <div className="border-b border-sidebar-border p-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+          {/* <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <RocketIcon className="h-5 w-5 text-primary-foreground" />
-          </div>
+          </div> */}
+            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+              {/* <Users className="w-5 h-5 text-primary" /> */}
+                <RocketIcon className="h-5 w-5 text-primary-foreground" />
+            </div>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-sidebar-foreground">Mission Control</h1>
-            <p className="text-xs text-sidebar-foreground/60">Developer Business OS</p>
+            <h1 className="text-lg font-bold text-sidebar-foreground">ContactOS</h1>
+            <p className="text-xs text-sidebar-foreground/60">Your smart contact manager</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 space-y-2 p-4">
-        <Link href="/">
+        <Link href="/dashboard">
           <Button
             variant="ghost"
             className={cn(
               "w-full justify-start gap-3 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              isActive("/") &&
+              isActive("/dashboard") &&
                 "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary",
             )}
           >
