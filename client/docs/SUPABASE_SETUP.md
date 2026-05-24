@@ -29,13 +29,17 @@
 4. You'll need two URLs:
 
 ### Transaction Mode (Pooled - port 6543)
+
 Used for your app's runtime connections via PgBouncer:
+
 ```
 postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true
 ```
 
 ### Session Mode (Direct - port 5432)
+
 Used for migrations and schema pushes:
+
 ```
 postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres
 ```
@@ -60,6 +64,7 @@ MISTRAL_API_KEY="your-mistral-api-key"
 ```
 
 Replace:
+
 - `[YOUR-PROJECT-REF]` — your Supabase project reference (found in Project Settings → General)
 - `[YOUR-PASSWORD]` — the database password you set when creating the project
 - `[REGION]` — your project's region (e.g., `us-east-1`, `ap-south-1`)
@@ -75,6 +80,7 @@ npx prisma db push
 ```
 
 You should see output like:
+
 ```
 Your database is now in sync with your Prisma schema.
 ```
@@ -107,6 +113,7 @@ pnpm dev
 ```
 
 ### Create a contact:
+
 ```bash
 curl -X POST http://localhost:3000/api/contacts \
   -H "Content-Type: application/json" \
@@ -114,16 +121,19 @@ curl -X POST http://localhost:3000/api/contacts \
 ```
 
 ### List all contacts:
+
 ```bash
 curl http://localhost:3000/api/contacts
 ```
 
 ### Get a single contact:
+
 ```bash
 curl http://localhost:3000/api/contacts/[CONTACT_ID]
 ```
 
 ### Update a contact:
+
 ```bash
 curl -X PUT http://localhost:3000/api/contacts/[CONTACT_ID] \
   -H "Content-Type: application/json" \
@@ -131,6 +141,7 @@ curl -X PUT http://localhost:3000/api/contacts/[CONTACT_ID] \
 ```
 
 ### Delete a contact:
+
 ```bash
 curl -X DELETE http://localhost:3000/api/contacts/[CONTACT_ID]
 ```
@@ -139,13 +150,13 @@ curl -X DELETE http://localhost:3000/api/contacts/[CONTACT_ID]
 
 ## 7. Common Commands
 
-| Command | Description |
-|---------|-------------|
-| `npx prisma generate` | Regenerate the Prisma client after schema changes |
-| `npx prisma db push` | Push schema changes to the database (no migration files) |
-| `npx prisma migrate dev` | Create a migration file and apply it |
-| `npx prisma studio` | Open a visual database browser at localhost:5555 |
-| `npx prisma db pull` | Pull the current database schema into your Prisma schema |
+| Command                  | Description                                              |
+| ------------------------ | -------------------------------------------------------- |
+| `npx prisma generate`    | Regenerate the Prisma client after schema changes        |
+| `npx prisma db push`     | Push schema changes to the database (no migration files) |
+| `npx prisma migrate dev` | Create a migration file and apply it                     |
+| `npx prisma studio`      | Open a visual database browser at localhost:5555         |
+| `npx prisma db pull`     | Pull the current database schema into your Prisma schema |
 
 ---
 
@@ -162,21 +173,26 @@ When you need to update the database schema:
 ## Troubleshooting
 
 ### "Can't reach database server"
+
 - Check that your Supabase project is active (not paused)
 - Verify the connection string in `.env` is correct
 - Ensure your IP isn't blocked (Supabase → Database → Network)
 
 ### "Password authentication failed"
+
 - Double-check your database password in the connection string
 - Reset it in Supabase → Project Settings → Database → Reset database password
 
 ### "Prisma client not generated"
+
 ```bash
 npx prisma generate
 ```
 
 ### "relation does not exist"
+
 The table hasn't been created yet:
+
 ```bash
 npx prisma db push
 ```

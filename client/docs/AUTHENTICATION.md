@@ -77,8 +77,8 @@ Visit `http://localhost:3000` — you'll be redirected to the login page.
 
 ### 4. Test Credentials
 
-| Email | Password |
-|-------|----------|
+| Email              | Password      |
+| ------------------ | ------------- |
 | `test@example.com` | `password123` |
 
 ---
@@ -125,17 +125,18 @@ The auth system is configured with:
 ## Middleware (`middleware.ts`)
 
 The middleware protects all routes except:
+
 - `/auth/*` — Login, register, forgot/reset password pages
 - `/api/auth/*` — NextAuth API endpoints
 - `/_next/*` — Next.js static assets
 - `/favicon.ico`
 
 ```typescript
-export { auth as middleware } from "@/lib/auth"
+export { auth as middleware } from "@/lib/auth";
 
 export const config = {
   matcher: ["/((?!auth|api/auth|_next/static|_next/image|favicon.ico).*)"],
-}
+};
 ```
 
 ---
@@ -144,25 +145,25 @@ export const config = {
 
 ### User
 
-| Field | Type | Notes |
-|-------|------|-------|
-| id | String | CUID primary key |
-| name | String? | Display name |
-| email | String | Unique |
-| password | String? | Bcrypt-hashed |
+| Field         | Type      | Notes                  |
+| ------------- | --------- | ---------------------- |
+| id            | String    | CUID primary key       |
+| name          | String?   | Display name           |
+| email         | String    | Unique                 |
+| password      | String?   | Bcrypt-hashed          |
 | emailVerified | DateTime? | For email verification |
-| image | String? | Avatar URL |
-| createdAt | DateTime | Auto-set |
-| updatedAt | DateTime | Auto-updated |
+| image         | String?   | Avatar URL             |
+| createdAt     | DateTime  | Auto-set               |
+| updatedAt     | DateTime  | Auto-updated           |
 
 ### PasswordResetToken
 
-| Field | Type | Notes |
-|-------|------|-------|
-| id | String | CUID primary key |
-| email | String | User's email |
-| token | String | Unique, random 32-byte hex |
-| expires | DateTime | 1 hour from creation |
+| Field   | Type     | Notes                      |
+| ------- | -------- | -------------------------- |
+| id      | String   | CUID primary key           |
+| email   | String   | User's email               |
+| token   | String   | Unique, random 32-byte hex |
+| expires | DateTime | 1 hour from creation       |
 
 ---
 
@@ -173,6 +174,7 @@ export const config = {
 Create a new user account.
 
 **Body:**
+
 ```json
 {
   "name": "John Doe",
@@ -182,6 +184,7 @@ Create a new user account.
 ```
 
 **Responses:**
+
 - `201` — Account created
 - `400` — Missing fields or password too short
 - `409` — Email already exists
@@ -193,6 +196,7 @@ Create a new user account.
 Send a password reset email.
 
 **Body:**
+
 ```json
 {
   "email": "john@example.com"
@@ -210,6 +214,7 @@ The reset email contains a link to `/auth/reset-password?token=<token>` that exp
 Reset a user's password using a valid token.
 
 **Body:**
+
 ```json
 {
   "token": "abc123...",
@@ -218,6 +223,7 @@ Reset a user's password using a valid token.
 ```
 
 **Responses:**
+
 - `200` — Password reset successfully
 - `400` — Invalid/expired token or password too short
 
@@ -295,17 +301,17 @@ During development, you can use `onboarding@resend.dev` as the sender (Resend's 
 All pages are already protected by middleware. For API routes that need auth:
 
 ```typescript
-import { auth } from "@/lib/auth"
+import { auth } from "@/lib/auth";
 
 export async function GET() {
-  const session = await auth()
+  const session = await auth();
 
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 })
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Authenticated logic here
-  return Response.json({ user: session.user })
+  return Response.json({ user: session.user });
 }
 ```
 
@@ -316,6 +322,7 @@ export async function GET() {
 ### "NEXTAUTH_SECRET is not set"
 
 Generate one and add to `.env`:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -337,6 +344,7 @@ Run `npx prisma generate` and restart the dev server.
 ### "Invalid email or password" with correct credentials
 
 The test user may not exist yet. Run:
+
 ```bash
 pnpm db:seed
 ```
@@ -357,20 +365,23 @@ The admin panel is accessible at `/admin` and is restricted to users with `role:
 
 ### User Roles
 
-| Role | Permissions |
-|------|-------------|
-| `user` | Default role. Access to all standard features (Dashboard, Contacts, Domains, Profile) |
-| `superadmin` | Full access including the Admin Panel. Can manage all users. |
+| Role         | Permissions                                                                           |
+| ------------ | ------------------------------------------------------------------------------------- |
+| `user`       | Default role. Access to all standard features (Dashboard, Contacts, Domains, Profile) |
+| `superadmin` | Full access including the Admin Panel. Can manage all users.                          |
 
 ### Admin API Routes
 
 #### GET `/api/admin/users`
+
 List all users (id, name, email, role, createdAt).
 
 #### POST `/api/admin/users`
+
 Create a new user.
 
 **Body:**
+
 ```json
 {
   "name": "New User",
@@ -381,12 +392,15 @@ Create a new user.
 ```
 
 #### GET `/api/admin/users/[id]`
+
 Get a single user by ID.
 
 #### PUT `/api/admin/users/[id]`
+
 Update a user's name or role.
 
 **Body:**
+
 ```json
 {
   "name": "Updated Name",
@@ -395,12 +409,15 @@ Update a user's name or role.
 ```
 
 **Constraints:**
+
 - Superadmins cannot demote themselves (returns 400)
 
 #### DELETE `/api/admin/users/[id]`
+
 Delete a user.
 
 **Constraints:**
+
 - Superadmins cannot delete themselves (returns 400)
 
 ### Files

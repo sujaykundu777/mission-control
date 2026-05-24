@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, useCallback } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -10,41 +10,61 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Pencil, Trash2 } from "lucide-react"
-import { EditUserDialog } from "./edit-user-dialog"
-import { DeleteUserDialog } from "./delete-user-dialog"
+} from "@/components/ui/table";
+import { Pencil, Trash2 } from "lucide-react";
+import { EditUserDialog } from "./edit-user-dialog";
+import { DeleteUserDialog } from "./delete-user-dialog";
 
 interface User {
-  id: string
-  name: string | null
-  email: string
-  role: string
-  createdAt: string
+  id: string;
+  name: string | null;
+  email: string;
+  role: string;
+  createdAt: string;
 }
 
 export function UserTable() {
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-  const [editUser, setEditUser] = useState<User | null>(null)
-  const [deleteUser, setDeleteUser] = useState<User | null>(null)
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true)
-    const res = await fetch("/api/admin/users")
-    if (res.ok) {
-      const data = await res.json()
-      setUsers(data)
-    }
-    setLoading(false)
-  }, [])
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [deleteUser, setDeleteUser] = useState<User | null>(null);
 
   useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
+    let isMounted = true;
+
+    (async () => {
+      setLoading(true);
+      const res = await fetch("/api/admin/users");
+      if (res.ok && isMounted) {
+        const data = await res.json();
+        setUsers(data);
+      }
+      if (isMounted) {
+        setLoading(false);
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/admin/users");
+    if (res.ok) {
+      const data = await res.json();
+      setUsers(data);
+    }
+    setLoading(false);
+  }, []);
+
+  // useEffect(() => {
+  //   fetchUsers();
+  // }, []); // only run on mount
 
   if (loading) {
-    return <p className="text-muted-foreground">Loading users...</p>
+    return <p className="text-muted-foreground">Loading users...</p>;
   }
 
   return (
@@ -70,33 +90,21 @@ export function UserTable() {
             ) : (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">
-                    {user.name || "—"}
-                  </TableCell>
+                  <TableCell className="font-medium">{user.name || "—"}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
                     <Badge variant={user.role === "superadmin" ? "default" : "secondary"}>
                       {user.role}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </TableCell>
+                  <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditUser(user)}
-                      >
-                        <Pencil className="w-4 h-4" />
+                      <Button variant="ghost" size="icon" onClick={() => setEditUser(user)}>
+                        <Pencil className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setDeleteUser(user)}
-                      >
-                        <Trash2 className="w-4 h-4" />
+                      <Button variant="ghost" size="icon" onClick={() => setDeleteUser(user)}>
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -107,11 +115,7 @@ export function UserTable() {
         </Table>
       </div>
 
-      <EditUserDialog
-        user={editUser}
-        onClose={() => setEditUser(null)}
-        onSaved={fetchUsers}
-      />
+      <EditUserDialog user={editUser} onClose={() => setEditUser(null)} onSaved={fetchUsers} />
 
       <DeleteUserDialog
         user={deleteUser}
@@ -119,5 +123,5 @@ export function UserTable() {
         onDeleted={fetchUsers}
       />
     </>
-  )
+  );
 }

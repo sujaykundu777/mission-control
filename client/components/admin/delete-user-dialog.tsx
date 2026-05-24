@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   AlertDialog,
@@ -9,40 +9,40 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { toast } from "sonner"
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface User {
-  id: string
-  name: string | null
-  email: string
-  role: string
+  id: string;
+  name: string | null;
+  email: string;
+  role: string;
 }
 
 interface DeleteUserDialogProps {
-  user: User | null
-  onClose: () => void
-  onDeleted: () => void
+  user: User | null;
+  onClose: () => void;
+  onDeleted: () => void;
 }
 
 export function DeleteUserDialog({ user, onClose, onDeleted }: DeleteUserDialogProps) {
   async function handleDelete() {
-    if (!user) return
+    if (!user) return;
 
     const res = await fetch(`/api/admin/users/${user.id}`, {
       method: "DELETE",
-    })
+    });
 
     if (!res.ok) {
-      const data = await res.json()
-      toast.error(data.error || "Failed to delete user")
-      onClose()
-      return
+      const data = await res.json();
+      toast.error(data.error || "Failed to delete user");
+      onClose();
+      return;
     }
 
-    toast.success("User deleted successfully")
-    onDeleted()
-    onClose()
+    toast.success("User deleted successfully");
+    onDeleted();
+    onClose();
   }
 
   return (
@@ -51,8 +51,8 @@ export function DeleteUserDialog({ user, onClose, onDeleted }: DeleteUserDialogP
         <AlertDialogHeader>
           <AlertDialogTitle>Delete User</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete <strong>{user?.email}</strong>? This action
-            cannot be undone.
+            Are you sure you want to delete <strong>{user?.email}</strong>? This action cannot be
+            undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -66,5 +66,5 @@ export function DeleteUserDialog({ user, onClose, onDeleted }: DeleteUserDialogP
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

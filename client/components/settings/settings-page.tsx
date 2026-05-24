@@ -59,9 +59,7 @@ export function SettingsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-        <p className="mt-2 text-muted-foreground">
-          Manage your Mission Control preferences and data
-        </p>
+        <p className="mt-2 text-muted-foreground">Manage your ContactOS preferences and data</p>
       </div>
 
       {/* Preferences */}
@@ -159,11 +157,11 @@ export function SettingsPage() {
 
       {/* About */}
       <Card className="border-border bg-card p-6">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">About Mission Control OS</h2>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">About ContactOS</h2>
         <div className="space-y-2 text-sm text-muted-foreground">
           <p>
-            <span className="font-semibold text-foreground">Mission Control OS</span> is a
-            comprehensive tool for managing your domains, services, and DNS records in one place.
+            <span className="font-semibold text-foreground"> ContactOS</span> is a comprehensive
+            tool for managing your domains, services, and DNS records in one place.
           </p>
           <p>
             All your data is stored locally in your browser using localStorage, ensuring privacy and

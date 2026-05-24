@@ -94,25 +94,25 @@ export default defineConfig({
 The Prisma client singleton used throughout the app:
 
 ```typescript
-import { PrismaClient } from '@/lib/generated/prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import pg from 'pg'
+import { PrismaClient } from "@/lib/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
-const connectionString = process.env.DATABASE_URL!
+const connectionString = process.env.DATABASE_URL!;
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: InstanceType<typeof PrismaClient> | undefined
-}
+  prisma: InstanceType<typeof PrismaClient> | undefined;
+};
 
 function createPrismaClient() {
-  const pool = new pg.Pool({ connectionString })
-  const adapter = new PrismaPg(pool)
-  return new PrismaClient({ adapter })
+  const pool = new pg.Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({ adapter });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient()
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 ```
 
 **Why a singleton?** In development, Next.js hot-reloads modules frequently. Without a singleton, each reload creates a new connection pool, eventually exhausting database connections.
@@ -167,6 +167,7 @@ npx prisma migrate dev --name description_of_change
 ```
 
 Example:
+
 ```bash
 npx prisma migrate dev --name add_phone_field_to_contacts
 ```
@@ -279,57 +280,57 @@ npx prisma migrate dev --name add_domains_table
 Import the singleton client and use it in your route handlers:
 
 ```typescript
-import { prisma } from '@/lib/prisma'
+import { prisma } from "@/lib/prisma";
 
 // Find all
 const contacts = await prisma.contact.findMany({
-  orderBy: { createdAt: 'desc' },
-})
+  orderBy: { createdAt: "desc" },
+});
 
 // Find one
 const contact = await prisma.contact.findUnique({
-  where: { id: 'some-id' },
-})
+  where: { id: "some-id" },
+});
 
 // Create
 const newContact = await prisma.contact.create({
   data: {
-    contactId: 'CL0001',
-    name: 'John Doe',
-    email: 'john@example.com',
-    status: 'active',
+    contactId: "CL0001",
+    name: "John Doe",
+    email: "john@example.com",
+    status: "active",
     customFields: [],
   },
-})
+});
 
 // Update
 const updated = await prisma.contact.update({
-  where: { id: 'some-id' },
-  data: { name: 'Jane Doe' },
-})
+  where: { id: "some-id" },
+  data: { name: "Jane Doe" },
+});
 
 // Delete
 await prisma.contact.delete({
-  where: { id: 'some-id' },
-})
+  where: { id: "some-id" },
+});
 
 // Count
-const count = await prisma.contact.count()
+const count = await prisma.contact.count();
 
 // Filter
 const activeContacts = await prisma.contact.findMany({
-  where: { status: 'active' },
-})
+  where: { status: "active" },
+});
 
 // Search
 const results = await prisma.contact.findMany({
   where: {
     OR: [
-      { name: { contains: 'search', mode: 'insensitive' } },
-      { email: { contains: 'search', mode: 'insensitive' } },
+      { name: { contains: "search", mode: "insensitive" } },
+      { email: { contains: "search", mode: "insensitive" } },
     ],
   },
-})
+});
 ```
 
 ---
@@ -343,12 +344,12 @@ This project uses Prisma 7, which has some differences from earlier versions:
 Prisma 7 uses driver adapters instead of built-in connection handling:
 
 ```typescript
-import { PrismaPg } from '@prisma/adapter-pg'
-import pg from 'pg'
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
-const pool = new pg.Pool({ connectionString })
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClient({ adapter })
+const pool = new pg.Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 ```
 
 ### Configuration in `prisma.config.ts`
@@ -369,7 +370,7 @@ export default defineConfig({
 The client is generated to a custom path (`lib/generated/prisma/`) instead of `node_modules`. Import from:
 
 ```typescript
-import { PrismaClient } from '@/lib/generated/prisma/client'
+import { PrismaClient } from "@/lib/generated/prisma/client";
 ```
 
 ---
@@ -379,6 +380,7 @@ import { PrismaClient } from '@/lib/generated/prisma/client'
 ### "Cannot find module '@/lib/generated/prisma/client'"
 
 The Prisma client hasn't been generated yet:
+
 ```bash
 npx prisma generate
 ```
@@ -400,6 +402,7 @@ The record you're trying to update or delete doesn't exist. Check the ID.
 ### Type errors after schema change
 
 Regenerate the client:
+
 ```bash
 npx prisma generate
 ```
@@ -411,6 +414,7 @@ npx prisma db push --force-reset   # WARNING: Drops all data
 ```
 
 Or for a non-destructive fix:
+
 ```bash
 npx prisma migrate dev
 ```
