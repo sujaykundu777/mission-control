@@ -10,14 +10,10 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
- 
-    <div className=" text-foreground">
-       <main>      
-        {children}
-      </main>
+    <div className="text-foreground">
+      <main>{children}</main>
 
       <Toaster />
     </div>
-    
   );
 }

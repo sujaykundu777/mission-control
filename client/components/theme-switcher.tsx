@@ -14,15 +14,19 @@ const applyTheme = (theme: Theme) => {
 };
 
 const getInitialTheme = (): Theme => {
-  const savedTheme = localStorage.getItem("theme") as Theme | null;
+  const savedTheme =
+    typeof window !== "undefined" ? (localStorage.getItem("theme") as Theme | null) : null;
   if (savedTheme) {
     return savedTheme;
   }
 
   // Detect from document classes
-  if (document.documentElement.classList.contains("dark-red")) {
+  if (typeof window !== "undefined" && document.documentElement.classList.contains("dark-red")) {
     return "dark-red";
-  } else if (document.documentElement.classList.contains("light")) {
+  } else if (
+    typeof window !== "undefined" &&
+    document.documentElement.classList.contains("light")
+  ) {
     return "light";
   }
   return "dark";

@@ -36,7 +36,7 @@ export function LandingPage() {
           </div>
           <div className="flex items-center gap-3">
             <ThemeSwitcher />
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Get Started</Button>
+            <Link href="/auth/login"><Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Get Started</Button></Link>
           </div>
         </div>
         
@@ -452,17 +452,17 @@ export function LandingPage() {
             <div className="space-y-4">
               <h4 className="font-semibold">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition">Features</a></li>
-                <li><a href="#" className="hover:text-foreground transition">Pricing</a></li>
-                <li><a href="#" className="hover:text-foreground transition">Security</a></li>
+                <li><a href="#features" className="hover:text-foreground transition">Features</a></li>
+                <li><a href="#pricing" className="hover:text-foreground transition">Pricing</a></li>
+                <li><a href="#security" className="hover:text-foreground transition">Open Source</a></li>
               </ul>
             </div>
 
             <div className="space-y-4">
               <h4 className="font-semibold">Company</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition">About</a></li>
-                <li><a href="#" className="hover:text-foreground transition">Blog</a></li>
+                <li><Link href="/about" className="hover:text-foreground transition">About</Link></li>
+                <li><Link href="/blog" className="hover:text-foreground transition">Blog</Link></li>
                 <li><a href="#" className="hover:text-foreground transition">Contact</a></li>
               </ul>
             </div>
@@ -470,8 +470,8 @@ export function LandingPage() {
             <div className="space-y-4">
               <h4 className="font-semibold">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition">Privacy</a></li>
-                <li><a href="#" className="hover:text-foreground transition">Terms</a></li>
+                <li><Link href="/privacy-policy" className="hover:text-foreground transition">Privacy</Link></li>
+                <li><Link href="/terms-and-conditions" className="hover:text-foreground transition">Terms and Conditions</Link></li>
               </ul>
             </div>
           </div>

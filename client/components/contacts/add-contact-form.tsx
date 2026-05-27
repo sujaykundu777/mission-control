@@ -58,7 +58,7 @@ export function AddContactForm() {
     { label: "United States", value: "+1" },
     { label: "India", value: "+91" },
     { label: "United Kingdom", value: "+44" },
-    { label: "Canada", value: "+1" },
+    { label: "Canada", value: "+12" },
     { label: "Australia", value: "+61" },
   ];
   const handleCountryDialChange = (value: string) => setCountryDial(value);
@@ -226,23 +226,6 @@ export function AddContactForm() {
         </p>
       </div>
 
-      {/* Country Code Select */}
-      <div className="mb-4">
-        <Label className="mb-1 block text-sm font-medium text-foreground">Country Code</Label>
-        <Select value={countryDial} onValueChange={handleCountryDialChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue className="ml-1 text-foreground" placeholder="Select" />
-          </SelectTrigger>
-          <SelectContent>
-            {countryOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
       <form className="space-y-2" onSubmit={handleSubmit} noValidate>
         {/* Basic Information */}
         <Card className="border-border bg-card p-6">
@@ -288,11 +271,13 @@ export function AddContactForm() {
                 </div>
               )}
             </div>
-            <div>
-              <Label className="mb-2 block text-sm font-medium text-foreground">Country Code</Label>
+
+            {/* Country Code Select */}
+            <div className="mb-4">
+              <Label className="mb-1 block text-sm font-medium text-foreground">Country Code</Label>
               <Select value={countryDial} onValueChange={handleCountryDialChange}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select country code" />
+                  <SelectValue className="ml-1 text-foreground" placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
                   {countryOptions.map((opt) => (
@@ -303,6 +288,7 @@ export function AddContactForm() {
                 </SelectContent>
               </Select>
             </div>
+
             <div>
               <Label htmlFor="phone" className="mb-2 block text-sm font-medium text-foreground">
                 Phone

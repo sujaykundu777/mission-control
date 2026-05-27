@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Globe, Server, AlertCircle, Zap, Users,  } from "lucide-react";
+import { Globe, Server, AlertCircle, Zap, Users } from "lucide-react";
 import { StatCard } from "./stat-card";
 import { DomainsList } from "./domains-list";
 import { storage } from "@/lib/storage";
@@ -62,7 +62,9 @@ export function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Welcome Sujay <span className="animate-waveMe md:mt-20 text-3xl">👋</span></h1>
+          <h1 className="text-3xl font-bold text-foreground">
+            Welcome Sujay <span className="animate-waveMe text-3xl md:mt-20">👋</span>
+          </h1>
           <p className="mt-2 text-muted-foreground">Manage and monitor all your activities</p>
         </div>
         <Link href="/domains/add">
