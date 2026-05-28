@@ -126,6 +126,14 @@ export default function RegisterPage() {
                 Sign in
               </Link>
             </p>
+            <div className="pt-2">
+              <Link
+                href="/"
+                className="block cursor-pointer text-center text-sm text-muted-foreground hover:text-foreground"
+              >
+                ← Back to Homepage
+              </Link>
+            </div>
           </CardFooter>
         </form>
       </Card>

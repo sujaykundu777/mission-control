@@ -53,6 +53,15 @@ export default function LoginPage() {
           <RocketIcon className="h-[48px] w-[48px] items-center text-primary-foreground" />
         </div>
 
+        <div className="mb-6 text-center">
+          <Link
+            href="/"
+            className="cursor-pointer text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← Back to Homepage
+          </Link>
+        </div>
+
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Sign In</CardTitle>
           <CardDescription>Enter your credentials to access ContactOS</CardDescription>
