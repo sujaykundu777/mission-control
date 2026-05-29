@@ -1,86 +1,181 @@
-describe("Authentication Flow", () => {
-  beforeEach(() => {
-    // We'll assume the server is running and accessible
-    // In a real CI environment, you might need to seed the database first
-  });
+const TEST_EMAIL = "test@example.com";
+const TEST_PASSWORD = "password123";
+const TEST_NAME = "Test User";
 
-  describe("Login", () => {
-    it("should navigate to dashboard on successful login", () => {
+describe("Authentication Flow", () => {
+  describe("Login Page", () => {
+    beforeEach(() => {
       cy.visit("/auth/login");
-      cy.get('input[type="email"]').type("testuser@example.com");
-      cy.get('input[type="password"]').type("password123");
+    });
+
+    it("renders the login form", () => {
+      cy.get("#email").should("be.visible");
+      cy.get("#password").should("be.visible");
+      cy.get('button[type="submit"]').should("contain", "Sign In");
+    });
+
+    it("redirects to dashboard on successful login", () => {
+      // Intercept NextAuth CSRF and credentials callback
+      cy.intercept("GET", "/api/auth/csrf", { body: { csrfToken: "mock-csrf-token" } });
+      cy.intercept("POST", "/api/auth/callback/credentials*", (req) => {
+        req.reply({
+          statusCode: 200,
+          headers: {
+            "Set-Cookie": "next-auth.session-token=mock-session; Path=/; HttpOnly",
+          },
+          body: { url: "http://localhost:3000/dashboard" },
+        });
+      }).as("loginRequest");
+      cy.intercept("GET", "/api/auth/session", {
+        body: {
+          user: { name: TEST_NAME, email: TEST_EMAIL },
+          expires: "2099-01-01",
+        },
+      });
+
+      cy.get("#email").type(TEST_EMAIL);
+      cy.get("#password").type(TEST_PASSWORD);
       cy.get('button[type="submit"]').click();
 
-      // Check if redirected to dashboard
+      cy.wait("@loginRequest");
       cy.url().should("include", "/dashboard");
     });
 
-    it("should show error message on invalid credentials", () => {
-      cy.visit("/auth/login");
-      cy.get('input[type="email"]').type("wrong@example.com");
-      cy.get('input[type="password"]').type("wrongpassword");
+    it("shows error message on invalid credentials", () => {
+      cy.intercept("GET", "/api/auth/csrf", { body: { csrfToken: "mock-csrf-token" } });
+      cy.intercept("POST", "/api/auth/callback/credentials*", {
+        statusCode: 200,
+        body: { error: "CredentialsSignin", url: null },
+      });
+
+      cy.get("#email").type("wrong@example.com");
+      cy.get("#password").type("wrongpassword");
       cy.get('button[type="submit"]').click();
 
       cy.contains("Invalid email or password").should("be.visible");
     });
+
+    it("shows success banner when redirected from registration", () => {
+      cy.visit("/auth/login?registered=true");
+      cy.contains("Account created successfully! Please sign in.").should("be.visible");
+    });
+
+    it("has a link to forgot password", () => {
+      cy.contains("Forgot password?").should("have.attr", "href", "/auth/forgot-password");
+    });
+
+    it("has a link to create account", () => {
+      cy.contains("Create account").should("have.attr", "href", "/auth/register");
+    });
   });
 
-  describe("Registration", () => {
-    it("should navigate to login with success message on successful registration", () => {
+  describe("Registration Page", () => {
+    beforeEach(() => {
       cy.visit("/auth/register");
-      cy.get('input[placeholder="John Doe"]').type("John Doe");
-      cy.get('input[placeholder="you@example.com"]').type("newuser@example.com");
-      cy.get('input[placeholder="Min 6 characters"]').type("password123");
-      cy.get('input[placeholder="Repeat password"]').type("password123");
+    });
+
+    it("renders the registration form", () => {
+      cy.get("#name").should("be.visible");
+      cy.get("#email").should("be.visible");
+      cy.get("#password").should("be.visible");
+      cy.get("#confirmPassword").should("be.visible");
+      cy.get('button[type="submit"]').should("contain", "Create Account");
+    });
+
+    it("redirects to login with registered=true on successful registration", () => {
+      cy.intercept("POST", "/api/auth/register", {
+        statusCode: 201,
+        body: { message: "Account created successfully", userId: "mock-user-id" },
+      }).as("registerRequest");
+
+      cy.get("#name").type(TEST_NAME);
+      cy.get("#email").type(TEST_EMAIL);
+      cy.get("#password").type(TEST_PASSWORD);
+      cy.get("#confirmPassword").type(TEST_PASSWORD);
       cy.get('button[type="submit"]').click();
 
-      // The component redirects to /auth/login?registered=true
+      cy.wait("@registerRequest");
       cy.url().should("include", "/auth/login?registered=true");
     });
 
-    it("should show error if passwords do not match", () => {
-      cy.visit("/auth/register");
-      cy.get('input[placeholder="John Doe"]').type("John Doe");
-      cy.get('input[placeholder="you@example.com"]').type("newuser@example.com");
-      cy.get('input[placeholder="Min 6 characters"]').type("password123");
-      cy.get('input[placeholder="Repeat password"]').type("differentpassword");
+    it("shows error when passwords do not match", () => {
+      cy.get("#name").type(TEST_NAME);
+      cy.get("#email").type(TEST_EMAIL);
+      cy.get("#password").type(TEST_PASSWORD);
+      cy.get("#confirmPassword").type("differentpassword");
       cy.get('button[type="submit"]').click();
 
       cy.contains("Passwords do not match").should("be.visible");
     });
 
-    it("should show error if password is too short", () => {
-      cy.visit("/auth/register");
-      cy.get('input[placeholder="John Doe"]').type("John Doe");
-      cy.get('input[placeholder="you@example.com"]').type("newuser@example.com");
-      cy.get('input[placeholder="Min 6 characters"]').type("short");
-      cy.get('input[placeholder="Repeat password"]').type("short");
+    it("shows error when password is too short", () => {
+      cy.get("#name").type(TEST_NAME);
+      cy.get("#email").type(TEST_EMAIL);
+      cy.get("#password").type("short");
+      cy.get("#confirmPassword").type("short");
       cy.get('button[type="submit"]').click();
 
       cy.contains("Password must be at least 6 characters").should("be.visible");
     });
-  });
 
-  describe("Forgot Password", () => {
-    it("should show success message after requesting password reset", () => {
-      cy.visit("/auth/forgot-password");
-      cy.get('input[placeholder="you@example.com"]').type("testuser@example.com");
+    it("shows error when email already exists", () => {
+      cy.intercept("POST", "/api/auth/register", {
+        statusCode: 409,
+        body: { error: "An account with this email already exists" },
+      }).as("registerRequest");
+
+      cy.get("#name").type(TEST_NAME);
+      cy.get("#email").type(TEST_EMAIL);
+      cy.get("#password").type(TEST_PASSWORD);
+      cy.get("#confirmPassword").type(TEST_PASSWORD);
       cy.get('button[type="submit"]').click();
 
-      cy.contains("Check Your Email").should("be.visible");
-      cy.contains("If an account with that email exists, we sent a password reset link.").should(
-        "be.visible",
-      );
+      cy.wait("@registerRequest");
+      cy.contains("An account with this email already exists").should("be.visible");
     });
 
-    it("should show error if email is not found (assuming API returns error)", () => {
-      // This test depends on the backend implementation
-      cy.visit("/auth/forgot-password");
-      cy.get('input[placeholder="you@example.com"]').type("nonexistent@example.com");
-      cy.get('button[type="submit"]').click();
+    it("has a link to sign in", () => {
+      cy.contains("Sign in").should("have.attr", "href", "/auth/login");
+    });
+  });
 
-      // We expect an error message if the API fails
-      // cy.contains("Failed to send reset email").should("be.visible");
+  describe("Registration API", () => {
+    it("POST /api/auth/register returns 201 for new user", () => {
+      // Use a unique email to avoid conflicts with real DB state
+      const uniqueEmail = `test-${Date.now()}@example.com`;
+      cy.request({
+        method: "POST",
+        url: "/api/auth/register",
+        body: { name: TEST_NAME, email: uniqueEmail, password: TEST_PASSWORD },
+        failOnStatusCode: false,
+      }).then((res) => {
+        expect(res.status).to.eq(201);
+        expect(res.body).to.have.property("message", "Account created successfully");
+      });
+    });
+
+    it("POST /api/auth/register returns 400 when email is missing", () => {
+      cy.request({
+        method: "POST",
+        url: "/api/auth/register",
+        body: { password: TEST_PASSWORD },
+        failOnStatusCode: false,
+      }).then((res) => {
+        expect(res.status).to.eq(400);
+        expect(res.body).to.have.property("error", "Email and password are required");
+      });
+    });
+
+    it("POST /api/auth/register returns 400 when password is too short", () => {
+      cy.request({
+        method: "POST",
+        url: "/api/auth/register",
+        body: { email: `short-${Date.now()}@example.com`, password: "abc" },
+        failOnStatusCode: false,
+      }).then((res) => {
+        expect(res.status).to.eq(400);
+        expect(res.body).to.have.property("error", "Password must be at least 6 characters");
+      });
     });
   });
 });
