@@ -1,5 +1,6 @@
 describe("Add Contact Form", () => {
   beforeEach(() => {
+    cy.loginAsTestUser();
     cy.visit("/contacts/add");
     // Wait for React hydration to fully complete
     cy.get('input[placeholder="Contact name"]').should("be.visible");

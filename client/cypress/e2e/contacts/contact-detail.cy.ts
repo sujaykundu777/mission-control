@@ -2,6 +2,7 @@ describe("Contact Detail Page", () => {
   const testContactId = "test-client-1";
 
   beforeEach(() => {
+    cy.loginAsTestUser();
     cy.visit(`/contacts/${testContactId}`);
     cy.contains("Ethnic Trousseau").should("be.visible");
     cy.wait(500);

@@ -2,6 +2,7 @@ describe("Edit Contact Form", () => {
   const testContactId = "test-client-1";
 
   beforeEach(() => {
+    cy.loginAsTestUser();
     cy.visit(`/contacts/${testContactId}/edit`);
     // Wait for hydration and data loading to complete
     cy.contains("Edit Contact").should("be.visible");
