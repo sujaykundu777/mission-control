@@ -15,37 +15,43 @@ describe("Authentication Flow", () => {
     });
 
     it("redirects to dashboard on successful login", () => {
-      // Intercept NextAuth CSRF and credentials callback
-      cy.intercept("GET", "/api/auth/csrf", { body: { csrfToken: "mock-csrf-token" } });
-      cy.intercept("POST", "/api/auth/callback/credentials*", (req) => {
-        req.reply({
+      // Generate a real signed NextAuth v5 JWT via Cypress task so the server-side
+      // middleware accepts the session when it navigates to /dashboard.
+      cy.task("generateNextAuthJwt", { email: TEST_EMAIL, name: TEST_NAME }).then((jwt) => {
+        cy.intercept("POST", "/api/auth/callback/credentials*", {
           statusCode: 200,
+          // Return the JWT as Set-Cookie so the browser stores it before the
+          // middleware checks it on the /dashboard navigation.
           headers: {
-            "Set-Cookie": "next-auth.session-token=mock-session; Path=/; HttpOnly",
+            "Set-Cookie": `authjs.session-token=${jwt}; Path=/; HttpOnly; SameSite=Lax`,
           },
           body: { url: "http://localhost:3000/dashboard" },
+        }).as("loginRequest");
+
+        cy.intercept("GET", "/api/auth/session", {
+          body: {
+            user: { name: TEST_NAME, email: TEST_EMAIL, id: "test-user-id", role: "user" },
+            expires: "2099-01-01",
+          },
         });
-      }).as("loginRequest");
-      cy.intercept("GET", "/api/auth/session", {
-        body: {
-          user: { name: TEST_NAME, email: TEST_EMAIL },
-          expires: "2099-01-01",
-        },
+
+        cy.get("#email").type(TEST_EMAIL);
+        cy.get("#password").type(TEST_PASSWORD);
+        cy.get('button[type="submit"]').click();
+
+        cy.wait("@loginRequest");
+        cy.url().should("include", "/dashboard");
       });
-
-      cy.get("#email").type(TEST_EMAIL);
-      cy.get("#password").type(TEST_PASSWORD);
-      cy.get('button[type="submit"]').click();
-
-      cy.wait("@loginRequest");
-      cy.url().should("include", "/dashboard");
     });
 
     it("shows error message on invalid credentials", () => {
-      cy.intercept("GET", "/api/auth/csrf", { body: { csrfToken: "mock-csrf-token" } });
+      // Return a non-null URL so NextAuth's `new URL(data.url)` doesn't throw.
       cy.intercept("POST", "/api/auth/callback/credentials*", {
         statusCode: 200,
-        body: { error: "CredentialsSignin", url: null },
+        body: {
+          error: "CredentialsSignin",
+          url: "http://localhost:3000/auth/login?error=CredentialsSignin",
+        },
       });
 
       cy.get("#email").type("wrong@example.com");
