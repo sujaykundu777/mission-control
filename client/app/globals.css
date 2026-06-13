@@ -82,6 +82,134 @@ body {
     --sidebar-border: 0 0% 20%;
     --sidebar-ring: 217 100% 45%;
   }
+  .dark-red {
+    --background: 0 20% 8%;
+    --foreground: 0 0% 98%;
+    --card: 0 25% 15%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 25% 15%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 100% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 50% 25%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 20% 35%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 0 100% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 25% 25%;
+    --input: 0 25% 18%;
+    --ring: 0 100% 60%;
+    --chart-1: 0 100% 60%;
+    --chart-2: 15 100% 55%;
+    --chart-3: 30 100% 50%;
+    --chart-4: 340 80% 55%;
+    --chart-5: 20 90% 50%;
+    --sidebar-background: 0 20% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 100% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 50% 30%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 25% 25%;
+    --sidebar-ring: 0 100% 60%;
+  }
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 15%;
+    --primary: 217 100% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 50% 75%;
+    --secondary-foreground: 0 0% 15%;
+    --muted: 0 0% 85%;
+    --muted-foreground: 0 0% 50%;
+    --accent: 217 100% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 95%;
+    --ring: 217 100% 45%;
+    --chart-1: 217 100% 45%;
+    --chart-2: 217 100% 50%;
+    --chart-3: 200 80% 40%;
+    --chart-4: 240 70% 45%;
+    --chart-5: 270 65% 40%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 217 100% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 50% 80%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 217 100% 45%;
+  }
+  /* -------------------------------------------- */
+  /* ::/css/global.css - Dark Green Theme */
+  /* Use this class: .dark-green */
+  /* -------------------------------------------- */
+
+  .dark-green {
+    /* Overall Backgrounds & Text */
+    /* Deep, almost black, moody background */
+    --background: 210 10% 6%;
+    --foreground: 210 80% 95%; /* Off-white for high readability */
+
+    /* Card/Content Boxes */
+    --card: 210 15% 8%;
+    --card-foreground: 210 80% 95%;
+    --popover: 210 15% 8%;
+    --popover-foreground: 210 80% 95%;
+
+    /* Primary Brand Color (The main dark green) */
+    /* Emerald/Forest Green */
+    --primary: 150 60% 40%;
+    --primary-foreground: 140 10% 10%; /* Dark text on the green primary button */
+
+    /* Secondary (For complementary accents, e.g., warning/status) */
+    --secondary: 210 25% 15%;
+    --secondary-foreground: 210 80% 95%;
+
+    /* Muted Tones (Disabled, background tints) */
+    --muted: 210 10% 10%;
+    --muted-foreground: 210 40% 60%;
+
+    /* Accent (Strong highlight/success) */
+    --accent: 150 40% 25%;
+    --accent-foreground: 210 80% 95%;
+
+    /* Destructive (Error/Warning) */
+    --destructive: 0 70% 50%; /* Classic red for alerts */
+    --destructive-foreground: 210 10% 10%;
+
+    /* Component Borders & Inputs */
+    --border: 210 20% 20%;
+    --input: 210 20% 15%;
+    --ring: 150 60% 40%; /* Use primary green for focus rings */
+
+    /* Charts (Optional additions, keeping the cool tone) */
+    --chart-1: 150 70% 50%;
+    --chart-2: 210 60% 45%;
+    --chart-3: 250 70% 50%;
+    --chart-4: 340 70% 50%;
+    --chart-5: 20 80% 55%;
+
+    /* Specialized Areas (Sidebar, etc.) */
+    --sidebar-background: 210 10% 10%;
+    --sidebar-foreground: 210 80% 95%;
+    --sidebar-primary: 150 60% 45%;
+    --sidebar-primary-foreground: 210 10% 10%;
+    --sidebar-accent: 150 30% 20%;
+    --sidebar-accent-foreground: 210 80% 95%;
+    --sidebar-border: 210 20% 20%;
+    --sidebar-ring: 150 60% 45%;
+  }
 }
 
 @layer base {
@@ -91,4 +219,11 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/** Calendar - Daypicker */
+.rdp-root {
+  --rdp-accent-color: red; /* Change the accent color to indigo. */
+  --rdp-accent-background-color: #f0f0f0; /* Change the accent background color. */
+  /* Add more CSS variables here. */
 }

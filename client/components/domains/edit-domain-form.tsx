@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Domain, ContactInfo, Client} from "@/lib/types";
+import { Domain, ContactInfo, Client, Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, X } from "lucide-react";
 import Link from "next/link";
 import { CURRENCIES, Currency } from "@/lib/currency";
-import { ClientSelectorDialog } from '@/components/clients/client-selector-dialog'
+import { ContactSelectorDialog } from "@/components/contacts/contact-selector-dialog";
 
 interface EditDomainFormProps {
   domainId: string;
@@ -20,8 +20,8 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [domain, setDomain] = useState<Domain | null>(null);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [showClientSelector, setShowClientSelector] = useState(false)
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [showClientSelector, setShowClientSelector] = useState(false);
 
   const [formData, setFormData] = useState({
     registrarUrl: "",
@@ -53,9 +53,9 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
           contactPhone: foundDomain.contactInfo.phone || "",
           notes: foundDomain.notes || "",
         });
-        if (foundDomain.clientId) {
-          const foundClient = await storage.getClientById(foundDomain.clientId);
-          setSelectedClient(foundClient);
+        if (foundDomain.contactId) {
+          const foundContact = await storage.getContactById(foundDomain.contactId);
+          setSelectedContact(foundContact);
         }
       }
     };
@@ -63,9 +63,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
   }, [domainId]);
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value, type } = e.target;
     if (type === "checkbox") {
@@ -102,7 +100,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
         renewalCurrency: formData.renewalCurrency,
         expirationDate: formData.expirationDate,
         contactInfo: updatedContact,
-        clientId: selectedClient?.id,
+        contactId: selectedContact?.id,
         notes: formData.notes,
       });
 
@@ -126,55 +124,46 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
       {/* Header */}
       <div>
         <Link href={`/domains/${domainId}`}>
-          <Button
-            variant="ghost"
-            className="mb-4 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Button variant="ghost" className="mb-4 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Domain
           </Button>
         </Link>
         <h1 className="text-3xl font-bold text-foreground">Edit Domain</h1>
-        <p className="text-muted-foreground mt-2">
-          {domain.name} • Update domain details
-        </p>
+        <p className="mt-2 text-muted-foreground">{domain.name} • Update domain details</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Domain Information */}
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            Domain Information
-          </h2>
+        <Card className="border-border bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Domain Information</h2>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="mb-2 block text-sm font-medium text-foreground">
                   Domain Name
                 </label>
                 <Input
                   type="text"
                   value={domain.name}
                   disabled
-                  className="bg-secondary border-border text-muted-foreground"
+                  className="border-border bg-secondary text-muted-foreground"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Registrar
-                </label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Registrar</label>
                 <Input
                   type="text"
                   value={domain.registrar}
                   disabled
-                  className="bg-secondary border-border text-muted-foreground"
+                  className="border-border bg-secondary text-muted-foreground"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="mb-2 block text-sm font-medium text-foreground">
                   Expiration Date *
                 </label>
                 <Input
@@ -183,19 +172,19 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                   value={formData.expirationDate}
                   onChange={handleChange}
                   required
-                  className="bg-secondary border-border text-foreground"
+                  className="border-border bg-secondary text-foreground"
                 />
               </div>
               <div className="flex flex-wrap gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="mb-2 block text-sm font-medium text-foreground">
                     Renewal Currency{" "}
                   </label>
                   <select
                     name="renewalCurrency"
                     value={formData.renewalCurrency}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-foreground"
+                    className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-foreground"
                   >
                     {CURRENCIES.map((currency) => (
                       <option key={currency.id} value={currency.name}>
@@ -205,7 +194,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
+                  <label className="mb-2 block text-sm font-medium text-foreground">
                     Renewal Price{" "}
                   </label>
                   <Input
@@ -216,14 +205,14 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                     onChange={handleChange}
                     step="0.01"
                     required
-                    className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                    className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Registrar URL
               </label>
               <Input
@@ -232,7 +221,7 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                 placeholder="https://..."
                 value={formData.registrarUrl}
                 onChange={handleChange}
-                className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
               />
             </div>
 
@@ -242,23 +231,19 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                 name="autoRenew"
                 checked={formData.autoRenew}
                 onChange={handleChange}
-                className="w-4 h-4 rounded"
+                className="h-4 w-4 rounded"
               />
-              <label className="text-sm font-medium text-foreground">
-                Enable Auto-Renewal
-              </label>
+              <label className="text-sm font-medium text-foreground">Enable Auto-Renewal</label>
             </div>
           </div>
         </Card>
 
         {/* Contact Information */}
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            Contact Information
-          </h2>
+        <Card className="border-border bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Contact Information</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
+              <label className="mb-2 block text-sm font-medium text-foreground">
                 Contact Name *
               </label>
               <Input
@@ -268,14 +253,12 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                 value={formData.contactName}
                 onChange={handleChange}
                 required
-                className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Email *
-                </label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Email *</label>
                 <Input
                   type="email"
                   name="contactEmail"
@@ -283,34 +266,34 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                   value={formData.contactEmail}
                   onChange={handleChange}
                   required
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Phone
-                </label>
+                <label className="mb-2 block text-sm font-medium text-foreground">Phone</label>
                 <Input
                   type="tel"
                   name="contactPhone"
                   placeholder="+1 (555) 123-4567"
                   value={formData.contactPhone}
                   onChange={handleChange}
-                  className="bg-secondary border-border text-foreground placeholder:text-muted-foreground"
+                  className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </div>
           </div>
         </Card>
 
-         {/* Associated Client */}
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Associate Client (Optional)</h2>
-          {selectedClient ? (
-            <div className="flex items-center justify-between p-3 bg-background border border-border rounded-md">
+        {/* Associated Client */}
+        <Card className="border-border bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
+            Associate Client (Optional)
+          </h2>
+          {selectedContact ? (
+            <div className="flex items-center justify-between rounded-md border border-border bg-background p-3">
               <div>
-                <p className="font-semibold text-foreground">{selectedClient.name}</p>
-                <p className="text-sm text-muted-foreground">{selectedClient.email}</p>
+                <p className="font-semibold text-foreground">{selectedContact.name}</p>
+                <p className="text-sm text-muted-foreground">{selectedContact.email}</p>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -326,10 +309,10 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => setSelectedClient(null)}
+                  onClick={() => setSelectedContact(null)}
                   className="text-muted-foreground hover:text-destructive"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -345,29 +328,22 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
           )}
         </Card>
 
-
         {/* Additional Notes */}
-        <Card className="p-6 bg-card border-border">
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Notes
-          </label>
+        <Card className="border-border bg-card p-6">
+          <label className="mb-2 block text-sm font-medium text-foreground">Notes</label>
           <textarea
             name="notes"
             placeholder="Add any additional notes about this domain..."
             value={formData.notes}
             onChange={handleChange}
             rows={4}
-            className="w-full px-3 py-2 bg-secondary border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-md border border-border bg-secondary px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </Card>
 
         {/* Submit */}
         <div className="flex gap-3">
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="bg-primary hover:bg-primary/90"
-          >
+          <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90">
             {isSubmitting ? "Updating..." : "Update Domain"}
           </Button>
           <Link href={`/domains/${domainId}`}>
@@ -379,10 +355,10 @@ export function EditDomainForm({ domainId }: EditDomainFormProps) {
       </form>
 
       {/* Client Selector Dialog */}
-      <ClientSelectorDialog
+      <ContactSelectorDialog
         open={showClientSelector}
         onOpenChange={setShowClientSelector}
-        onSelect={setSelectedClient}
+        onSelect={setSelectedContact}
       />
     </div>
   );

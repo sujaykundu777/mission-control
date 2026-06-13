@@ -1,19 +1,17 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 
 import "./globals.css";
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "Mission Control OS",
-  description: "Manage your domains, services, and billing in one place",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
+  title: "ContactOS - Privacy-First Contact Management",
+  description:
+    "Powerful, AI-driven offline-first contact management platform. Manage relationships, automate workflows, and never miss important moments.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -22,10 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="font-sans antialiased bg-background text-foreground">
-        {children}
-      </body>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className="bg-background font-sans text-foreground antialiased">{children}</body>
     </html>
   );
 }

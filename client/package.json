@@ -4,18 +4,42 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "next build",
+    "build": "npx prisma generate && next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "cypress run",
+    "test:e2e:ui": "cypress open",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "supabase": "supabase start",
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:push": "npx prisma db push",
+    "db:generate": "npx prisma generate",
+    "prepare": "cd .. && husky client/.husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.38",
     "@ai-sdk/mistral": "^3.0.33",
     "@ai-sdk/react": "^3.0.176",
+    "@auth/prisma-adapter": "^2.11.2",
     "@hookform/resolvers": "^3.9.1",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -45,17 +69,22 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "ai": "^6.0.174",
     "autoprefixer": "^10.4.20",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.1.1",
     "date-fns": "4.1.0",
+    "dotenv": "^17.4.2",
     "embla-carousel-react": "8.5.1",
     "input-otp": "1.4.1",
     "lucide-react": "^0.544.0",
     "next": "16.1.6",
+    "next-auth": "5.0.0-beta.31",
     "next-themes": "^0.4.6",
+    "pg": "^8.21.0",
+    "prisma": "^7.8.0",
     "react": "19.2.3",
-    "react-day-picker": "8.10.1",
+    "react-day-picker": "10.0.0",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.54.1",
     "react-markdown": "^10.1.0",
@@ -63,6 +92,7 @@
     "recharts": "2.15.0",
     "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.1",
+    "resend": "^6.12.3",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
@@ -71,12 +101,30 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
-    "@types/node": "^22",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/node": "^22.19.11",
+    "@types/pg": "^8.20.0",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
     "@vitest/coverage-v8": "^4.0.18",
+    "cypress": "^15.15.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.1.6",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "fake-indexeddb": "^6.2.5",
+    "husky": "^9.1.7",
+    "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.5",
     "postcss": "^8.5",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "supabase": "^2.101.0",
     "tailwindcss": "^3.4.17",
     "typescript": "5.7.3",
     "vitest": "^4.0.18"
@@ -85,6 +133,12 @@
     "overrides": {
       "@types/react": "19.2.7",
       "@types/react-dom": "19.2.3"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "cypress",
+      "prisma",
+      "supabase"
+    ]
   }
 }

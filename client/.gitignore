@@ -6,8 +6,13 @@ __v0_jsx-dev-runtime.ts
 # Common ignores
 node_modules/
 .next/
+
+.env
 .env*.local
+.env
 .DS_Store
 
 # Test coverage
 coverage/
+/lib/generated/prisma
+cypress/screenshots

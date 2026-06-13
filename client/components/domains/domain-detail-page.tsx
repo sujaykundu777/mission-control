@@ -2,20 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Domain, Client } from "@/lib/types";
+import { Domain, Client, Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CURRENCY_SYMBOLS } from "@/lib/currency";
-import {
-  ArrowLeft,
-  Edit2,
-  Trash2,
-  Plus,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, Plus, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { ServicesList } from "./services-list";
 import { DNSRecordsList } from "./dns-records-list";
@@ -27,7 +20,7 @@ interface DomainDetailPageProps {
 export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
   const router = useRouter();
   const [domain, setDomain] = useState<Domain | null>(null);
-  const [client, setClient] = useState<Client | null>(null);
+  const [contact, setContact] = useState<Contact | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -36,9 +29,9 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
       const foundDomain = storage.getDomainById(domainId);
       setDomain(foundDomain);
 
-      if (foundDomain?.clientId) {
-        const foundClient = await storage.getClientById(foundDomain.clientId);
-        setClient(foundClient);
+      if (foundDomain?.contactId) {
+        const foundContact = await storage.getContactById(foundDomain.contactId);
+        setContact(foundContact);
       }
 
       setIsLoading(false);
@@ -49,7 +42,7 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex min-h-screen items-center justify-center">
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
@@ -59,21 +52,16 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
     return (
       <div className="space-y-6">
         <Link href="/domains">
-          <Button
-            variant="ghost"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Domains
           </Button>
         </Link>
-        <div className="bg-card border border-border rounded-lg p-12 text-center">
-          <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">
-            Domain not found
-          </h3>
+        <div className="rounded-lg border border-border bg-card p-12 text-center">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+          <h3 className="mb-2 text-lg font-semibold text-foreground">Domain not found</h3>
           <p className="text-muted-foreground">
-            The domain you're looking for doesn't exist.
+            The domain you&apos;re looking for doesn&apos;t exist.
           </p>
         </div>
       </div>
@@ -104,21 +92,16 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
       {/* Header */}
       <div>
         <Link href="/domains">
-          <Button
-            variant="ghost"
-            className="mb-4 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Button variant="ghost" className="mb-4 text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Domains
           </Button>
         </Link>
 
         <div className="flex items-start justify-between">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-foreground">
-                {domain.name}
-              </h1>
+            <div className="mb-2 flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-foreground">{domain.name}</h1>
               <Badge
                 variant={
                   domain.status === "active"
@@ -146,7 +129,7 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
           <div className="flex gap-2">
             <Link href={`/domains/${domain.id}/edit`}>
               <Button variant="outline" className="border-border hover:bg-card">
-                <Edit2 className="w-4 h-4 mr-2" />
+                <Edit2 className="mr-2 h-4 w-4" />
                 Edit
               </Button>
             </Link>
@@ -156,7 +139,7 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="mr-2 h-4 w-4" />
               {isDeleting ? "Deleting..." : "Delete"}
             </Button>
           </div>
@@ -165,36 +148,31 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
 
       {/* Alerts */}
       {isExpiringSoon && (
-        <div className="bg-yellow-500/10 border border-yellow-500/50 rounded-lg p-4">
-          <p className="text-yellow-300 text-sm flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
-            This domain expires soon. Auto-renewal is{" "}
-            {domain.autoRenew ? "enabled" : "disabled"}.
+        <div className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4">
+          <p className="flex items-center gap-2 text-sm text-yellow-300">
+            <AlertCircle className="h-4 w-4" />
+            This domain expires soon. Auto-renewal is {domain.autoRenew ? "enabled" : "disabled"}.
           </p>
         </div>
       )}
 
       {domain.status === "expired" && (
-        <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4">
-          <p className="text-red-300 text-sm flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
+        <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-4">
+          <p className="flex items-center gap-2 text-sm text-red-300">
+            <AlertCircle className="h-4 w-4" />
             This domain has expired. Please renew it as soon as possible.
           </p>
         </div>
       )}
 
       {/* Domain Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            Domain Information
-          </h2>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <Card className="border-border bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Domain Information</h2>
           <div className="space-y-4">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                REGISTRAR
-              </p>
-              <p className="text-foreground mt-1">
+              <p className="text-xs font-medium text-muted-foreground">REGISTRAR</p>
+              <p className="mt-1 text-foreground">
                 {domain.registrarUrl ? (
                   <a
                     href={domain.registrarUrl}
@@ -210,45 +188,35 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                PURCHASED
-              </p>
-              <p className="text-foreground mt-1">
+              <p className="text-xs font-medium text-muted-foreground">PURCHASED</p>
+              <p className="mt-1 text-foreground">
                 {new Date(domain.purchaseDate).toLocaleDateString()}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                EXPIRATION DATE
-              </p>
-              <p className="text-foreground mt-1">
+              <p className="text-xs font-medium text-muted-foreground">EXPIRATION DATE</p>
+              <p className="mt-1 text-foreground">
                 {new Date(domain.expirationDate).toLocaleDateString()}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                RENEWAL PRICE
-              </p>
-              <p className="text-foreground mt-1">
-                {domain.renewalCurrency
-                  ? CURRENCY_SYMBOLS[domain.renewalCurrency]
-                  : "NA"}{" "}
+              <p className="text-xs font-medium text-muted-foreground">RENEWAL PRICE</p>
+              <p className="mt-1 text-foreground">
+                {domain.renewalCurrency ? CURRENCY_SYMBOLS[domain.renewalCurrency] : "NA"}{" "}
                 {domain.renewalPrice}
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground">
-                AUTO-RENEWAL
-              </p>
-              <p className="text-foreground mt-1 flex items-center gap-2">
+              <p className="text-xs font-medium text-muted-foreground">AUTO-RENEWAL</p>
+              <p className="mt-1 flex items-center gap-2 text-foreground">
                 {domain.autoRenew ? (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
                     Enabled
                   </>
                 ) : (
                   <>
-                    <AlertCircle className="w-4 h-4 text-yellow-500" />
+                    <AlertCircle className="h-4 w-4 text-yellow-500" />
                     Disabled
                   </>
                 )}
@@ -257,18 +225,16 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
           </div>
         </Card>
 
-        <Card className="p-6 bg-card border-border">
-          <h2 className="text-lg font-semibold text-foreground mb-4">
-            Contact Information
-          </h2>
+        <Card className="border-border bg-card p-6">
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Contact Information</h2>
           <div className="space-y-4">
             <div>
               <p className="text-xs font-medium text-muted-foreground">NAME</p>
-              <p className="text-foreground mt-1">{domain.contactInfo.name}</p>
+              <p className="mt-1 text-foreground">{domain.contactInfo.name}</p>
             </div>
             <div>
               <p className="text-xs font-medium text-muted-foreground">EMAIL</p>
-              <p className="text-foreground mt-1">
+              <p className="mt-1 text-foreground">
                 <a
                   href={`mailto:${domain.contactInfo.email}`}
                   className="text-primary hover:underline"
@@ -279,70 +245,62 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
             </div>
             {domain.contactInfo.phone && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground">
-                  PHONE
-                </p>
-                <p className="text-foreground mt-1">
-                  {domain.contactInfo.phone}
-                </p>
+                <p className="text-xs font-medium text-muted-foreground">PHONE</p>
+                <p className="mt-1 text-foreground">{domain.contactInfo.phone}</p>
               </div>
             )}
             {domain.notes && (
               <div>
-                <p className="text-xs font-medium text-muted-foreground">
-                  NOTES
-                </p>
-                <p className="text-foreground mt-1 text-sm">{domain.notes}</p>
+                <p className="text-xs font-medium text-muted-foreground">NOTES</p>
+                <p className="mt-1 text-sm text-foreground">{domain.notes}</p>
               </div>
             )}
           </div>
         </Card>
 
-        {
-          client && (
-              <Card className="p-6 bg-card border-border">
-                <h2 className="text-lg font-semibold text-foreground mb-4">Associated Client</h2>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">CLIENT NAME</p>
-                    <Link href={`/clients/${client.id}`}>
-                      <p className="text-primary hover:underline mt-1">{client.name}</p>
-                    </Link>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">EMAIL</p>
-                    <p className="text-foreground mt-1">
-                      <a href={`mailto:${client.email}`} className="text-primary hover:underline">
-                        {client.email}
-                      </a>
-                    </p>
-                  </div>
-                  {client.company && (
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground">COMPANY</p>
-                      <p className="text-foreground mt-1">{client.company}</p>
-                    </div>
-                  )}
-                  <div className="pt-2">
-                    <Link href={`/domains/${domain.id}/edit`}>
-                      <Button size="sm" variant="outline" className="border-border">
-                        Change Client
-                      </Button>
-                    </Link>
-                  </div>
+        {contact && (
+          <Card className="border-border bg-card p-6">
+            <h2 className="mb-4 text-lg font-semibold text-foreground">Associated Contact</h2>
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">CONTACT NAME</p>
+                <Link href={`/contacts/${contact.id}`}>
+                  <p className="mt-1 text-primary hover:underline">{contact.name}</p>
+                </Link>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">EMAIL</p>
+                <p className="mt-1 text-foreground">
+                  <a href={`mailto:${contact.email}`} className="text-primary hover:underline">
+                    {contact.email}
+                  </a>
+                </p>
+              </div>
+              {contact.company && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">COMPANY</p>
+                  <p className="mt-1 text-foreground">{contact.company}</p>
                 </div>
-              </Card>
-          )
-        }
+              )}
+              <div className="pt-2">
+                <Link href={`/domains/${domain.id}/edit`}>
+                  <Button size="sm" variant="outline" className="border-border">
+                    Change Client
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Services */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-foreground">Services</h2>
           <Link href={`/domains/${domain.id}/services/add`}>
             <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4" />
               Add Service
             </Button>
           </Link>
@@ -352,11 +310,11 @@ export function DomainDetailPage({ domainId }: DomainDetailPageProps) {
 
       {/* DNS Records */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-foreground">DNS Records</h2>
           <Link href={`/domains/${domain.id}/dns/add`}>
             <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4" />
               Add Record
             </Button>
           </Link>

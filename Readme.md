@@ -1,5 +1,51 @@
 # Mission Control
 
+Building a PWA, offline-first app For Freelancers 
+
+
+Features Roadmap:
+
+- Contacts Manager (in progress)
+- Drag and drop Pipeline for sales
+- Clients
+- Projects Tracking
+- Time Tracking
+- Proposals, Contracts, Estimates
+- Invoicing & Payments
+
+
+Tech :
+- Next.JS (app router with SSR)
+- React 19 
+- Vitest for tests
+- IndexedDB
+- Sync Queues
+- Background Sync
+- Backend with Supabase REST
+- React Query Orchestration
+- Clerk for Authentication
+- Resend for Emails
+- Docker 
+
+Ref:
+https://www.wellally.tech/blog/build-offline-first-pwa-nextjs-indexeddb
+https://oluwadaprof.medium.com/building-an-offline-first-pwa-notes-app-with-next-js-indexeddb-and-supabase-f861aa3a06f9 
+https://benmukebo.medium.com/build-an-offline-ready-pwa-with-next-js-14-using-ducanh2912-next-pwa-17851765fa6b
+https://github.com/oluwadaprof/pullus-note
+
+Local AI:
+
+```sh
+ollama pull qwen3-coder
+ollama launch opencode --model qwen3-coder
+```
+
+```sh
+ollama pull gpt-oss:20b
+ollama launch opencode --model gpt-oss:20b
+```
+Future vision:
+
 👉 Control panel + finance tracker + infra dashboard + automation hub for freelancers, agencies, and indie devs.
 👉 “Single source of truth for developer infra + recurring costs.”
 
@@ -361,3 +407,7 @@ Suggest:
 	•	Permissions
 
 
+hermes --resume 20260527_233038_b9a319
+
+hermes --resume 20260527_233038_b9a319
+  hermes -c "Fixing Top Navigation Component"

@@ -1,169 +1,181 @@
-import { Domain, Client } from './types'
-import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from './indexeddb'
-import { TEST_DOMAINS } from '@/data/test-domains'
-import { TEST_CLIENT } from '@/data/test-client'
+import { Domain, Client, Contact } from "./types";
+import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from "./indexeddb";
+import { TEST_DOMAINS } from "@/data/test-domains";
+import { TEST_CLIENT, TEST_CONTACT } from "@/data/test-client";
 
-const INITIALIZED_KEY = 'initialized'
+const INITIALIZED_KEY = "initialized";
 
-// clients 
+// clients
 // const CLIENTS_STORAGE_KEY = 'mission-control-os-clients'
 
 // In-memory cache for synchronous access
-let clientsCache: Client[] | null = null;
-let domainsCache: Domain[] | null = null
-let isCacheInitialized = false
-
+// let clientsCache: Client[] | null = null;
+let contactsCache: Contact[] | null = null;
+let domainsCache: Domain[] | null = null;
+let isCacheInitialized = false;
 
 // Initialize cache from IndexedDB on first access
 const initializeCacheFromDB = async (): Promise<void> => {
-  if (isCacheInitialized) return
+  if (isCacheInitialized) return;
 
   try {
-
-    const clients = await getAllFromDB<Client>(DB_STORES.CLIENTS)
-    const domains = await getAllFromDB<Domain>(DB_STORES.DOMAINS)
+    // const clients = await getAllFromDB<Client>(DB_STORES.CLIENTS)
+    const contacts = await getAllFromDB<Contact>(DB_STORES.CONTACTS);
+    const domains = await getAllFromDB<Domain>(DB_STORES.DOMAINS);
     const isInitialized = await getFromDB<{ key: string; value: boolean }>(
-        DB_STORES.SETTINGS,
-        INITIALIZED_KEY
-    )
-    if (clients.length === 0) {
+      DB_STORES.SETTINGS,
+      INITIALIZED_KEY,
+    );
+    if (contacts.length === 0) {
       if (!isInitialized) {
-      
-        // Save test client
-        await saveToDB(DB_STORES.CLIENTS, TEST_CLIENT)
+        // Save test contact
+        await saveToDB(DB_STORES.CONTACTS, TEST_CONTACT);
         // Mark as initialized
-        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
-        clientsCache = [TEST_CLIENT]
+        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true });
+        contactsCache = [TEST_CONTACT];
       } else {
-        clientsCache = []
+        contactsCache = [];
       }
-      
     } else {
-      clientsCache = clients;
+      contactsCache = contacts;
     }
-    
+
     if (domains.length === 0) {
       // const isInitialized = await getFromDB<{ key: string; value: boolean }>(
       //   DB_STORES.SETTINGS,
       //   INITIALIZED_KEY
       // )
-      
+
       if (!isInitialized) {
         // Save test domains
         for (const domain of TEST_DOMAINS) {
-          await saveToDB(DB_STORES.DOMAINS, domain)
+          await saveToDB(DB_STORES.DOMAINS, domain);
         }
         // Mark as initialized
-        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true })
-        domainsCache = TEST_DOMAINS
+        await saveToDB(DB_STORES.SETTINGS, { key: INITIALIZED_KEY, value: true });
+        domainsCache = TEST_DOMAINS;
       } else {
-        domainsCache = []
+        domainsCache = [];
       }
     } else {
-      domainsCache = domains
+      domainsCache = domains;
     }
-    
-    isCacheInitialized = true
+
+    isCacheInitialized = true;
   } catch (error) {
-    console.error('Failed to initialize cache from IndexedDB:', error)
-    clientsCache = []
-    domainsCache = []
-    isCacheInitialized = true
+    console.error("Failed to initialize cache from IndexedDB:", error);
+    // clientsCache = []
+    contactsCache = [];
+    domainsCache = [];
+    isCacheInitialized = true;
   }
-}
+};
 
 export const storage = {
-
-  getClients: async (): Promise<Client[]> => {
-    // console.log('window', window);
-    if (typeof window === 'undefined') return []
-    console.log('clientsCache', clientsCache);
-    if (clientsCache === null) {
-      await initializeCacheFromDB()
+  getContacts: async (): Promise<Contact[]> => {
+    if (typeof window === "undefined") return [];
+    if (contactsCache === null) {
+      await initializeCacheFromDB();
     }
-    return clientsCache || []
+    return contactsCache || [];
   },
 
-  saveClients: (clients: Client[]) : void => {
-    if (typeof window === 'undefined') return
+  // saveClients: (clients: Client[]) : void => {
+  //   if (typeof window === 'undefined') return
 
-    clientsCache = clients
-    Promise.all(clients.map((client) => saveToDB(DB_STORES.CLIENTS, client))).catch(
-      (error) => console.error('Failed to save client to IndexedDB:', error)
-    )
+  //   clientsCache = clients
+  //   Promise.all(clients.map((client) => saveToDB(DB_STORES.CLIENTS, client))).catch(
+  //     (error) => console.error('Failed to save client to IndexedDB:', error)
+  //   )
+  // },
+
+  // addClient: async (client: Client): Promise<Client[]> => {
+  //   const clients = await storage.getContacts()
+  //   clients.push(client)
+  //   storage.saveClients(clients);
+  //   return clients;
+  // },
+
+  saveContacts: (contacts: Contact[]): void => {
+    if (typeof window === "undefined") return;
+
+    contactsCache = contacts;
+    Promise.all(contacts.map((contact) => saveToDB(DB_STORES.CONTACTS, contact))).catch((error) =>
+      console.error("Failed to save contact to IndexedDB:", error),
+    );
   },
 
-  addClient: async (client: Client): Promise<Client[]> => {
-    const clients = await storage.getClients()
-    clients.push(client)
-    storage.saveClients(clients);
-    return clients;
+  addContact: async (contact: Contact): Promise<Contact[]> => {
+    const contacts = await storage.getContacts();
+    contacts.push(contact);
+    storage.saveContacts(contacts);
+    return contacts;
   },
- 
+
   getDomains: (): Domain[] => {
-    if (typeof window === 'undefined') return []
+    if (typeof window === "undefined") return [];
 
     if (domainsCache === null) {
       // Cache not initialized yet, initialize it in the background
       initializeCacheFromDB().catch(() => {
-        domainsCache = []
-      })
-      return domainsCache || []
+        domainsCache = [];
+      });
+      return domainsCache || [];
     }
-    return domainsCache
+    return domainsCache;
   },
 
   saveDomains: (domains: Domain[]): void => {
-    if (typeof window === 'undefined') return
+    if (typeof window === "undefined") return;
 
-    domainsCache = domains
-    Promise.all(domains.map((domain) => saveToDB(DB_STORES.DOMAINS, domain))).catch(
-      (error) => console.error('Failed to save domains to IndexedDB:', error)
-    )
+    domainsCache = domains;
+    Promise.all(domains.map((domain) => saveToDB(DB_STORES.DOMAINS, domain))).catch((error) =>
+      console.error("Failed to save domains to IndexedDB:", error),
+    );
   },
 
   addDomain: (domain: Domain): Domain[] => {
-    const domains = storage.getDomains()
-    domains.push(domain)
-    storage.saveDomains(domains)
-    return domains
+    const domains = storage.getDomains();
+    domains.push(domain);
+    storage.saveDomains(domains);
+    return domains;
   },
 
   updateDomain: (id: string, updates: Partial<Domain>): Domain[] => {
-    const domains = storage.getDomains()
-    const index = domains.findIndex((d) => d.id === id)
+    const domains = storage.getDomains();
+    const index = domains.findIndex((d) => d.id === id);
     if (index !== -1) {
-      domains[index] = { ...domains[index], ...updates }
-      storage.saveDomains(domains)
+      domains[index] = { ...domains[index], ...updates };
+      storage.saveDomains(domains);
     }
-    return domains
+    return domains;
   },
 
   deleteDomain: (id: string): Domain[] => {
-    const domains = storage.getDomains().filter((d) => d.id !== id)
-    storage.saveDomains(domains)
+    const domains = storage.getDomains().filter((d) => d.id !== id);
+    storage.saveDomains(domains);
     deleteFromDB(DB_STORES.DOMAINS, id).catch((error) =>
-      console.error('Failed to delete domain from IndexedDB:', error)
-    )
-    return domains
+      console.error("Failed to delete domain from IndexedDB:", error),
+    );
+    return domains;
   },
 
   getDomainById: (id: string): Domain | null => {
-    const domains = storage.getDomains()
-    return domains.find((d) => d.id === id) || null
+    const domains = storage.getDomains();
+    return domains.find((d) => d.id === id) || null;
   },
 
   // Analytics
   getStats: () => {
-    const domains = storage.getDomains()
-    const totalDomains = domains.length
-    const activeDomains = domains.filter((d) => d.status === 'active').length
-    const expiredDomains = domains.filter((d) => d.status === 'expired').length
-    const totalServices = domains.reduce((acc, d) => acc + d.services.length, 0)
+    const domains = storage.getDomains();
+    const totalDomains = domains.length;
+    const activeDomains = domains.filter((d) => d.status === "active").length;
+    const expiredDomains = domains.filter((d) => d.status === "expired").length;
+    const totalServices = domains.reduce((acc, d) => acc + d.services.length, 0);
     const totalCosts = domains.reduce(
       (acc, d) => acc + d.services.reduce((s, srv) => s + srv.cost, 0),
-      0
-    )
+      0,
+    );
 
     return {
       totalDomains,
@@ -171,7 +183,7 @@ export const storage = {
       expiredDomains,
       totalServices,
       totalCosts,
-    }
+    };
   },
 
   // get all clients
@@ -187,88 +199,126 @@ export const storage = {
   // },
 
   // get client by id
-  getClientById: async (id: string): Promise<Client | null> => {
-    const clients = await storage.getClients()
-    console.log('id', id);
-    console.log('clients', clients);
-    return clients.find((c) => c.id === id) || null
+  // getClientById: async (id: string): Promise<Client | null> => {
+  //   const clients = await storage.getContacts()
+  //   console.log('id', id);
+  //   console.log('clients', clients);
+  //   return clients.find((c) => c.id === id) || null
+  // },
+
+  getContactById: async (id: string): Promise<Contact | null> => {
+    const contacts = await storage.getContacts();
+    return contacts.find((c) => c.id === id) || null;
   },
 
-  // update existing client 
-  updateClient: async (id: string, updates: Partial<Client>): Promise<Client[]> => {
-    const clients = await storage.getClients()
-    console.log('clients >> update')
-    const index = clients.findIndex((c) => c.id === id)
+  // update existing client
+  // updateClient: async (id: string, updates: Partial<Client>): Promise<Client[]> => {
+  //   const clients = await storage.getContacts()
+  //   console.log('clients >> update')
+  //   const index = clients.findIndex((c) => c.id === id)
+  //   if (index !== -1) {
+  //     clients[index] = {
+  //       ...clients[index],
+  //       ...updates,
+  //       updatedAt: new Date().toISOString(),
+  //     }
+  //     storage.saveClients(clients);
+  //   }
+  //   return clients;
+  // },
+
+  updateContact: async (id: string, updates: Partial<Contact>): Promise<Contact[]> => {
+    const contacts = await storage.getContacts();
+    const index = contacts.findIndex((c) => c.id === id);
     if (index !== -1) {
-      clients[index] = {
-        ...clients[index],
+      contacts[index] = {
+        ...contacts[index],
         ...updates,
         updatedAt: new Date().toISOString(),
-      }
-      storage.saveClients(clients);
+      };
+      storage.saveContacts(contacts);
     }
-    return clients;
+    return contacts;
   },
 
-  deleteClient: async (id: string): Promise<Client[]> => {
-    const clients = (await storage.getClients()).filter((c) => c.id !== id)
-    clientsCache = clients
-    storage.saveClients(clients)
-    deleteFromDB(DB_STORES.CLIENTS, id).catch((error) =>
-      console.error('Failed to delete client from IndexedDB:', error)
-    )
+  // deleteClient: async (id: string): Promise<Client[]> => {
+  //   const clients = (await storage.getContacts()).filter((c) => c.id !== id)
+  //   clientsCache = clients
+  //   storage.saveClients(clients)
+  //   deleteFromDB(DB_STORES.CLIENTS, id).catch((error) =>
+  //     console.error('Failed to delete client from IndexedDB:', error)
+  //   )
+
+  //   // clean up domain associations
+  //   const domains = storage.getDomains()
+  //   const updatedDomains = domains.map((d) => d.clientId === id ? { ...d, clientId: undefined } : d);
+  //   storage.saveDomains(updatedDomains);
+  //   return clients;
+  // },
+
+  deleteContact: async (id: string): Promise<Contact[]> => {
+    const contacts = (await storage.getContacts()).filter((c) => c.id !== id);
+    contactsCache = contacts;
+    storage.saveContacts(contacts);
+    deleteFromDB(DB_STORES.CONTACTS, id).catch((error) =>
+      console.error("Failed to delete contact from IndexedDB:", error),
+    );
 
     // clean up domain associations
-    const domains = storage.getDomains()
-    const updatedDomains = domains.map((d) => d.clientId === id ? { ...d, clientId: undefined } : d);
+    const domains = storage.getDomains();
+    const updatedDomains = domains.map((d) =>
+      d.contactId === id ? { ...d, contactId: undefined } : d,
+    ); // need to use contact id
     storage.saveDomains(updatedDomains);
-    return clients;
+    return contacts;
   },
 
   // get client domains
-  getClientDomains: (clientId: string): Domain[] => {
-    const domains = storage.getDomains()
-    return domains.filter((d) => d.clientId === clientId);
+  // getClientDomains: (clientId: string): Domain[] => {
+  //   const domains = storage.getDomains()
+  //   return domains.filter((d) => d.clientId === clientId);
+  // },
+
+  getContactDomains: (contactId: string): Domain[] => {
+    const domains = storage.getDomains();
+    return domains.filter((d) => d.contactId === contactId);
   },
 
   // Associate domain to client
-  associateDomainToClient: (domainId: string, clientId: string): Domain[] => {
-    const domains = storage.getDomains()
-    const index = domains.findIndex((d) => d.id === domainId)
+  associateDomainToContact: (domainId: string, contactId: string): Domain[] => {
+    const domains = storage.getDomains();
+    const index = domains.findIndex((d) => d.id === domainId);
     if (index !== -1) {
-      domains[index] = { ...domains[index], clientId }
-      storage.saveDomains(domains)
+      domains[index] = { ...domains[index], contactId };
+      storage.saveDomains(domains);
     }
-    return domains
+    return domains;
   },
 
   // Disassociate domain to client
   disassociateDomainFromClient: (domainId: string): Domain[] => {
-    const domains = storage.getDomains()
-    const index = domains.findIndex((d) => d.id === domainId)
+    const domains = storage.getDomains();
+    const index = domains.findIndex((d) => d.id === domainId);
     if (index !== -1) {
-      domains[index] = { ...domains[index], clientId: undefined }
-      storage.saveDomains(domains)
+      domains[index] = { ...domains[index], contactId: undefined };
+      storage.saveDomains(domains);
     }
-    return domains
+    return domains;
   },
 
-  // client stats
-  getClientStats: async () => {
-    const clients = await storage.getClients()
-    const totalClients = clients.length
-    const activeClients = clients.filter((c) => c.status === 'active').length
-    const inactiveClients = clients.filter((c) => c.status === 'inactive').length
-    const archivedClients = clients.filter((c) => c.status === 'archived').length
+  // contact stats
+  getContactsStats: async () => {
+    const contacts = await storage.getContacts();
+    const totalContacts = contacts.length;
+    const activeContacts = contacts.filter((c) => c.status === "active").length;
+    const inactiveContacts = contacts.filter((c) => c.status === "inactive").length;
+    const archivedContacts = contacts.filter((c) => c.status === "archived").length;
 
     return {
-      totalClients,
-      activeClients,
-      inactiveClients,
-      archivedClients,
-    }
+      totalContacts,
+      activeContacts,
+      inactiveContacts,
+      archivedContacts,
+    };
   },
-
-}
-
-
+};
