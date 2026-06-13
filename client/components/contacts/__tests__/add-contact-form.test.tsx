@@ -180,7 +180,8 @@ describe("AddContactForm", () => {
       render(<AddContactForm />);
       expect(screen.getByText("Male")).toBeInTheDocument();
       expect(screen.getByText("Female")).toBeInTheDocument();
-      expect(screen.getByText("Other")).toBeInTheDocument();
+      // "Other" appears in both Gender and Relationship Type selects
+      expect(screen.getAllByText("Other").length).toBeGreaterThanOrEqual(1);
     });
 
     it("renders status dropdown with Active option", () => {

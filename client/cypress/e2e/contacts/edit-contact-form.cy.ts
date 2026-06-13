@@ -43,7 +43,7 @@ describe("Edit Contact Form", () => {
 
     // Buttons
     cy.contains("button", "Save").should("be.visible");
-    cy.contains("button", "Cancel").should("be.visible");
+    cy.contains("Back to contacts").should("be.visible");
     cy.contains("button", "Delete").should("be.visible");
   });
 
@@ -146,11 +146,11 @@ describe("Edit Contact Form", () => {
     // Make some changes
     cy.get('input[name="name"]').clear().type("Should Not Save");
 
-    // Click cancel
-    cy.contains("a", "Cancel").click();
+    // Click "Back to contacts" link to cancel editing
+    cy.contains("Back to contacts").click();
 
-    // Should navigate to contact detail page
-    cy.url().should("include", `/contacts/${testContactId}`);
+    // "Back to contacts" navigates to the contacts list
+    cy.url().should("include", "/contacts");
     cy.url().should("not.include", "/edit");
   });
 
