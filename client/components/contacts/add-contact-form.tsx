@@ -272,6 +272,31 @@ export function AddContactForm() {
               )}
             </div>
 
+            <div>
+              <label className="mb-2 block text-sm font-medium text-foreground">
+                Relationship Type *
+              </label>
+              <Select
+                value={formData.relationshipType}
+                onValueChange={(value) => handleSelectChange("relationshipType", value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select relationship type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Family">Family</SelectItem>
+                  <SelectItem value="Friend">Friend</SelectItem>
+                  <SelectItem value="Colleague">Colleague</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors?.relationshipType && (
+                <div className="mt-1 text-sm text-red-600" role="alert">
+                  {errors.relationshipType}
+                </div>
+              )}
+            </div>
+
             {/* Country Code Select */}
             <div className="mb-4">
               <Label className="mb-1 block text-sm font-medium text-foreground">Country Code</Label>
