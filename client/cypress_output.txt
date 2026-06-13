@@ -1,0 +1,343 @@
+
+> my-project@0.1.0 test:e2e /Users/xplor4r/Downloads/mission-control/client
+> cypress run
+
+Warning: The allowCypressEnv configuration option is enabled. This allows any browser code to read values from Cypress.env(). This is insecure and will be removed in a future major version.
+
+1. Replace Cypress.env() calls with cy.env() (for sensitive values) or Cypress.expose() (for public configuration)
+2. Set allowCypressEnv: false in your Cypress configuration to disable Cypress.env()
+
+Learn more: https://on.cypress.io/cypress-env-migration
+
+
+====================================================================================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:        15.15.0                                                                        │
+  │ Browser:        Electron 138 (headless)                                                        │
+  │ Node Version:   v24.14.1 (/usr/local/bin/node)                                                 │
+  │ Specs:          6 found (auth.cy.ts, contacts/add-contact-form.cy.ts, contacts/contact-detail. │
+  │                 cy.ts, contacts/contacts-list.cy.ts, contacts/edit-contact-form.cy.ts, contact │
+  │                 s/import-export.cy.ts)                                                         │
+  │ Searched:       cypress/e2e/**/*.cy.ts                                                         │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  auth.cy.ts                                                                      (1 of 6)
+
+
+  Authentication Flow
+    Login
+      1) should navigate to dashboard on successful login
+      ✓ should show error message on invalid credentials (1236ms)
+    Registration
+      2) should navigate to login with success message on successful registration
+      ✓ should show error if passwords do not match (1747ms)
+      ✓ should show error if password is too short (1383ms)
+    Forgot Password
+      ✓ should show success message after requesting password reset (709ms)
+      ✓ should show error if email is not found (assuming API returns error) (710ms)
+
+
+  5 passing (29s)
+  2 failing
+
+  1) Authentication Flow
+       Login
+         should navigate to dashboard on successful login:
+     AssertionError: Timed out retrying after 10000ms: expected 'http://localhost:3000/auth/login' to include '/dashboard'
+      at Context.eval (webpack://my-project/./cypress/e2e/auth.cy.ts:15:15)
+
+  2) Authentication Flow
+       Registration
+         should navigate to login with success message on successful registration:
+     AssertionError: Timed out retrying after 10000ms: expected 'http://localhost:3000/auth/register' to include '/auth/login?registered=true'
+      at Context.eval (webpack://my-project/./cypress/e2e/auth.cy.ts:39:15)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        7                                                                                │
+  │ Passing:      5                                                                                │
+  │ Failing:      2                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  2                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     29 seconds                                                                       │
+  │ Spec Ran:     auth.cy.ts                                                                       │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/xplor4r/Downloads/mission-control/client/cypress/screenshots/auth.cy.ts/A     (1280x720)
+     uthentication Flow -- Login -- should navigate to dashboard on successful login                
+     (failed).png                                                                                   
+  -  /Users/xplor4r/Downloads/mission-control/client/cypress/screenshots/auth.cy.ts/A     (1280x720)
+     uthentication Flow -- Registration -- should navigate to login with success mess               
+     age on successful registration (failed).png                                                    
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  contacts/add-contact-form.cy.ts                                                 (2 of 6)
+
+
+  Add Contact Form
+    1) "before each" hook for "renders all form sections and fields"
+
+
+  0 passing (10s)
+  1 failing
+
+  1) Add Contact Form
+       "before each" hook for "renders all form sections and fields":
+     AssertionError: Timed out retrying after 10000ms: Expected to find element: `input[placeholder="Contact name"]`, but never found it.
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Add Contact Form`
+      at Context.eval (webpack://my-project/./cypress/e2e/contacts/add-contact-form.cy.ts:5:48)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        7                                                                                │
+  │ Passing:      0                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      6                                                                                │
+  │ Screenshots:  1                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     10 seconds                                                                       │
+  │ Spec Ran:     contacts/add-contact-form.cy.ts                                                  │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/xplor4r/Downloads/mission-control/client/cypress/screenshots/contacts/add     (1280x720)
+     -contact-form.cy.ts/Add Contact Form -- renders all form sections and fields --                
+     before each hook (failed).png                                                                  
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  contacts/contact-detail.cy.ts                                                   (3 of 6)
+
+
+  Contact Detail Page
+    1) "before each" hook for "displays contact name and status"
+
+
+  0 passing (10s)
+  1 failing
+
+  1) Contact Detail Page
+       "before each" hook for "displays contact name and status":
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Ethnic Trousseau' but never did.
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Contact Detail Page`
+      at Context.eval (webpack://my-project/./cypress/e2e/contacts/contact-detail.cy.ts:6:36)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        12                                                                               │
+  │ Passing:      0                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      11                                                                               │
+  │ Screenshots:  1                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     10 seconds                                                                       │
+  │ Spec Ran:     contacts/contact-detail.cy.ts                                                    │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/xplor4r/Downloads/mission-control/client/cypress/screenshots/contacts/con     (1280x720)
+     tact-detail.cy.ts/Contact Detail Page -- displays contact name and status -- bef               
+     ore each hook (failed).png                                                                     
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  contacts/contacts-list.cy.ts                                                    (4 of 6)
+
+
+  Contacts List Page
+    1) "before each" hook for "renders the page header and stats"
+
+
+  0 passing (10s)
+  1 failing
+
+  1) Contacts List Page
+       "before each" hook for "renders the page header and stats":
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Contacts' but never did.
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Contacts List Page`
+      at Context.eval (webpack://my-project/./cypress/e2e/contacts/contacts-list.cy.ts:4:28)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        12                                                                               │
+  │ Passing:      0                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      11                                                                               │
+  │ Screenshots:  1                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     10 seconds                                                                       │
+  │ Spec Ran:     contacts/contacts-list.cy.ts                                                     │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/xplor4r/Downloads/mission-control/client/cypress/screenshots/contacts/con     (1280x720)
+     tacts-list.cy.ts/Contacts List Page -- renders the page header and stats -- befo               
+     re each hook (failed).png                                                                      
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  contacts/edit-contact-form.cy.ts                                                (5 of 6)
+
+
+  Edit Contact Form
+    1) "before each" hook for "loads and displays the existing contact data"
+
+
+  0 passing (10s)
+  1 failing
+
+  1) Edit Contact Form
+       "before each" hook for "loads and displays the existing contact data":
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Edit Contact' but never did.
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Edit Contact Form`
+      at Context.eval (webpack://my-project/./cypress/e2e/contacts/edit-contact-form.cy.ts:7:32)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        9                                                                                │
+  │ Passing:      0                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      8                                                                                │
+  │ Screenshots:  1                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     10 seconds                                                                       │
+  │ Spec Ran:     contacts/edit-contact-form.cy.ts                                                 │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/xplor4r/Downloads/mission-control/client/cypress/screenshots/contacts/edi     (1280x720)
+     t-contact-form.cy.ts/Edit Contact Form -- loads and displays the existing contac               
+     t data -- before each hook (failed).png                                                        
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  contacts/import-export.cy.ts                                                    (6 of 6)
+
+
+  Import Contacts Modal
+    1) "before each" hook for "displays import options"
+
+  Export Contacts Dialog
+    2) "before each" hook for "opens the export dialog"
+
+
+  0 passing (21s)
+  2 failing
+
+  1) Import Contacts Modal
+       "before each" hook for "displays import options":
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Contacts' but never did.
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Import Contacts Modal`
+      at Context.eval (webpack://my-project/./cypress/e2e/contacts/import-export.cy.ts:4:28)
+
+  2) Export Contacts Dialog
+       "before each" hook for "opens the export dialog":
+     AssertionError: Timed out retrying after 10000ms: Expected to find content: 'Contacts' but never did.
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Export Contacts Dialog`
+      at Context.eval (webpack://my-project/./cypress/e2e/contacts/import-export.cy.ts:95:28)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        10                                                                               │
+  │ Passing:      0                                                                                │
+  │ Failing:      2                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      8                                                                                │
+  │ Screenshots:  2                                                                                │
+  │ Video:        false                                                                            │
+  │ Duration:     20 seconds                                                                       │
+  │ Spec Ran:     contacts/import-export.cy.ts                                                     │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /Users/xplor4r/Downloads/mission-control/client/cypress/screenshots/contacts/imp     (1280x720)
+     ort-export.cy.ts/Import Contacts Modal -- displays import options -- before each               
+      hook (failed).png                                                                             
+  -  /Users/xplor4r/Downloads/mission-control/client/cypress/screenshots/contacts/imp     (1280x720)
+     ort-export.cy.ts/Export Contacts Dialog -- opens the export dialog -- before eac               
+     h hook (failed).png                                                                            
+
+
+====================================================================================================
+
+  (Run Finished)
+
+
+       Spec                                              Tests  Passing  Failing  Pending  Skipped  
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✖  auth.cy.ts                               00:29        7        5        2        -        - │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✖  contacts/add-contact-form.cy.ts          00:10        7        -        1        -        6 │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✖  contacts/contact-detail.cy.ts            00:10       12        -        1        -       11 │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✖  contacts/contacts-list.cy.ts             00:10       12        -        1        -       11 │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✖  contacts/edit-contact-form.cy.ts         00:10        9        -        1        -        8 │
+  ├────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ✖  contacts/import-export.cy.ts             00:20       10        -        2        -        8 │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ✖  6 of 6 failed (100%)                     01:31       57        5        8        -       44  
+
+ ELIFECYCLE  Command failed with exit code 8.

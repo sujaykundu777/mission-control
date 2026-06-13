@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { User, Bell, Search, Menu, ChevronRight } from "lucide-react";
+import { User, Search, Menu, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import NotificationMenu from "@/components/admin/NotificationMenu";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { useSession } from "next-auth/react";
 import { useSidebarContext } from "./sidebar-context";
 
@@ -27,22 +29,30 @@ export function TopNav() {
       )}
     >
       <div className="flex flex-1 items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="hidden md:flex">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="hidden md:flex"
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
           {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
         <div className="relative hidden items-center md:flex">
           <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
-          <Input type="search" placeholder="Search..." className="w-64 pl-8" />
+          <Input type="search" placeholder="Search..." className="w-64 pl-8" aria-label="Search" />
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="relative">
+        {/* <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive" />
-        </Button>
+        </Button> */}
+        <NotificationMenu />
+        <ThemeSwitcher />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button variant="ghost" size="icon" className="rounded-full" aria-label="User menu">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <User className="h-5 w-5" />
               </div>

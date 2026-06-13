@@ -1,5 +1,6 @@
 describe("Contacts List Page", () => {
   beforeEach(() => {
+    cy.loginAsTestUser();
     cy.visit("/contacts");
     cy.contains("Contacts").should("be.visible");
     cy.wait(500);

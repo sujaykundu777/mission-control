@@ -3,10 +3,10 @@
 import { Moon, Sun, Palette } from "lucide-react";
 import { useLayoutEffect, useState } from "react";
 
-type Theme = "dark" | "dark-red" | "light";
+type Theme = "dark" | "dark-red" | "light" | "dark-green";
 
 const applyTheme = (theme: Theme) => {
-  document.documentElement.classList.remove("dark", "dark-red", "light");
+  document.documentElement.classList.remove("dark", "dark-red", "light", "dark-green");
   if (theme !== "dark") {
     document.documentElement.classList.add(theme);
   }
@@ -28,6 +28,11 @@ const getInitialTheme = (): Theme => {
     document.documentElement.classList.contains("light")
   ) {
     return "light";
+  } else if (
+    typeof window !== "undefined" &&
+    document.documentElement.classList.contains("dark-green")
+  ) {
+    return "dark-green";
   }
   return "dark";
 };
@@ -50,7 +55,7 @@ export function ThemeSwitcher() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 bg-secondary/20 transition-colors hover:bg-secondary/40"
+        className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-secondary/40"
         aria-label="Theme switcher"
       >
         <Palette className="h-5 w-5 text-primary" />
@@ -87,6 +92,16 @@ export function ThemeSwitcher() {
             <Sun className="h-4 w-4" />
             <span>Light</span>
             {currentTheme === "light" && <span className="ml-auto text-primary">✓</span>}
+          </button>
+          <button
+            onClick={() => handleThemeChange("dark-green")}
+            className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary/20 ${
+              currentTheme === "dark-green" ? "bg-primary/10 text-primary" : "text-foreground"
+            }`}
+          >
+            <div className="h-4 w-4 rounded-full bg-blue-400" />
+            <span>Ocean</span>
+            {currentTheme === "dark-green" && <span className="ml-auto text-primary">✓</span>}
           </button>
         </div>
       )}

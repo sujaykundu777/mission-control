@@ -92,7 +92,7 @@ export function Sidebar() {
       </nav>
 
       {/* User & Settings */}
-      <div className="space-y-2 border-t border-sidebar-border p-4">
+      {/* <div className="space-y-2 border-t border-sidebar-border p-4">
         {!isCollapsed && session?.user && (
           <div className="mb-2 px-3 py-2">
             <p className="truncate text-sm font-medium text-sidebar-foreground">
@@ -101,7 +101,7 @@ export function Sidebar() {
             <p className="truncate text-xs text-sidebar-foreground/60">{session.user.email}</p>
           </div>
         )}
-      </div>
+      </div> */}
 
       <div className="border-t border-sidebar-border p-4">
         <SidebarLink
