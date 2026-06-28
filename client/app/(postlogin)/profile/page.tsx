@@ -2,7 +2,9 @@
 
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Mail, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { User, Mail, Calendar, Edit } from "lucide-react";
+import Link from "next/link";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -19,7 +21,15 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-2xl p-6">
-      <h1 className="mb-6 text-2xl font-bold">Profile</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Profile</h1>
+        <Link href="/profile/edit">
+          <Button className="gap-2">
+            <Edit className="h-4 w-4" />
+            Edit Profile
+          </Button>
+        </Link>
+      </div>
 
       <Card>
         <CardHeader>
