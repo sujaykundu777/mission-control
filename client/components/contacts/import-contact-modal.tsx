@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+// import Link from "next/link";
+import { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
-import { ArrowLeft, Download, Upload, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Download, Upload, AlertCircle, CheckCircle2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,17 +21,18 @@ import {
   importContactsFromCSV,
   importContactsFromJSON,
 } from "@/lib/import/import-contacts";
-import { Input } from "../ui/input";
 
 interface ImportContactModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  importType?: "csv" | "json";
   onImportComplete?: (contacts: Contact[]) => void;
 }
 
 export function ImportContactModal({
   open,
   onOpenChange,
+  importType = "csv",
   onImportComplete,
 }: ImportContactModalProps) {
   const [importStep, setImportStep] = useState<"options" | "uploading" | "preview" | "results">(
@@ -41,6 +43,36 @@ export function ImportContactModal({
   const [duplicateCount, setDuplicateCount] = useState(0);
   const [successCount, setSuccessCount] = useState(0);
   const [importedContacts, setImportedContacts] = useState<Contact[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const currentImportType = importType;
+
+  const onCSVDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      setSelectedFile(acceptedFiles[0]);
+    }
+  }, []);
+
+  const onJSONDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      setSelectedFile(acceptedFiles[0]);
+    }
+  }, []);
+
+  const csvDropzone = useDropzone({
+    onDrop: onCSVDrop,
+    accept: {
+      "text/csv": [".csv"],
+    },
+    multiple: false,
+  });
+
+  const jsonDropzone = useDropzone({
+    onDrop: onJSONDrop,
+    accept: {
+      "application/json": [".json"],
+    },
+    multiple: false,
+  });
 
   const handleDownloadTemplate = () => {
     downloadCSVTemplate();
@@ -50,66 +82,97 @@ export function ImportContactModal({
     downloadJSONTemplate();
   };
 
-  const handleCSVUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileUpload = async () => {
+    if (!selectedFile) return;
 
     setIsProcessing(true);
     setImportErrors([]);
+
     try {
-      const text = await file.text();
-      const result = await importContactsFromCSV(text);
+      const text = await selectedFile.text();
 
-      if (result.duplicates > 0) {
-        setDuplicateCount(result.duplicates);
-        setImportErrors(["Failed to import CSV" + "Duplicates email already exists"]);
-        setIsProcessing(false);
-        setImportStep("preview");
-      }
+      if (currentImportType === "csv") {
+        const result = await importContactsFromCSV(text);
 
-      if (result.errors.length > 0) {
-        setImportErrors(result.errors);
-        setIsProcessing(false);
-        setImportStep("preview");
-      }
+        if (result.duplicates > 0) {
+          setDuplicateCount(result.duplicates);
+          setImportErrors(["Failed to import CSV" + "Duplicates email already exists"]);
+          setIsProcessing(false);
+          setImportStep("preview");
+          return;
+        }
 
-      if (result.contacts.length > 0) {
-        setImportedContacts(result.contacts);
-        setDuplicateCount(result.duplicates);
-        setImportStep("preview");
+        if (result.errors.length > 0) {
+          setImportErrors(result.errors);
+          setIsProcessing(false);
+          setImportStep("preview");
+          return;
+        }
+
+        if (result.contacts.length > 0) {
+          setImportedContacts(result.contacts);
+          setDuplicateCount(result.duplicates);
+          setImportStep("preview");
+        }
+      } else {
+        const result = await importContactsFromJSON(text);
+
+        if (result.errors.length > 0) {
+          setImportErrors(result.errors);
+        }
+
+        if (result.contacts.length > 0) {
+          setImportedContacts(result.contacts);
+          setDuplicateCount(result.duplicates);
+          setImportStep("preview");
+        }
       }
     } catch (error) {
       setImportErrors([
-        "Failed to read CSV file:" + (error instanceof Error ? error.message : "Unknown error"),
+        `Failed to read ${currentImportType.toUpperCase()} file: ${error instanceof Error ? error.message : "Unknown error"}`,
       ]);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleJSONUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handlePreview = async () => {
+    if (!selectedFile) return;
 
     setIsProcessing(true);
     setImportErrors([]);
 
     try {
-      const text = await file.text();
-      const result = await importContactsFromJSON(text);
+      const text = await selectedFile.text();
 
-      if (result.errors.length > 0) {
-        setImportErrors(result.errors);
-      }
+      if (currentImportType === "csv") {
+        const result = await importContactsFromCSV(text);
 
-      if (result.contacts.length > 0) {
-        setImportedContacts(result.contacts);
-        setDuplicateCount(result.duplicates);
-        setImportStep("preview");
+        if (result.errors.length > 0) {
+          setImportErrors(result.errors);
+        }
+
+        if (result.contacts.length > 0) {
+          setImportedContacts(result.contacts);
+          setDuplicateCount(result.duplicates);
+          setImportStep("preview");
+        }
+      } else {
+        const result = await importContactsFromJSON(text);
+
+        if (result.errors.length > 0) {
+          setImportErrors(result.errors);
+        }
+
+        if (result.contacts.length > 0) {
+          setImportedContacts(result.contacts);
+          setDuplicateCount(result.duplicates);
+          setImportStep("preview");
+        }
       }
     } catch (error) {
       setImportErrors([
-        "Failed to read JSON file: " + (error instanceof Error ? error.message : "Unknown error"),
+        `Failed to read ${currentImportType.toUpperCase()} file: ${error instanceof Error ? error.message : "Unknown error"}`,
       ]);
     } finally {
       setIsProcessing(false);
@@ -162,6 +225,8 @@ export function ImportContactModal({
     setImportErrors([]);
     setDuplicateCount(0);
     setSuccessCount(0);
+    setSelectedFile(null);
+    setCurrentImportType(importType);
     onOpenChange(false);
   };
 
@@ -172,10 +237,10 @@ export function ImportContactModal({
           <DialogTitle> Import Contacts</DialogTitle>
           <DialogDescription>
             {" "}
-            Import contacts via CSV or JSON
-            {importStep === "options" && "Choose how you want to import your contacts."}
-            {importStep === "preview" && "Review the contacts before importing."}
-            {importStep === "results" && "Import complete! See the results below."}
+            Import contacts via {currentImportType === "csv" ? "CSV" : "JSON"}
+            {importStep === "options" && " - Drag and drop or click to select your file."}
+            {importStep === "preview" && " - Review the contacts before importing."}
+            {importStep === "results" && " - Import complete! See the results below."}
           </DialogDescription>
         </DialogHeader>
 
@@ -187,33 +252,42 @@ export function ImportContactModal({
                 <Button
                   variant="outline"
                   className="h-18 flex w-full items-start gap-4 text-left"
-                  onClick={handleDownloadTemplate}
+                  onClick={
+                    currentImportType === "csv"
+                      ? handleDownloadTemplate
+                      : handleDownloadJSONTemplate
+                  }
                 >
                   <Download className="mt-1 h-6 w-6 text-primary" />
                   <div>
-                    <p className="font-medium">Download CSV Template</p>
+                    <p className="font-medium">
+                      Download {currentImportType === "csv" ? "CSV" : "JSON"} Template
+                    </p>
                     <p className="text-sm text-muted-foreground">
-                      Get a pre-filled CSV template to import your contacts data.
+                      Get a pre-filled template to import your contacts data.
                     </p>
                   </div>
                 </Button>
               </Card>
 
-              <Card className="cursor-pointer border-border bg-card p-6 transition-colors hover:bg-card/80">
-                <Button
-                  variant="outline"
-                  className="h-18 flex w-full items-start gap-4 text-left"
-                  onClick={handleDownloadJSONTemplate}
-                >
-                  <Download className="mt-1 h-6 w-6 text-primary" />
-                  <div>
-                    <h3 className="font-semibold text-foreground">Download JSON Template</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Get a template JSON file to fill in with your contact data
-                    </p>
-                  </div>
-                </Button>
-              </Card>
+              {currentImportType === "csv" && (
+                <Card className="cursor-pointer border-border bg-card p-2 transition-colors hover:bg-card/80">
+                  <a href="/sample-contacts-1000.csv" download="sample-contacts-1000.csv">
+                    <Button
+                      variant="outline"
+                      className="h-18 flex w-full items-start gap-4 text-left"
+                    >
+                      <Download className="mt-1 h-6 w-6 text-primary" />
+                      <div>
+                        <p className="font-medium">Download Sample CSV (1000 Contacts)</p>
+                        <p className="text-sm text-muted-foreground">
+                          Download a sample CSV file with 1000 random contacts for testing
+                        </p>
+                      </div>
+                    </Button>
+                  </a>
+                </Card>
+              )}
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -224,48 +298,74 @@ export function ImportContactModal({
                 </div>
               </div>
 
-              <Card className="cursor-pointer border-border bg-card p-2 transition-colors hover:bg-card/80">
-                <label className="h-18 flex w-full cursor-pointer items-start gap-4">
-                  <Upload className="mt-1 h-6 w-6 text-primary" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground"> Import CSV File</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {" "}
-                      Upload a CSV file with your contact data
+              {currentImportType === "csv" ? (
+                <Card className="border-border bg-card p-6">
+                  <div
+                    {...csvDropzone.getRootProps()}
+                    className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+                      csvDropzone.isDragActive
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <input {...csvDropzone.getInputProps()} />
+                    <Upload className="mx-auto mb-4 h-8 w-8 text-muted-foreground" />
+                    <h3 className="mb-2 font-semibold text-foreground">Upload CSV File</h3>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      Drag and drop your CSV file here, or click to select
                     </p>
-                    <Input
-                      type="file"
-                      accept=".csv"
-                      onChange={handleCSVUpload}
-                      // disabled={isProcessing}
-                      className="mt-4 space-x-2"
-                    />
+                    {selectedFile && (
+                      <p className="text-sm font-medium text-primary">{selectedFile.name}</p>
+                    )}
                   </div>
-                </label>
-              </Card>
+                </Card>
+              ) : (
+                <Card className="border-border bg-card p-6">
+                  <div
+                    {...jsonDropzone.getRootProps()}
+                    className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+                      jsonDropzone.isDragActive
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <input {...jsonDropzone.getInputProps()} />
+                    <Upload className="mx-auto mb-4 h-8 w-8 text-muted-foreground" />
+                    <h3 className="mb-2 font-semibold text-foreground">Upload JSON File</h3>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      Drag and drop your JSON file here, or click to select
+                    </p>
+                    {selectedFile && (
+                      <p className="text-sm font-medium text-primary">{selectedFile.name}</p>
+                    )}
+                  </div>
+                </Card>
+              )}
 
-              <Card className="border-border bg-card p-6">
-                <label className="flex cursor-pointer items-start gap-4">
-                  <Upload className="mt-1 h-6 w-6 text-primary" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">Import JSON File</h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Upload a JSON file with your contact data
-                    </p>
-                    <Input
-                      type="file"
-                      accept=".json"
-                      onChange={handleJSONUpload}
-                      className="mt-4 space-x-2"
-                      // disabled={isProcessing}
-                      // className="hidden"
-                    />
-                    {/* <Button size="sm" variant="outline" className="mt-3 border-border" disabled={isProcessing}>
-                                {isProcessing ? 'Processing...' : 'Choose JSON File'}
-                                </Button> */}
-                  </div>
-                </label>
-              </Card>
+              <div className="flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  className="border-border"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handlePreview}
+                  disabled={!selectedFile || isProcessing}
+                  variant="outline"
+                  className="border-border"
+                >
+                  {isProcessing ? "Processing..." : "Preview"}
+                </Button>
+                <Button
+                  onClick={handleFileUpload}
+                  disabled={!selectedFile || isProcessing}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {isProcessing ? "Processing..." : "Upload"}
+                </Button>
+              </div>
             </div>
           )}
 
