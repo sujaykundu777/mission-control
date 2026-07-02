@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProfilePhotoUpload } from "@/components/profile/profile-photo-upload";
 import { Button } from "@/components/ui/button";
 import { User, Mail, Calendar, Edit } from "lucide-react";
 import Link from "next/link";
@@ -40,9 +41,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <User className="h-8 w-8 text-primary" />
-            </div>
+            <ProfilePhotoUpload name={user?.name} initialImageUrl={user?.image} />
             <div>
               <p className="text-lg font-medium">{user?.name || "No name set"}</p>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
