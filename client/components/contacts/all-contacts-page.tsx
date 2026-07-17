@@ -47,11 +47,17 @@ export function AllContactsPage() {
   useEffect(() => {
     const loadContacts = async () => {
       setIsLoading(true);
-      const allContacts = await storage.getContacts();
-      setContacts(allContacts);
+      // Paint immediately from the local cache, then reconcile with the
+      // server in the background and update once that resolves (or fails).
+      const localContacts = await storage.getContacts();
+      setContacts(localContacts);
+      setIsLoading(false);
+
+      const mergedContacts = await storage.refreshContactsFromServer();
+      setContacts(mergedContacts);
+
       const contactStats = await storage.getContactsStats();
       setStats(contactStats);
-      setIsLoading(false);
     };
     loadContacts();
   }, []);

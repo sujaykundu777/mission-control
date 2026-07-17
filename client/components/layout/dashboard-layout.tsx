@@ -6,6 +6,7 @@ import { TopNav } from "./top-nav";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import { SidebarProvider } from "./sidebar-context";
+import { OnlineStatusProvider } from "@/components/online-status-provider";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,13 +15,15 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SessionProvider>
-      <SidebarProvider>
-        <div className="flex h-screen overflow-hidden bg-background text-foreground">
-          <Sidebar />
-          <DashboardLayoutContent>{children}</DashboardLayoutContent>
-          <Toaster />
-        </div>
-      </SidebarProvider>
+      <OnlineStatusProvider>
+        <SidebarProvider>
+          <div className="flex h-screen overflow-hidden bg-background text-foreground">
+            <Sidebar />
+            <DashboardLayoutContent>{children}</DashboardLayoutContent>
+            <Toaster />
+          </div>
+        </SidebarProvider>
+      </OnlineStatusProvider>
     </SessionProvider>
   );
 }

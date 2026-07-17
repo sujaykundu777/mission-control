@@ -108,8 +108,9 @@ describe("storage", () => {
       const newDomain = createTestDomain({ id: "add-test", name: "new-domain.com" });
       const result = storage.addDomain(newDomain);
 
-      expect(result).toContainEqual(newDomain);
-      expect(storage.getDomains()).toContainEqual(newDomain);
+      // addDomain stamps a syncStatus on the stored domain for offline sync tracking
+      expect(result).toContainEqual(expect.objectContaining({ ...newDomain }));
+      expect(storage.getDomains()).toContainEqual(expect.objectContaining({ ...newDomain }));
     });
 
     it("should append to existing domains", async () => {
@@ -123,7 +124,7 @@ describe("storage", () => {
 
       expect(result).toHaveLength(2);
       expect(result).toContainEqual(existingDomain);
-      expect(result).toContainEqual(newDomain);
+      expect(result).toContainEqual(expect.objectContaining({ ...newDomain }));
     });
   });
 
