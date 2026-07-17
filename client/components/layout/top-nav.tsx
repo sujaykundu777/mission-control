@@ -12,10 +12,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 import NotificationMenu from "@/components/admin/NotificationMenu";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { useSession } from "next-auth/react";
 import { useSidebarContext } from "./sidebar-context";
+import { SyncStatusIndicator } from "./sync-status-indicator";
 
 export function TopNav() {
   const { data: session } = useSession();
@@ -48,6 +50,7 @@ export function TopNav() {
           <Bell className="h-5 w-5" />
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive" />
         </Button> */}
+        <SyncStatusIndicator />
         <NotificationMenu />
         <ThemeSwitcher />
         <DropdownMenu>
@@ -66,11 +69,19 @@ export function TopNav() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/profile">Profile</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/billing">Billing</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings">Settings</Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Logout</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive" asChild>
+              <Link href="/logout">Logout</Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

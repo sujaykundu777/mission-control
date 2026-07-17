@@ -22,7 +22,7 @@ describe("indexeddb", () => {
       const db = await initDB();
       expect(db).toBeDefined();
       expect(db.name).toBe("mission-control-db");
-      expect(db.version).toBe(1);
+      expect(db.version).toBe(3);
     });
 
     it("should create domains and settings object stores", async () => {

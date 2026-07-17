@@ -1,15 +1,29 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, ImportIcon, Download } from "lucide-react";
+import {
+  Search,
+  Plus,
+  ImportIcon,
+  Download,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Client, Contact } from "@/lib/types";
+import { Contact } from "@/lib/types";
 import { storage } from "@/lib/storage";
 import { ContactsTable } from "./contacts-table";
 import { ImportContactModal } from "./import-contact-modal";
 import { ExportContactsDialog } from "./export-contacts-dialog";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 // import { toast } from "sonner"
 // import { useRouter } from "next/navigation";
 
@@ -21,23 +35,42 @@ export function AllContactsPage() {
     "all",
   );
   const [showImportContactModal, setShowImportContactModal] = useState(false);
+  const [importType, setImportType] = useState<"csv" | "json">("csv");
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [contactsView, setContactsView] = useState<"grid" | "list">("list");
   const [stats, setStats] = useState({ totalContacts: 0, activeContacts: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // const router = useRouter();
 
   useEffect(() => {
     const loadContacts = async () => {
       setIsLoading(true);
-      const allContacts = await storage.getContacts();
-      setContacts(allContacts);
+      // Paint immediately from the local cache, then reconcile with the
+      // server in the background and update once that resolves (or fails).
+      const localContacts = await storage.getContacts();
+      setContacts(localContacts);
+      setIsLoading(false);
+
+      const mergedContacts = await storage.refreshContactsFromServer();
+      setContacts(mergedContacts);
+
       const contactStats = await storage.getContactsStats();
       setStats(contactStats);
-      setIsLoading(false);
     };
     loadContacts();
   }, []);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (status: "all" | "active" | "inactive" | "archived") => {
+    setStatusFilter(status);
+    setCurrentPage(1);
+  };
 
   const filteredContacts = useMemo(() => {
     let filtered = contacts;
@@ -55,6 +88,13 @@ export function AllContactsPage() {
     }
     return filtered;
   }, [contacts, searchTerm, statusFilter]);
+
+  const totalPages = Math.ceil(filteredContacts.length / itemsPerPage);
+  const paginatedContacts = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredContacts.slice(startIndex, endIndex);
+  }, [filteredContacts, currentPage, itemsPerPage]);
 
   if (isLoading) {
     return (
@@ -92,13 +132,33 @@ export function AllContactsPage() {
             </Button>
           </Link>
 
-          <Button
-            onClick={() => setShowImportContactModal(true)}
-            className="border-1 hover:bg-gray/90 mx-2 border-gray-200 bg-gray-800"
-          >
-            <ImportIcon className="mr-2 h-4 w-4" />
-            Import via CSV
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="border-1 hover:bg-gray/90 mx-2 border-gray-200 bg-gray-800">
+                <ImportIcon className="mr-2 h-4 w-4" />
+                Import
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  setImportType("csv");
+                  setShowImportContactModal(true);
+                }}
+              >
+                Import via CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setImportType("json");
+                  setShowImportContactModal(true);
+                }}
+              >
+                Import via JSON
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       {/* Filters */}
@@ -109,7 +169,7 @@ export function AllContactsPage() {
             <Input
               placeholder="Search contacts by name, email or company..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="border-border bg-card pl-10"
             />
           </div>
@@ -119,7 +179,7 @@ export function AllContactsPage() {
               <Button
                 key={status}
                 variant={statusFilter === status ? "default" : "outline"}
-                onClick={() => setStatusFilter(status)}
+                onClick={() => handleStatusChange(status)}
                 className={
                   statusFilter === status
                     ? "bg-primary hover:bg-primary/90"
@@ -253,11 +313,76 @@ export function AllContactsPage() {
           )}
         </div>
       ) : (
-        <ContactsTable
-          contacts={filteredContacts}
-          onContactsChange={async () => setContacts(await storage.getContacts())}
-          alignment={contactsView}
-        />
+        <>
+          <ContactsTable
+            contacts={paginatedContacts}
+            onContactsChange={async () => setContacts(await storage.getContacts())}
+            alignment={contactsView}
+          />
+
+          {/* Pagination Controls */}
+          <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Items per page:</span>
+                <div className="flex gap-2">
+                  {[10, 20, 50, 100].map((num) => (
+                    <Button
+                      key={num}
+                      variant={itemsPerPage === num ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setItemsPerPage(num);
+                        setCurrentPage(1);
+                      }}
+                      className={
+                        itemsPerPage === num
+                          ? "bg-primary hover:bg-primary/90"
+                          : "border-border hover:bg-card"
+                      }
+                    >
+                      {num}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredContacts.length)}{" "}
+                  - {Math.min(currentPage * itemsPerPage, filteredContacts.length)} of{" "}
+                  {filteredContacts.length}
+                </span>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="border-border hover:bg-card disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="border-border hover:bg-card disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Export Dialog */}
@@ -271,6 +396,7 @@ export function AllContactsPage() {
       <ImportContactModal
         open={showImportContactModal}
         onOpenChange={setShowImportContactModal}
+        importType={importType}
         onImportComplete={(contacts) => {
           setShowImportContactModal(false);
           if (contacts.length > 0) {
