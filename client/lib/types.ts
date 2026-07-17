@@ -29,6 +29,16 @@ export interface Contact {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  syncStatus?: "synced" | "pending" | "syncing" | "failed";
+}
+
+export interface SyncQueueItem {
+  id: string;
+  contactId: string;
+  operation: "create" | "update" | "delete";
+  data: any;
+  timestamp: string;
+  retryCount: number;
 }
 
 export interface Client {
@@ -98,6 +108,16 @@ export interface Domain {
   contactId?: string;
   notes?: string;
   currency?: "USD" | "EUR" | "INR";
+  syncStatus?: "synced" | "pending" | "syncing" | "failed";
+}
+
+export interface DomainSyncQueueItem {
+  id: string;
+  domainId: string;
+  operation: "create" | "update" | "delete";
+  data: any;
+  timestamp: string;
+  retryCount: number;
 }
 
 export interface ImportCSVResult {

@@ -1,7 +1,115 @@
-import { Domain, Client, Contact } from "./types";
-import { saveToDB, getAllFromDB, getFromDB, deleteFromDB, DB_STORES } from "./indexeddb";
+import { Domain, Contact, SyncQueueItem, DomainSyncQueueItem } from "./types";
+import {
+  saveToDB,
+  getAllFromDB,
+  getFromDB,
+  deleteFromDB,
+  DB_STORES,
+  addToSyncQueue,
+  clearSyncQueueForContact,
+  getSyncQueue,
+  addToDomainSyncQueue,
+  clearDomainSyncQueueForDomain,
+  getDomainSyncQueue,
+} from "./indexeddb";
+import {
+  createContactApi,
+  updateContactApi,
+  deleteContactApi,
+  fetchAllContactsApi,
+} from "./api/contacts-client";
+import {
+  createDomainApi,
+  updateDomainApi,
+  deleteDomainApi,
+  fetchAllDomainsApi,
+} from "./api/domains-client";
+import { registerBackgroundSync } from "./background-sync";
 import { TEST_DOMAINS } from "@/data/test-domains";
-import { TEST_CLIENT, TEST_CONTACT } from "@/data/test-client";
+import { TEST_CONTACT } from "@/data/test-client";
+
+const isOnline = (): boolean => typeof navigator !== "undefined" && navigator.onLine;
+
+// Pushes a queue entry and, where supported, registers Background Sync so
+// the service worker can drain it even if this tab isn't around when
+// connectivity returns. See lib/background-sync.ts for the caveats.
+async function queueSync(item: Omit<SyncQueueItem, "id">): Promise<void> {
+  await addToSyncQueue({ id: `sync-${Date.now()}`, ...item });
+  registerBackgroundSync("sync-contacts");
+}
+
+async function queueDomainSync(item: Omit<DomainSyncQueueItem, "id">): Promise<void> {
+  await addToDomainSyncQueue({ id: `domain-sync-${Date.now()}`, ...item });
+  registerBackgroundSync("sync-domains");
+}
+
+// Same shape as mergeContacts (below) - last-write-wins by `updatedAt`,
+// local unsynced edits win, contacts with a pending delete aren't resurrected.
+function mergeDomains(local: Domain[], server: Domain[], pendingDeleteIds: Set<string>): Domain[] {
+  const byId = new Map(local.map((d) => [d.id, d]));
+
+  for (const serverDomain of server) {
+    if (pendingDeleteIds.has(serverDomain.id)) continue;
+
+    const localDomain = byId.get(serverDomain.id);
+    if (!localDomain) {
+      byId.set(serverDomain.id, { ...serverDomain, syncStatus: "synced" });
+      continue;
+    }
+
+    // Domain has no updatedAt in the client type, so dirtiness is the only
+    // signal available - the server only overwrites a fully-synced record.
+    const localIsDirty =
+      localDomain.syncStatus === "pending" ||
+      localDomain.syncStatus === "syncing" ||
+      localDomain.syncStatus === "failed";
+
+    if (!localIsDirty) {
+      byId.set(serverDomain.id, { ...serverDomain, syncStatus: "synced" });
+    }
+  }
+
+  return Array.from(byId.values());
+}
+
+// Merge the server's contact list into the local one, last-write-wins by
+// `updatedAt`. Local records with unsynced changes (pending/syncing/failed)
+// are never overwritten by a same-or-older server record, and any contact
+// still awaiting a queued delete is skipped so it isn't resurrected.
+// Known limitation: there's no tombstone for deletes that already synced
+// elsewhere, so a contact removed from another device won't disappear here
+// until this device also deletes it.
+function mergeContacts(
+  local: Contact[],
+  server: Contact[],
+  pendingDeleteIds: Set<string>,
+): Contact[] {
+  const byId = new Map(local.map((c) => [c.id, c]));
+
+  for (const serverContact of server) {
+    if (pendingDeleteIds.has(serverContact.id)) continue;
+
+    const localContact = byId.get(serverContact.id);
+    if (!localContact) {
+      byId.set(serverContact.id, { ...serverContact, syncStatus: "synced" });
+      continue;
+    }
+
+    const localIsDirty =
+      localContact.syncStatus === "pending" ||
+      localContact.syncStatus === "syncing" ||
+      localContact.syncStatus === "failed";
+    const localIsNewer =
+      new Date(localContact.updatedAt).getTime() > new Date(serverContact.updatedAt).getTime();
+
+    if (!localIsDirty && !localIsNewer) {
+      byId.set(serverContact.id, { ...serverContact, syncStatus: "synced" });
+    }
+    // otherwise keep the local version - it's newer or has unsynced edits
+  }
+
+  return Array.from(byId.values());
+}
 
 const INITIALIZED_KEY = "initialized";
 
@@ -80,6 +188,31 @@ export const storage = {
     return contactsCache || [];
   },
 
+  // Reads local contacts and, if online, reconciles them against the server
+  // list (see mergeContacts above) and persists the merged result. Call this
+  // from read paths that want fresh data (page load, reconnect) - it's
+  // deliberately separate from getContacts() so the mutation methods above,
+  // which call getContacts() internally, don't trigger a network round trip
+  // on every optimistic write.
+  refreshContactsFromServer: async (): Promise<Contact[]> => {
+    const localContacts = await storage.getContacts();
+    if (!isOnline()) return localContacts;
+
+    try {
+      const [serverContacts, queue] = await Promise.all([fetchAllContactsApi(), getSyncQueue()]);
+      const pendingDeleteIds = new Set(
+        queue.filter((item) => item.operation === "delete").map((item) => item.contactId),
+      );
+
+      const merged = mergeContacts(localContacts, serverContacts, pendingDeleteIds);
+      storage.saveContacts(merged);
+      return merged;
+    } catch (error) {
+      console.error("Failed to refresh contacts from server, using local cache:", error);
+      return localContacts;
+    }
+  },
+
   // saveClients: (clients: Client[]) : void => {
   //   if (typeof window === 'undefined') return
 
@@ -106,10 +239,53 @@ export const storage = {
   },
 
   addContact: async (contact: Contact): Promise<Contact[]> => {
+    const online = isOnline();
+    const localContact: Contact = { ...contact, syncStatus: online ? "syncing" : "pending" };
+
+    // 1. Optimistic local write - the UI sees this immediately either way.
     const contacts = await storage.getContacts();
-    contacts.push(contact);
+    contacts.push(localContact);
     storage.saveContacts(contacts);
-    return contacts;
+
+    if (!online) {
+      await queueSync({
+        contactId: localContact.id,
+        operation: "create",
+        data: localContact,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      });
+      return contacts;
+    }
+
+    // 2. Try the network. On failure, queue it instead of losing the write.
+    // Note: the server assigns its own `id` (Prisma cuid), so the temp local
+    // id used above is swapped out here. Any caller holding on to the temp id
+    // (e.g. routing to /contacts/[id] right after create) should re-fetch by
+    // contactId or listen for the reconciled record instead of assuming the
+    // temp id remains valid - that reconciliation UX is a known follow-up.
+    try {
+      const serverContact = await createContactApi(localContact);
+      const reconciled = (await storage.getContacts())
+        .filter((c) => c.id !== localContact.id)
+        .concat({ ...serverContact, syncStatus: "synced" });
+      storage.saveContacts(reconciled);
+      return reconciled;
+    } catch (error) {
+      console.error("Failed to create contact on server, queued for retry:", error);
+      await queueSync({
+        contactId: localContact.id,
+        operation: "create",
+        data: localContact,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      });
+      const failed = (await storage.getContacts()).map((c) =>
+        c.id === localContact.id ? { ...c, syncStatus: "failed" as const } : c,
+      );
+      storage.saveContacts(failed);
+      return failed;
+    }
   },
 
   getDomains: (): Domain[] => {
@@ -125,6 +301,32 @@ export const storage = {
     return domainsCache;
   },
 
+  // Async counterpart to getDomains() that reconciles with the server (see
+  // mergeDomains above). getDomains()/addDomain()/etc. stay synchronous
+  // on purpose - they're called from many components that destructure the
+  // return value immediately - so call this from a page-load effect instead.
+  refreshDomainsFromServer: async (): Promise<Domain[]> => {
+    const localDomains = storage.getDomains();
+    if (!isOnline()) return localDomains;
+
+    try {
+      const [serverDomains, queue] = await Promise.all([
+        fetchAllDomainsApi(),
+        getDomainSyncQueue(),
+      ]);
+      const pendingDeleteIds = new Set(
+        queue.filter((item) => item.operation === "delete").map((item) => item.domainId),
+      );
+
+      const merged = mergeDomains(localDomains, serverDomains, pendingDeleteIds);
+      storage.saveDomains(merged);
+      return merged;
+    } catch (error) {
+      console.error("Failed to refresh domains from server, using local cache:", error);
+      return localDomains;
+    }
+  },
+
   saveDomains: (domains: Domain[]): void => {
     if (typeof window === "undefined") return;
 
@@ -134,29 +336,137 @@ export const storage = {
     );
   },
 
+  // Stays synchronous (existing callers rely on the immediate return value).
+  // The network attempt and queueing happen in the background; anything
+  // that needs the reconciled result (temp id swapped for the server's,
+  // syncStatus updated) should re-read via getDomains() after the fact,
+  // e.g. from refreshDomainsFromServer() on next page load.
   addDomain: (domain: Domain): Domain[] => {
+    const online = isOnline();
+    const localDomain: Domain = { ...domain, syncStatus: online ? "syncing" : "pending" };
+
     const domains = storage.getDomains();
-    domains.push(domain);
+    domains.push(localDomain);
     storage.saveDomains(domains);
+
+    if (!online) {
+      queueDomainSync({
+        domainId: localDomain.id,
+        operation: "create",
+        data: localDomain,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      }).catch((error) => console.error("Failed to queue domain create:", error));
+      return domains;
+    }
+
+    createDomainApi(localDomain)
+      .then((serverDomain) => {
+        const current = storage
+          .getDomains()
+          .filter((d) => d.id !== localDomain.id)
+          .concat({ ...serverDomain, syncStatus: "synced" });
+        storage.saveDomains(current);
+      })
+      .catch((error) => {
+        console.error("Failed to create domain on server, queued for retry:", error);
+        queueDomainSync({
+          domainId: localDomain.id,
+          operation: "create",
+          data: localDomain,
+          timestamp: new Date().toISOString(),
+          retryCount: 0,
+        }).catch((queueError) => console.error("Failed to queue domain create:", queueError));
+        const failed = storage
+          .getDomains()
+          .map((d) => (d.id === localDomain.id ? { ...d, syncStatus: "failed" as const } : d));
+        storage.saveDomains(failed);
+      });
+
     return domains;
   },
 
   updateDomain: (id: string, updates: Partial<Domain>): Domain[] => {
     const domains = storage.getDomains();
     const index = domains.findIndex((d) => d.id === id);
-    if (index !== -1) {
-      domains[index] = { ...domains[index], ...updates };
-      storage.saveDomains(domains);
+    if (index === -1) return domains;
+
+    const online = isOnline();
+    const updatedLocal: Domain = {
+      ...domains[index],
+      ...updates,
+      syncStatus: online ? "syncing" : "pending",
+    };
+    domains[index] = updatedLocal;
+    storage.saveDomains(domains);
+
+    if (!online) {
+      queueDomainSync({
+        domainId: id,
+        operation: "update",
+        data: updatedLocal,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      }).catch((error) => console.error("Failed to queue domain update:", error));
+      return domains;
     }
+
+    updateDomainApi(id, updatedLocal)
+      .then((serverDomain) => {
+        const current = storage
+          .getDomains()
+          .map((d) => (d.id === id ? { ...serverDomain, syncStatus: "synced" as const } : d));
+        storage.saveDomains(current);
+        clearDomainSyncQueueForDomain(id).catch(() => {});
+      })
+      .catch((error) => {
+        console.error("Failed to update domain on server, queued for retry:", error);
+        queueDomainSync({
+          domainId: id,
+          operation: "update",
+          data: updatedLocal,
+          timestamp: new Date().toISOString(),
+          retryCount: 0,
+        }).catch((queueError) => console.error("Failed to queue domain update:", queueError));
+        const failed = storage
+          .getDomains()
+          .map((d) => (d.id === id ? { ...d, syncStatus: "failed" as const } : d));
+        storage.saveDomains(failed);
+      });
+
     return domains;
   },
 
   deleteDomain: (id: string): Domain[] => {
+    const online = isOnline();
     const domains = storage.getDomains().filter((d) => d.id !== id);
     storage.saveDomains(domains);
     deleteFromDB(DB_STORES.DOMAINS, id).catch((error) =>
       console.error("Failed to delete domain from IndexedDB:", error),
     );
+
+    if (!online) {
+      queueDomainSync({
+        domainId: id,
+        operation: "delete",
+        data: null,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      }).catch((error) => console.error("Failed to queue domain delete:", error));
+    } else {
+      deleteDomainApi(id)
+        .then(() => clearDomainSyncQueueForDomain(id))
+        .catch((error) => {
+          console.error("Failed to delete domain on server, queued for retry:", error);
+          queueDomainSync({
+            domainId: id,
+            operation: "delete",
+            data: null,
+            timestamp: new Date().toISOString(),
+            retryCount: 0,
+          }).catch((queueError) => console.error("Failed to queue domain delete:", queueError));
+        });
+    }
     return domains;
   },
 
@@ -230,15 +540,52 @@ export const storage = {
   updateContact: async (id: string, updates: Partial<Contact>): Promise<Contact[]> => {
     const contacts = await storage.getContacts();
     const index = contacts.findIndex((c) => c.id === id);
-    if (index !== -1) {
-      contacts[index] = {
-        ...contacts[index],
-        ...updates,
-        updatedAt: new Date().toISOString(),
-      };
-      storage.saveContacts(contacts);
+    if (index === -1) return contacts;
+
+    const online = isOnline();
+    const updatedLocal: Contact = {
+      ...contacts[index],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+      syncStatus: online ? "syncing" : "pending",
+    };
+    contacts[index] = updatedLocal;
+    storage.saveContacts(contacts);
+
+    if (!online) {
+      await queueSync({
+        contactId: id,
+        operation: "update",
+        data: updatedLocal,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      });
+      return contacts;
     }
-    return contacts;
+
+    try {
+      const serverContact = await updateContactApi(id, updatedLocal);
+      const synced = contacts.map((c) =>
+        c.id === id ? { ...serverContact, syncStatus: "synced" as const } : c,
+      );
+      storage.saveContacts(synced);
+      await clearSyncQueueForContact(id);
+      return synced;
+    } catch (error) {
+      console.error("Failed to update contact on server, queued for retry:", error);
+      await queueSync({
+        contactId: id,
+        operation: "update",
+        data: updatedLocal,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      });
+      const failed = contacts.map((c) =>
+        c.id === id ? { ...c, syncStatus: "failed" as const } : c,
+      );
+      storage.saveContacts(failed);
+      return failed;
+    }
   },
 
   // deleteClient: async (id: string): Promise<Client[]> => {
@@ -257,6 +604,7 @@ export const storage = {
   // },
 
   deleteContact: async (id: string): Promise<Contact[]> => {
+    const online = isOnline();
     const contacts = (await storage.getContacts()).filter((c) => c.id !== id);
     contactsCache = contacts;
     storage.saveContacts(contacts);
@@ -270,6 +618,32 @@ export const storage = {
       d.contactId === id ? { ...d, contactId: undefined } : d,
     ); // need to use contact id
     storage.saveDomains(updatedDomains);
+
+    if (!online) {
+      await queueSync({
+        contactId: id,
+        operation: "delete",
+        data: null,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      });
+      return contacts;
+    }
+
+    try {
+      await deleteContactApi(id);
+      await clearSyncQueueForContact(id);
+    } catch (error) {
+      console.error("Failed to delete contact on server, queued for retry:", error);
+      await queueSync({
+        contactId: id,
+        operation: "delete",
+        data: null,
+        timestamp: new Date().toISOString(),
+        retryCount: 0,
+      });
+    }
+
     return contacts;
   },
 

@@ -17,6 +17,7 @@ import NotificationMenu from "@/components/admin/NotificationMenu";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { useSession } from "next-auth/react";
 import { useSidebarContext } from "./sidebar-context";
+import { SyncStatusIndicator } from "./sync-status-indicator";
 
 export function TopNav() {
   const { data: session } = useSession();
@@ -49,6 +50,7 @@ export function TopNav() {
           <Bell className="h-5 w-5" />
           <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive" />
         </Button> */}
+        <SyncStatusIndicator />
         <NotificationMenu />
         <ThemeSwitcher />
         <DropdownMenu>

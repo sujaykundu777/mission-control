@@ -6,6 +6,8 @@ Building a PWA, offline-first app For Freelancers
 Features Roadmap:
 
 - Contacts Manager (in progress)
+- Bookmarks and Password Manager (for tracking which websites you have created accounts and also manage their passwords securely) 
+
 - Drag and drop Pipeline for sales
 - Clients
 - Projects Tracking
@@ -23,9 +25,9 @@ Tech :
 - Background Sync
 - Backend with Supabase REST
 - React Query Orchestration
-- Clerk for Authentication
-- Resend for Emails
-- Docker 
+- BetterAuth (opensource) for Authentication
+- Email orchestration (resend)
+- Docker
 
 Ref:
 https://www.wellally.tech/blog/build-offline-first-pwa-nextjs-indexeddb

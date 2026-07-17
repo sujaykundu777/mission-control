@@ -17,9 +17,14 @@ export function AllDomainsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const allDomains = await Promise.resolve(storage.getDomains());
-      setDomains(allDomains);
+      // Paint from the local cache immediately, then reconcile with the
+      // server in the background once that resolves (or fails offline).
+      const localDomains = storage.getDomains();
+      setDomains(localDomains);
       setIsLoading(false);
+
+      const mergedDomains = await storage.refreshDomainsFromServer();
+      setDomains(mergedDomains);
     };
     load();
   }, []);

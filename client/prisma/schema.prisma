@@ -92,6 +92,34 @@ model Contact {
   summary        String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  domains        Domain[]
 
   @@map("contacts")
+}
+
+model Domain {
+  id              String   @id @default(cuid())
+  name            String
+  registrar       String
+  registrarUrl    String?
+  purchaseDate    String
+  expirationDate  String
+  renewalPrice    Float
+  renewalCurrency String   @default("USD")
+  autoRenew       Boolean  @default(false)
+  status          String   @default("active")
+  // Nested collections are stored as JSON rather than their own tables,
+  // matching the precedent set by Contact.customFields - keeps the schema
+  // simple since these are always read/written as a whole with the domain.
+  services        Json     @default("[]")
+  dnsRecords      Json     @default("[]")
+  contactInfo     Json?
+  notes           String?
+  currency        String?
+  contactId       String?
+  contact         Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("domains")
 }
